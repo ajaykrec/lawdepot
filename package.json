@@ -2,16 +2,29 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
-        "dev": "vite"
+        "dev": "vite",
+        "build": "vite build"
     },
     "devDependencies": {
-        "autoprefixer": "^10.4.20",
         "axios": "^1.7.4",
-        "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^1.0",
-        "postcss": "^8.4.47",
-        "tailwindcss": "^3.4.13",
         "vite": "^5.0"
+    },
+    "dependencies": {
+        "@inertiajs/inertia-react": "^0.8.1",
+        "@inertiajs/react": "^1.2.0",
+        "@vitejs/plugin-react": "^4.3.1",
+        "animejs": "^3.2.2",
+        "dayjs": "^1.11.13",
+        "dotenv": "^16.4.5",
+        "html-react-parser": "^5.1.16",
+        "jquery": "^3.7.1",
+        "react": "^18.3.1",
+        "react-bootstrap": "^2.10.5",
+        "react-dom": "^18.3.1",
+        "react-owl-carousel": "^2.3.3",
+        "react-router-dom": "^6.26.2",
+        "sweetalert2": "^11.14.1",
+        "sweetalert2-react-content": "^5.0.7"
     }
 }

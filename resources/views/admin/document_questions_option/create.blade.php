@@ -4,6 +4,7 @@
 
     <div class="pagetitle">
         <h1>{{ $meta['title'] ?? '' }}</h1>
+        {{--
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
@@ -16,6 +17,25 @@
                 <li class="breadcrumb-item"><a href="{{ $url }}">Questions</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('document.options.index',$question_id) }}">Options</a></li>
                 <li class="breadcrumb-item active">Add option</li>
+            </ol>
+        </nav>
+        --}}
+        <nav>
+            <ol class="breadcrumb">
+                @php 
+                $i = 0;                   
+                @endphp
+                @foreach($breadcrumb as $val)
+                    @php                     
+                    $i++;
+                    @endphp
+
+                    @if( count($breadcrumb) > $i)
+                    <li class="breadcrumb-item"><a href="{{ $val['url'] }}">{{ $val['name'] }}</a></li>  
+                    @else 
+                    <li class="breadcrumb-item active">{{ $val['name'] }}</li>  
+                    @endif
+                @endforeach            
             </ol>
         </nav>
     </div>

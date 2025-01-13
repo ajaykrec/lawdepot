@@ -23,14 +23,23 @@ class DocumentQuestionOptionController extends Controller
     }
     
     public function index($question_id,Request $request)
-    {       
+    {    
+        
         //=== check permision
         if(!has_permision(['document'])){ return redirect( route('dashboard') ); }
         
         $question = Documents_question::query()->where('question_id',$question_id)->with(['step'])->first()->toArray();  
         $step_id = $question['step_id'] ?? '';   
         $option_id = $question['option_id'] ?? '';   
-        $document_id = $question['document_id'] ?? '';     
+        $document_id = $question['document_id'] ?? '';  
+        
+        $breadcrumb = AllFunction::get_questions_breadcrumb([
+            'step_id'=>'',
+            'question_id'=>$question_id,
+            'option_id'=>'',
+            'text'=>'',
+            'breadcrumb'=>[]]
+        );
 
         //=== url start====
         $URL = DocumentQuestionOptionController::get_url($step_id,$option_id);
@@ -96,7 +105,7 @@ class DocumentQuestionOptionController extends Controller
         $results  = $q->limit($limit)->offset($offset)->get()->toArray(); 
         $paginate = AllFunction::paginate($count, $limit, $page, 3, $pagi_url);       
 
-        $data = compact('meta','results','count','start_count','paginate','document_id','step_id','option_id','url'); 
+        $data = compact('meta','results','count','start_count','paginate','document_id','step_id','option_id','url','breadcrumb'); 
         $data = array_merge($data,$filterArr);         
        
         return view('admin.document_questions_option.index')->with($data);
@@ -111,6 +120,14 @@ class DocumentQuestionOptionController extends Controller
         $step_id = $question['step_id'] ?? '';  
         $option_id = $question['option_id'] ?? '';    
         $document_id = $question['document_id'] ?? '';  
+
+        $breadcrumb = AllFunction::get_questions_breadcrumb([
+            'step_id'=>'',
+            'question_id'=>$question_id,
+            'option_id'=>'',
+            'text'=>'Add Option',
+            'breadcrumb'=>[]]
+        );
         
         //=== url start====
         $URL = DocumentQuestionOptionController::get_url($step_id,$option_id);
@@ -126,7 +143,7 @@ class DocumentQuestionOptionController extends Controller
         $height = $this->height;  
         $table_names = $this->table_names;
 
-        $data = compact('meta','width','height','table_names','step_id','option_id','document_id','question_id','url'); 
+        $data = compact('meta','width','height','table_names','step_id','option_id','document_id','question_id','url','breadcrumb'); 
         return view('admin.document_questions_option.create')->with($data);
     }
 
@@ -228,7 +245,7 @@ class DocumentQuestionOptionController extends Controller
         }        
     }
     
-    public function show($step_id)
+    public function show($id)
     {
         //====
     }
@@ -247,6 +264,15 @@ class DocumentQuestionOptionController extends Controller
         $step_id  = $question['step_id'] ?? '';   
         $option_id  = $question['option_id'] ?? '';   
         $document_id = $question['document_id'] ?? '';  
+
+        $breadcrumb = AllFunction::get_questions_breadcrumb([
+            'step_id'=>$step_id,
+            'question_id'=>$question_id,
+            'option_id'=>$id,
+            'position'=>'edit',
+            'text'=>'Edit option',
+            'breadcrumb'=>[]]
+        );        
         
         //=== url start====
         $URL = DocumentQuestionOptionController::get_url($step_id,$option_id);
@@ -261,7 +287,7 @@ class DocumentQuestionOptionController extends Controller
         $width  = $this->width; 
         $height = $this->height;  
         $table_names = $this->table_names;
-        $data = compact('meta','data','width','height','table_names','document_id','step_id','option_id','question_id','id','url');         
+        $data = compact('meta','data','width','height','table_names','document_id','step_id','option_id','question_id','id','url','breadcrumb');         
         return view('admin.document_questions_option.edit')->with($data);
     }
     

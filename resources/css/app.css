@@ -1,3 +1,111 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+.form-label {
+    margin-bottom: 2px;
+}
+form .error {
+    border: 2px solid #EC5A5A;
+}
+form .error-msg {   
+    color: #EC5A5A;
+    font-size: 16px;
+}
+
+/** main container for stick-footer 72 + 42 **/
+#main{
+    min-height:calc(100vh - 114px); 
+}
+/***/
+.text-muted {
+    color: #c7c9cb !important;
+}
+.vr {
+    display: inline-block;
+    align-self: stretch;
+    width: 1px;
+    height: 2em;
+    background-color: rgb(190 192 193);
+    opacity: .5;
+    margin: 30px 10px;
+    vertical-align: middle;
+}
+header.sticky.sticky-active [data-header-hover=light] .icon > a,
+header.sticky.sticky-active [data-header-hover=light] .icon .dropdown > a {
+    color: var(--dark-gray);
+}
+/***navbar***/
+.navbar .navbar-nav .dropdown.dropdown-with-icon-style02 .dropdown-menu li a {
+    font-size: 15px;
+    line-height: 26px;
+    border-bottom: 1px solid rgba(23, 23, 23, 0.1);
+    padding: 10px 20px;
+}
+/*
+.header-account-icon:hover,
+.navbar-nav li:hover, 
+.navbar-nav li > a:hover{
+    background: #eee;
+    border:1px solid #eee;
+    color: #333 !important;
+}
+*/
+.navbar .navbar-nav .dropdown.dropdown-with-icon-style02 .dropdown-menu {
+    border-radius:0;
+    padding: 0;
+    overflow: hidden;
+    width: 260px;
+}
+.navbar .navbar-nav .dropdown .dropdown-menu {
+    margin: 0;
+    padding: 60px 0 65px;
+    border: 0;
+    top: 100%;
+    background-color:  #eee;
+    box-shadow: 0 45px 45px 0 rgba(0, 0, 0, 0.05);
+    -webkit-animation: hide-animation 0.5s;
+    animation: hide-animation 0.5s;
+    -webkit-border-radius: 0;
+    border-radius: 0;
+}
+.navbar .navbar-nav .dropdown.dropdown-with-icon-style02 .dropdown-menu li a {
+    font-size: 16px;
+    line-height: 26px;
+    border-bottom: 1px solid rgba(23, 23, 23, 0.1);
+    padding: 10px 20px;
+}
+.header-account-icon .header-account .account-item-list {
+    display: none;
+    left: auto;
+    right: 0;
+    box-shadow: 0 0 25px 0 rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+    background-color: var(--white);
+    border: 0;
+    padding: 25px 0;
+    /* min-width: 200px; */
+    margin: 0;
+    position: absolute;
+    z-index: 1;
+    top: 100%;
+}
+.header-account-icon .header-account .account-item-list .account-item {
+    display: inline-block;
+    padding: 0 25px 12px 25px;
+    width: 100%;
+    position: relative;
+    font-size: 17px;
+    font-weight: 400;
+}
+/****/
+@media (min-width: 576px) {
+    .d-sm-none {
+        display:inherit !important;
+    }  
+}
+
+@media (max-width:768px) {   
+    .d-none {
+        display: none !important;
+    }
+}
+#country-menu-01 img{
+    width:25px;
+}

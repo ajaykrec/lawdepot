@@ -225,5 +225,16 @@ class LoginController extends Controller
         Auth::logout();
         return redirect()->route('login');
     }
+
+    public function notfound(){       
+        $meta = [
+            'title'=>'404 page not found',
+            'keywords'=>'',
+            'description'=>'',
+        ];       
+       
+        $data  = compact( 'meta');        
+        return view('errors.404')->with($data);   
+    }
     
 }

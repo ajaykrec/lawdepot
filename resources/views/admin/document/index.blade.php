@@ -109,7 +109,11 @@
                                 @if($results)
                                     @foreach($results as $val)
                                     <tr id="row-{{ $val['document_id'] }}">
-                                        <td><input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['document_id'] }}"></td>
+                                        <td>
+                                            @if( count($val['steps']) < 1)
+                                            <input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['document_id'] }}">
+                                            @endif
+                                        </td>
                                         <td>{{ $start_count }}</td>
                                         <td>
                                         @if($val['image'])  
@@ -137,9 +141,11 @@
 
                                             <a href="{{ route('document.edit',$val['document_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
 
+                                            @if( count($val['steps']) < 1)
                                             <button type="button" class="btn btn-md delete"                                           
                                             onclick="delete_row({{ $val['document_id'] }})"                
                                             title="Delete"><i class="bi bi-trash text-danger"></i></button>
+                                            @endif
 
                                             @endif
                                         </td>

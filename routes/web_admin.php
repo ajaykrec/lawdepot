@@ -29,6 +29,9 @@ use App\Http\Controllers\admin\DocumentStepController;
 use App\Http\Controllers\admin\DocumentQuestionController;
 use App\Http\Controllers\admin\DocumentQuestionOptionController;
 
+use App\Http\Controllers\admin\CustomerController;
+use App\Http\Controllers\admin\CustomerAddressController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -48,7 +51,6 @@ Route::post('/forgot-password', [LoginController::class, 'forgot_password_post']
 Route::get('/reset-password/{token}', [LoginController::class, 'reset_password'])->name('password.reset');
 Route::post('/reset-password', [LoginController::class, 'reset_password_post'])->name('reset.password.post');
 Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
-
 
 //== protected routes
 Route::middleware(['auth'])->group( function(){
@@ -98,8 +100,13 @@ Route::middleware(['auth'])->group( function(){
         'destroy' => 'steps.destroy',
     ]);
     */
+
+    Route::resource('/customers',CustomerController::class)->shallow();
+    Route::resource('/customers.address',CustomerAddressController::class)->shallow(); 
     
     Route::get('/common',[CommonController::class, 'index'])->name('common');
     
 });
+//=== 404 page ====
+Route::any('{catchall}', [LoginController::class,'notfound'])->where('catchall', '.*');
 

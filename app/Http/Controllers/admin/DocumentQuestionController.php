@@ -28,6 +28,14 @@ class DocumentQuestionController extends Controller
         $step_id   = $request['step_id'] ?? '';
         $option_id = $request['option_id'] ?? '';
 
+        $breadcrumb = AllFunction::get_questions_breadcrumb([
+            'step_id'=>$step_id,
+            'question_id'=>'',
+            'option_id'=>$option_id,
+            'text'=>'',
+            'breadcrumb'=>[]]
+        );
+
         if($step_id){
             $row_data = Documents_step::find($step_id)->toArray(); 
             $title = $row_data['name'] ?? '';
@@ -120,7 +128,7 @@ class DocumentQuestionController extends Controller
 
         $answer_types = $this->answer_types;
 
-        $data = compact('meta','results','count','start_count','paginate','document_id','question_id','answer_types','url_1','url_2'); 
+        $data = compact('meta','results','count','start_count','paginate','document_id','question_id','answer_types','url_1','url_2','breadcrumb'); 
         $data = array_merge($data,$filterArr);  
        
         return view('admin.document_questions.index')->with($data);
@@ -133,6 +141,14 @@ class DocumentQuestionController extends Controller
 
         $step_id      = $request['step_id'] ?? '';
         $option_id    = $request['option_id'] ?? '';  
+
+        $breadcrumb = AllFunction::get_questions_breadcrumb([
+            'step_id'=>$step_id,
+            'question_id'=>'',
+            'option_id'=>$option_id,
+            'text'=>'Add question',
+            'breadcrumb'=>[]]
+        );
 
         if($step_id){
             $row_data = Documents_step::find($step_id)->toArray(); 
@@ -161,7 +177,7 @@ class DocumentQuestionController extends Controller
 
         $answer_types = $this->answer_types;
         
-        $data = compact('meta','document_id','step_id','option_id','question_id','answer_types','url_1','url_2'); 
+        $data = compact('meta','document_id','step_id','option_id','question_id','answer_types','url_1','url_2','breadcrumb'); 
         return view('admin.document_questions.create')->with($data);
     }
 
@@ -256,6 +272,14 @@ class DocumentQuestionController extends Controller
         $option_id = $data['option_id'] ?? '';
         $document_id = $data['document_id'] ?? '';
 
+        $breadcrumb = AllFunction::get_questions_breadcrumb([
+            'step_id'=>$step_id,
+            'question_id'=>'',
+            'option_id'=>$option_id,
+            'text'=>'Edit question',
+            'breadcrumb'=>[]]
+        );
+
         if($step_id){
             $row_data = Documents_step::find($step_id)->toArray(); 
             $title = $row_data['name'] ?? '';            
@@ -278,7 +302,7 @@ class DocumentQuestionController extends Controller
         //=== url ends====           
 
         $answer_types = $this->answer_types;
-        $data = compact('meta','data','document_id','step_id','option_id','question_id','answer_types','url');         
+        $data = compact('meta','data','document_id','step_id','option_id','question_id','answer_types','url','breadcrumb');         
         return view('admin.document_questions.edit')->with($data);
     }
     

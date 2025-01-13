@@ -17,6 +17,12 @@ use App\Models\Settings;
 use App\Models\Language;
 use App\Models\Country;
 
+use App\Models\Document_category;
+use App\Models\Document;
+use App\Models\Documents_step;
+use App\Models\Documents_question;
+use App\Models\Documents_question_option;
+
 trait AllFunction {    
 
       static function admin_limit($number=0){
@@ -309,15 +315,44 @@ trait AllFunction {
         }
         return $array;
     }
+    static function get_customer_data(){ 
+        //Cache::pull('customer_data');
+        $customer_id = Session::get('customer_id');
+        if(!$customer_id){
+            Cache::pull('customer_data');
+        }
 
+        if(Cache::has('customer_data')){
+            $data = Cache::get('customer_data');
+        }
+        else{
+            
+            if($customer_id){
+                $q = DB::table('customers');
+                $q = $q->select('customers.*');            
+                $q = $q->where('customers.customer_id',$customer_id); 
+                $q = $q->get()->toArray(); 
+                $row = json_decode(json_encode($q), true);
+                $row = $row[0] ?? [];               
+                $data = AllFunction::replace_null($row);  
+            }
+            else{
+                $data = [];
+            }    
+            //== put data into cache
+            Cache::put('customer_data', $data, now()->addMinutes(60)); 
+        }
+        return $data;
+    }
     static function get_common_data(){ 
-        //Cache::pull('data');
+        Cache::pull('data');
         if(Cache::has('data')){
             $data = Cache::get('data');
         }
         else{
             $settings = AllFunction::get_setting([
-                'logo',
+                'logo',    
+                'header_top_text',          
                 'contact_address',
                 'contact_email',
                 'contact_phone',
@@ -345,7 +380,20 @@ trait AllFunction {
                        
             ]);  
 
-            $data  = compact('settings'); 
+            $country = AllFunction::get_current_country(); 
+            $country_id = $country['country_id'] ?? '';
+            
+            $countries = DB::table('country')->where('country_id','!=',$country_id)->where('status',1)->orderBy("default","desc")->orderBy("name","asc")->get()->toArray(); 
+            $countries = json_decode(json_encode($countries), true); 
+
+            $categories = Document_category::select('category_id','name','slug')
+            ->where('country_id',$country_id)
+            ->where('status',1)
+            ->with(['document'])
+            ->orderBy('sort_order','asc')
+            ->get()->toArray();   
+
+            $data  = compact('settings','country','countries','categories'); 
 
             //== put data into cache
             Cache::put('data', $data, now()->addMinutes(60)); 
@@ -360,6 +408,21 @@ trait AllFunction {
     }
 
     //=== set language ====
+    static function get_current_country(){  
+        if( Session::has('country') ){  
+            $country = Session::get('country');
+        }
+        else{           
+            $country = Country::select('*')->where('default',1)->first()->toArray();              
+            Session::put('country', $country);            
+        }  
+        return $country;
+    }   
+    static function get_current_language(){  
+        $country = AllFunction::get_current_country(); 
+        $language_id = $country['language_id'] ?? '';
+        return $language_id;
+    }   
     static function set_language($language='de'){         
         Session::put('language', $language);
         // note: set language in 'SetLang' custome middleware and call middleware in each router
@@ -382,5 +445,105 @@ trait AllFunction {
         $results = DB::table('country')->where('status',1)->orderBy("default","desc")->orderBy("name","asc")->get()->toArray(); 
         $results = json_decode(json_encode($results), true); 
         return $results;
-    }   
+    }      
+    static function get_questions_breadcrumb($data){ 
+        $breadcrumb  = $data['breadcrumb'] ?? [];
+        $text        = $data['text'] ?? '';   
+        $position    = $data['position'] ?? '';    
+        $option_id   = $data['option_id'] ?? '';
+        $question_id = $data['question_id'] ?? '';   
+        $step_id     = $data['step_id'] ?? '';           
+
+        if($option_id){  
+            
+            $row = Documents_question_option::query()->where('option_id',$option_id)    
+            ->with(['questions'])        
+            ->first()->toArray(); 
+            
+            if($position !='edit'){
+                $breadcrumb[] = [
+                    'name'=>$row['title'],
+                    'url'=>route('questions.index').'?option_id='.$option_id
+                ];     
+            }
+           
+            $breadcrumb = AllFunction::get_questions_breadcrumb([
+                'step_id'=>'',
+                'question_id'=>$row['question_id'] ?? '',
+                'option_id'=>'',
+                'text'=>$text ?? 'Question',
+                'breadcrumb'=> $breadcrumb]
+            );
+
+        }
+        elseif($question_id){
+            
+            $row = Documents_question::query()->where('question_id',$question_id)  
+            ->with(['option'])                  
+            ->first()->toArray(); 
+
+            $step_id = $row['step_id'] ?? '';
+            $option_id = $row['option_id'] ?? '';
+
+            $breadcrumb[] = [
+                'name'=>$row['question'],
+                'url'=>route('document.options.index',$question_id)
+            ];  
+            
+            if($option_id){
+                $breadcrumb = AllFunction::get_questions_breadcrumb([
+                    'step_id'=>'',
+                    'question_id'=>'',
+                    'option_id'=>$option_id,
+                    'text'=>$text ?? 'Options',
+                    'breadcrumb'=> $breadcrumb]
+                );
+            }
+            else{
+                $breadcrumb = AllFunction::get_questions_breadcrumb([
+                    'step_id'=>$step_id,
+                    'question_id'=>'',
+                    'option_id'=>'',
+                    'text'=>$text ?? 'Options',
+                    'breadcrumb'=> $breadcrumb]
+                );
+            }            
+            
+        }
+        else{
+            $row = Documents_step::query()->where('step_id',$step_id)
+            ->with(['document'])
+            ->first()->toArray(); 
+
+            $breadcrumb[] = [
+                'name'=>$row['name'],
+                'url'=>route('questions.index').'?step_id='.$step_id
+            ];
+            $breadcrumb[] = [
+                'name'=>$row['document']['name'],
+                'url'=>route('document.steps.index',$row['document_id'])
+            ];     
+            
+            $breadcrumb[] = [
+                'name'=>'Document',
+                'url'=>route('document.index')
+            ];
+
+            $breadcrumb[] = [
+                'name'=>'Home',
+                'url'=>route('dashboard')
+            ];
+
+            if($text){
+                $breadcrumb[-1] = [
+                    'name'=>$text,
+                    'url'=>''
+                ]; 
+            }            
+        }  
+        krsort($breadcrumb);       
+        //p($breadcrumb);        
+        return $breadcrumb;
+    }  
+    
 }

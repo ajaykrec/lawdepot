@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <meta name="theme-color" content="#000000" />
 <link rel="icon" href="/favicon.ico" type="image/gif" sizes="16x16">
-<title>Semtronics</title>
-<meta name="description" content="" />  
+<title>{{ $meta['title'] ?? '' }}</title>
+<meta name="description" content="{{ $meta['description'] ?? '' }}" />  
 <style>  
 body {
     font-family: "Open Sans", sans-serif;
@@ -100,13 +100,13 @@ hr {
                     <div class="bgimg">
                         <div class="middle">
                         <p style="padding:15px; margin:0px">
-                        <img src="/assets/img/logo.png" style="width:200px;">
+                        <img src="/admin-assets/assets/img/logo.png" style="width:200px;">
                         <hr />
                         <b>404</b> <br />
                         Page not found!!    
                         
                         <p>
-                        <a href="{{ url('/') }}" class="btn btn-large btn-bg">Back to Home</a>  
+                        <a href="{{ route('login') }}" class="btn btn-large btn-bg">Back to Home</a>  
                         </p>
                         </div>
                     </div>

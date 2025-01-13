@@ -17,6 +17,7 @@ $contact_menu       = ['contact'];
 $document_menu      = ['document','document-category'];
 $language_menu      = ['language'];
 $location_menu      = ['country','zones'];
+$customers_menu     = ['customers','customers-address'];
 
 @endphp
 
@@ -133,6 +134,25 @@ $location_menu      = ['country','zones'];
                     </a>
                 </li>              
                           
+            </ul>
+        </li>
+        @endif
+
+        @if(has_permision(['customers']))
+        <li class="nav-item">
+            <a class="nav-link @php if(!in_array($current_path,$customers_menu)){ echo 'collapsed'; } @endphp" data-bs-target="#customers-nav" data-bs-toggle="collapse" href="#">
+                <i class="bi bi-person-lines-fill"></i><span>Customers</span><i class="bi bi-chevron-down ms-auto"></i>
+            </a>
+            <ul id="customers-nav" class="nav-content @php if(!in_array($current_path,$customers_menu)){ echo 'collapse'; } @endphp" data-bs-parent="#sidebar-nav">
+                
+                @if(has_permision(['customers']))    
+                <li>
+                <a href="{{ route('customers.index') }}" @php if( $current_path=='customers' ){ echo 'class="active"'; } @endphp>
+                <i class="bi bi-circle"></i><span>Customers</span>
+                </a>
+                </li>
+                @endif                
+                                          
             </ul>
         </li>
         @endif

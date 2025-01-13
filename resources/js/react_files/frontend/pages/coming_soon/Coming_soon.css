@@ -1,0 +1,15 @@
+.bgimg {
+    position: relative;
+    height: 100%;
+    font-size: 22px;
+}
+
+.middle {
+    padding-top: 15%;
+    text-align: center;
+}
+
+hr {
+    /* margin: auto; */
+    width: 100%;
+}

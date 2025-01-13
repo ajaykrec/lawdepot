@@ -76,7 +76,11 @@
                                 @if($results)
                                     @foreach($results as $val)
                                     <tr id="row-{{ $val['step_id'] }}">
-                                        <td><input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['step_id'] }}"></td>
+                                        <td>
+                                            @if( count($val['questions']) < 1)
+                                            <input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['step_id'] }}">
+                                            @endif
+                                        </td>
                                         <td>{{ $start_count }}</td>
                                         <td>{{ $val['name'] }}</td>  
                                         <td>
@@ -93,9 +97,13 @@
                                             <a href="{{ route('questions.index').'?step_id='.$val['step_id'] }}" class="btn btn-md" title="Questions">Questions ({{ count($val['questions']) }})</a>
 
                                             <a href="{{ route('steps.edit',$val['step_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
-                                            <button type="button" class="btn btn-md delete"                                            
-                                            onclick="delete_row({{ $val['step_id'] }})"                      
-                                            title="Delete"><i class="bi bi-trash text-danger"></i></button>
+
+                                                @if( count($val['questions']) < 1)
+                                                <button type="button" class="btn btn-md delete"                                            
+                                                onclick="delete_row({{ $val['step_id'] }})"                      
+                                                title="Delete"><i class="bi bi-trash text-danger"></i></button>
+                                                @endif
+
                                             @endif
                                         </td>
                                     </tr> 

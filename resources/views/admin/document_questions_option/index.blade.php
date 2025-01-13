@@ -4,6 +4,7 @@
 
     <div class="pagetitle">
         <h1>{{ $meta['title'] ?? '' }}</h1>
+        {{--
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
@@ -15,6 +16,25 @@
                 @endif
                 <li class="breadcrumb-item"><a href="{{ $url }}">Questions</a></li>
                 <li class="breadcrumb-item active">Options</li>
+            </ol>
+        </nav>
+        --}}
+        <nav>
+            <ol class="breadcrumb">
+                @php 
+                $i = 0;                   
+                @endphp
+                @foreach($breadcrumb as $val)
+                    @php                     
+                    $i++;
+                    @endphp
+
+                    @if( count($breadcrumb) > $i)
+                    <li class="breadcrumb-item"><a href="{{ $val['url'] }}">{{ $val['name'] }}</a></li>  
+                    @else 
+                    <li class="breadcrumb-item active">{{ $val['name'] }}</li>  
+                    @endif
+                @endforeach            
             </ol>
         </nav>
     </div>
@@ -90,7 +110,11 @@
                                 @if($results)
                                     @foreach($results as $val)
                                     <tr id="row-{{ $val['option_id'] }}">
-                                        <td><input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['option_id'] }}"></td>
+                                        <td>
+                                            @if( count($val['questions']) < 1)
+                                            <input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['option_id'] }}">
+                                            @endif        
+                                        </td>
                                         <td>{{ $start_count }}</td>
                                         <td>
                                         @if($val['image'])  
@@ -120,9 +144,12 @@
 
                                             <a href="{{ route('options.edit',$val['option_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
                                             
-                                            <button type="button" class="btn btn-md delete"                                            
-                                            onclick="delete_row({{ $val['option_id'] }})"                      
-                                            title="Delete"><i class="bi bi-trash text-danger"></i></button>
+                                                @if( count($val['questions']) < 1)
+                                                <button type="button" class="btn btn-md delete"                                            
+                                                onclick="delete_row({{ $val['option_id'] }})"                      
+                                                title="Delete"><i class="bi bi-trash text-danger"></i></button>
+                                                @endif
+
 
                                             @endif
                                         </td>

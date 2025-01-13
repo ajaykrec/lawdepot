@@ -4,6 +4,7 @@
 
     <div class="pagetitle">
         <h1>{{ $meta['title'] ?? '' }}</h1>
+        {{--
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
@@ -14,6 +15,25 @@
                 <li class="breadcrumb-item"><a href="{{ route('document.options.index',$question_id) }}">Options</a></li>
                 @endif
                 <li class="breadcrumb-item active">Questions</li>
+            </ol>
+        </nav>
+        --}}
+        <nav>
+            <ol class="breadcrumb">
+                @php 
+                $i = 0;                   
+                @endphp
+                @foreach($breadcrumb as $val)
+                    @php                     
+                    $i++;
+                    @endphp
+
+                    @if( count($breadcrumb) > $i)
+                    <li class="breadcrumb-item"><a href="{{ $val['url'] }}">{{ $val['name'] }}</a></li>  
+                    @else 
+                    <li class="breadcrumb-item active">{{ $val['name'] }}</li>  
+                    @endif
+                @endforeach            
             </ol>
         </nav>
     </div>
@@ -105,14 +125,18 @@
                                     <th>Label</th>                                            
                                     <th>Answer Type</th>                       
                                     <th>Display Type</th>  
-                                    <th class="text-end px-5">Action</th>
+                                    <th class="text-end px-5" style="width:18%;">Action</th>
                                 </tr>                                         
                             </thead>                            
                             <tbody>
                                 @if($results)
                                     @foreach($results as $val)
                                     <tr id="row-{{ $val['step_id'] }}">
-                                        <td><input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['question_id'] }}"></td>
+                                        <td>
+                                            @if( count($val['options']) < 1)
+                                            <input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['question_id'] }}">
+                                            @endif
+                                        </td>
                                         <td>{{ $start_count }}</td>
                                         <td>{{ $val['question'] }}</td>                                          
                                         <td>{{ $val['field_name'] }}</td>  
@@ -133,9 +157,12 @@
 
                                             <a href="{{ route('questions.edit',$val['question_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
                                             
-                                            <button type="button" class="btn btn-md delete"                                            
-                                            onclick="delete_row({{ $val['question_id'] }})"                      
-                                            title="Delete"><i class="bi bi-trash text-danger"></i></button>
+                                                @if( count($val['options']) < 1)
+                                                <button type="button" class="btn btn-md delete"                                            
+                                                onclick="delete_row({{ $val['question_id'] }})"                      
+                                                title="Delete"><i class="bi bi-trash text-danger"></i></button>
+                                                @endif
+
                                             @endif
                                         </td>
                                     </tr> 
