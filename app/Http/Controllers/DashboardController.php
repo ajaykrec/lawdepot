@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $q = DB::table('pages');  
         $q = $q->leftJoin('pages_language','pages_language.page_id','=','pages.page_id'); 
         $q = $q->where('pages_language.language_id',$language_id);   
-        $q = $q->where('pages.slug','/'); 
+        $q = $q->where('pages.slug','dashboard'); 
         $page = $q->first(); 
         $page = json_decode(json_encode($page), true); 
        
@@ -27,8 +27,18 @@ class DashboardController extends Controller
             'keywords'=>$page['meta_keyword'] ?? '',
             'description'=>$page['meta_description'] ?? '',
         ];   
+
+        $header_banner = [
+            'title'=>$page['name'],
+            'banner_image'=>$page['banner_image'],
+            'banner_text'=>$page['banner_text'],
+        ];
+        $breadcrumb = [
+            ['name'=>'Home', 'url'=>route('home')],
+            ['name'=>$page['name'], 'url'=>''],
+        ];
         
-        $pageData = compact('page','meta'); 
+        $pageData = compact('page','meta','header_banner','breadcrumb'); 
         return Inertia::render('frontend/pages/dashboard/Dashboard', [            
             'pageData' => $pageData,            
         ]);

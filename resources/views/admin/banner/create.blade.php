@@ -73,6 +73,29 @@
                         </span>                               
                         </div>
                         </div>
+
+                        <div class="my-3">
+                        <label class="form-label">Floating Image ({{ $bcategory['width'] }}X{{ $bcategory['height'] }} Pixel)</label>
+                        <div id="imgdiv-outer"> 
+                        <input class="form-control" type="file" name="floating_image"> 
+                        <span class="err" id="error-floating_image">
+                        @error('floating_image')
+                        {{$message}}
+                        @enderror 
+                        </span>                               
+                        </div>
+                        </div>
+
+
+                        <div class="my-3">
+                        <label class="form-label">Url</label>
+                        <input type="text" class="form-control" name="url" value="{{ old('url') }}"> 
+                        <span class="err" id="error-url">
+                        @error('url')
+                        {{$message}}
+                        @enderror 
+                        </span>                 
+                        </div>                 
                         
                         <div class="my-3">
                         <label class="form-label">Sort Order</label>
@@ -116,17 +139,7 @@
                         {{$message}}
                         @enderror 
                         </span>        
-                        </div> 
-
-                        <div class="mb-3">
-                        <label class="form-label">Url</label>
-                        <input type="text" class="form-control" name="url[{{ $language_id }}]" value="{{ old('url')[$language_id] ?? '' }}">
-                        <span class="err" id="error-url[{{ $language_id }}]">
-                        @error('url['.$language_id.']')
-                        {{$message}}
-                        @enderror 
-                        </span>        
-                        </div>                         
+                        </div>                               
                     
                     </div>
                     @endforeach

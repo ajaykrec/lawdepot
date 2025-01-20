@@ -122,7 +122,8 @@
                                     <th>#</th>
                                     <th>Question</th>                                     
                                     <th>Field Name</th>  
-                                    <th>Label</th>                                            
+                                    <th>Label</th>   
+                                    <th>Group</th>                                                               
                                     <th>Answer Type</th>                       
                                     <th>Display Type</th>  
                                     <th class="text-end px-5" style="width:18%;">Action</th>
@@ -141,6 +142,7 @@
                                         <td>{{ $val['question'] }}</td>                                          
                                         <td>{{ $val['field_name'] }}</td>  
                                         <td>{{ $val['label'] }}</td>  
+                                        <td>{{ $val['label_group'] }}</td>  
                                         <td>{{ $val['answer_type'] }}</td> 
                                         <td>
                                             @if($val['display_type'] == '1')                                                
@@ -170,7 +172,7 @@
                                     @endforeach
                                 @else
                                 <tr>
-                                    <td colspan="8">No record found</td>
+                                    <td colspan="9">No record found</td>
                                 </tr>
                                 @endif
                             </tbody>

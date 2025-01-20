@@ -138,6 +138,16 @@
                         </div>
 
                         <div class="mb-3">
+                        <label class="form-label">Banner Text</label>
+                        <textarea class="form-control" name="banner_text[{{ $language_id }}]" style="height: 100px">{{ old('banner_text')[$language_id] ?? $lang_data[$language_id]['banner_text'] ?? ''  }}</textarea>
+                        <span class="err" id="error-banner_text[{{ $language_id }}]">
+                        @error('banner_text['.$language_id.']')
+                        {{$message}}
+                        @enderror 
+                        </span>        
+                        </div> 
+
+                        <div class="mb-3">
                         <label class="form-label">Content</label>
                         <textarea class="form-control tinymce-editor" name="content[{{ $language_id }}]" style="height: 100px">{{ old('content')[$language_id] ?? $lang_data[$language_id]['content'] ?? ''  }}</textarea>
                         <span class="err" id="error-content[{{ $language_id }}]">

@@ -22,13 +22,18 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware) {
+
+        $middleware->use([
+            \App\Http\Middleware\PreventRequestsDuringMaintenance::class
+        ]);
+
         $middleware->alias([            
             'auth' => \App\Http\Middleware\Authenticate::class,
             'auth.customer' => \App\Http\Middleware\Authenticate_customer::class,
             'lang' => \App\Http\Middleware\SetLang::class,
             'front_view' => \App\Http\Middleware\HandleInertiaRequests::class,
             //'admin_view' => \App\Http\Middleware\HandleInertiaAdminRequests::class,
-            //'sanctum' => \App\Http\Middleware\Sanctum::class,            
+            //'sanctum' => \App\Http\Middleware\Sanctum::class, 
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

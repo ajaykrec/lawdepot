@@ -315,32 +315,10 @@ trait AllFunction {
         }
         return $array;
     }
-    static function get_customer_data(){ 
-        //Cache::pull('customer_data');
-        $customer_id = Session::get('customer_id');
-        if(!$customer_id){
-            Cache::pull('customer_data');
-        }
-
-        if(Cache::has('customer_data')){
-            $data = Cache::get('customer_data');
-        }
-        else{
-            
-            if($customer_id){
-                $q = DB::table('customers');
-                $q = $q->select('customers.*');            
-                $q = $q->where('customers.customer_id',$customer_id); 
-                $q = $q->get()->toArray(); 
-                $row = json_decode(json_encode($q), true);
-                $row = $row[0] ?? [];               
-                $data = AllFunction::replace_null($row);  
-            }
-            else{
-                $data = [];
-            }    
-            //== put data into cache
-            Cache::put('customer_data', $data, now()->addMinutes(60)); 
+    static function get_customer_data(){         
+        $data = '';
+        if(Session::has('customer_data')){           
+            $data = Session::get('customer_data');           
         }
         return $data;
     }
@@ -422,7 +400,16 @@ trait AllFunction {
         $country = AllFunction::get_current_country(); 
         $language_id = $country['language_id'] ?? '';
         return $language_id;
-    }   
+    } 
+    static function set_country($code){ 
+        $country = Country::select('*')->where('code',$code)->where('status',1)->first();   
+        if($country){
+            $country = $country->toArray();   
+            Session::put('country', $country);
+            return true;            
+        } 
+        return false;              
+    }  
     static function set_language($language='de'){         
         Session::put('language', $language);
         // note: set language in 'SetLang' custome middleware and call middleware in each router

@@ -84,7 +84,7 @@
                                         @if($val['banner_image'])  
                                             <img src="{{ url('/storage/uploads/banners/'.$val['banner_image']) }}" class="img-thumb" height="50">  
                                         @else
-                                            <img src="{{ url('/admin_assets/assets/img/no-photos.png') }}" class="img-thumb" height="50">
+                                            <img src="{{ url('/admin-assets/assets/img/no-photos.png') }}" class="img-thumb" height="50">
                                         @endif                                          
                                         </td>   
                                         <td>{{ $val['url'] }}</td>  

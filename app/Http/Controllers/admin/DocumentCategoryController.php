@@ -16,8 +16,8 @@ class DocumentCategoryController extends Controller
         $this->width  = 450;
         $this->height = 450;
 
-        $this->width2  = 1349;
-        $this->height2 = 210;
+        $this->width2  = 1920;
+        $this->height2 = 650; 
     }
     
     public function index(Request $request)

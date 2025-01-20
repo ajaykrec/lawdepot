@@ -35,6 +35,21 @@
                 </div>
 
                 <div class="my-3">
+                <label class="form-label">How many Groups?</label>
+                <select class="form-select" name="group_count"> 
+                <option value="1">1</option>  
+                @for( $i=2; $i<=10; $i++ ) 
+                <option value="{{ $i }}" {{ (old('group_count', $data['group_count'] ?? '')==$i) ? 'selected' : '' }}>{{ $i }}</option> 
+                @endfor
+                </select>
+                <span class="err" id="error-group_count">
+                @error('group_count')
+                {{$message}}
+                @enderror 
+                </span>   
+                </div>
+
+                <div class="my-3">
                 <label class="form-label">Sort order</label>
                 <input type="number" class="form-control" id="sort_order" name="sort_order" value="{{ old('sort_order', $data['sort_order'] ?? '') }}"> 
                 <span class="err" id="error-sort_order">

@@ -11,9 +11,18 @@ class HomeController extends Controller
 {
     use AllFunction; 
 
-    public function index(){   
+    public function index(Request $request){  
         
-        $language_id = AllFunction::get_current_language();       
+        //==== set country ===
+        $loc = $request['loc'] ?? '';  
+        if($loc){            
+            $resp = AllFunction::set_country($loc); 
+            if($resp){
+                return redirect()->route('home');
+            }
+        }
+        //=======
+        $language_id = AllFunction::get_current_language();    
 
         $q = DB::table('pages');  
         $q = $q->leftJoin('pages_language','pages_language.page_id','=','pages.page_id'); 
@@ -35,7 +44,8 @@ class HomeController extends Controller
         $q = $q->where('banners.status','1'); 
         $q = $q->orderBy("banners.sort_order", "asc"); 
         $banners = $q->get()->toArray(); 
-        $banners = json_decode(json_encode($banners), true);          
+        $banners = json_decode(json_encode($banners), true);   
+        $banners = $banners[0] ?? [];
         
         $pageData = compact('page','meta','banners'); 
         return Inertia::render('frontend/pages/home/Home', [            

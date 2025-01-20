@@ -155,12 +155,14 @@ class DocumentQuestionController extends Controller
             $title = $row_data['name'] ?? '';
             $document_id = $row_data['document_id'] ?? '';   
             $question_id = '';   
+            $group_count = $row_data['group_count'] ?? 1;   
         }
         else{
             $row_data = Documents_question_option::find($option_id)->toArray();  
             $title = $row_data['title'] ?? '';
             $document_id = $row_data['document_id'] ?? '';    
-            $question_id = $row_data['question_id'] ?? '';      
+            $question_id = $row_data['question_id'] ?? '';  
+            $group_count = 1;       
         }  
 
         //=== url start====
@@ -177,7 +179,7 @@ class DocumentQuestionController extends Controller
 
         $answer_types = $this->answer_types;
         
-        $data = compact('meta','document_id','step_id','option_id','question_id','answer_types','url_1','url_2','breadcrumb'); 
+        $data = compact('meta','document_id','step_id','option_id','question_id','answer_types','url_1','url_2','breadcrumb','group_count'); 
         return view('admin.document_questions.create')->with($data);
     }
 
@@ -243,7 +245,7 @@ class DocumentQuestionController extends Controller
             $table->answer_type     = $request['answer_type'] ?? '';
             $table->display_type    = $request['display_type'] ?? 0;
             $table->field_name      = $request['field_name'] ?? '';
-            $table->label_group     = $request['label_group'] ?? 0;
+            $table->label_group     = $request['label_group'] ?? 1;
             $table->is_add_another  = $request['is_add_another'] ?? 0;
             $table->sort_order      = $request['sort_order'] ?? 0;
             $table->save();
@@ -282,11 +284,13 @@ class DocumentQuestionController extends Controller
 
         if($step_id){
             $row_data = Documents_step::find($step_id)->toArray(); 
-            $title = $row_data['name'] ?? '';            
+            $title = $row_data['name'] ?? '';   
+            $group_count = $row_data['group_count'] ?? 1;            
         }
         else{
             $row_data = Documents_question_option::find($option_id)->toArray();  
-            $title = $row_data['title'] ?? '';            
+            $title = $row_data['title'] ?? '';   
+            $group_count = 1;                     
         } 
 
         $meta = [
@@ -302,7 +306,7 @@ class DocumentQuestionController extends Controller
         //=== url ends====           
 
         $answer_types = $this->answer_types;
-        $data = compact('meta','data','document_id','step_id','option_id','question_id','answer_types','url','breadcrumb');         
+        $data = compact('meta','data','document_id','step_id','option_id','question_id','answer_types','url','breadcrumb','group_count');         
         return view('admin.document_questions.edit')->with($data);
     }
     
@@ -351,7 +355,7 @@ class DocumentQuestionController extends Controller
             $table->answer_type     = $request['answer_type'] ?? '';
             $table->display_type    = $request['display_type'] ?? 0;
             $table->field_name      = $request['field_name'] ?? '';
-            $table->label_group     = $request['label_group'] ?? 0;
+            $table->label_group     = $request['label_group'] ?? 1;
             $table->is_add_another  = $request['is_add_another'] ?? 0;
             $table->sort_order      = $request['sort_order'] ?? 0;
             $table->save();           

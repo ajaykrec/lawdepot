@@ -24,7 +24,7 @@
                     @if($data['profile_image'])  
                         <img src="{{ url('/storage/uploads/testimonial/'.$data['profile_image']) }}" class="img-thumb" width="100">                     
                     @else
-                        <img src="{{ url('/admin_assets/assets/img/no-photos.png') }}" class="img-thumb" height="100">
+                        <img src="{{ url('/admin-assets/assets/img/no-photos.png') }}" class="img-thumb" height="100">
                     @endif
                     </div> 
 

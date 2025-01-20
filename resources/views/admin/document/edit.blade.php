@@ -28,8 +28,8 @@
                     @if($data['image'])  
                         @php
                             $array = [
-                                'table'=>'document',
-                                'table_id'=>'product_id',
+                                'table'=>'documents',
+                                'table_id'=>'document_id',
                                 'table_id_value'=>$id ?? '',
                                 'table_field'=>'image',
                                 'file_name'=>old('image', $data['image'] ?? ''),

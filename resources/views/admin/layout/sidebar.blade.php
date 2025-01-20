@@ -1,7 +1,6 @@
 @php
 $current_path       = explode('/',Request::getPathInfo()); 
-//$current_path     = $current_path[2] ?? '';
-$current_path       = $current_path[1] ?? '';
+$current_path       = $current_path[2] ?? '';
 $current_path       = explode('?',$current_path); 
 $current_path       = $current_path[0] ?? '';
 //------
@@ -14,7 +13,7 @@ $users_menu    		= ['users','user-types'];
 $faq_menu           = ['faq'];
 $testimonial_menu   = ['testimonial'];
 $contact_menu       = ['contact'];
-$document_menu      = ['document','document-category'];
+$document_menu      = ['document','document-category','questions','options'];
 $language_menu      = ['language'];
 $location_menu      = ['country','zones'];
 $customers_menu     = ['customers','customers-address'];
@@ -123,13 +122,13 @@ $customers_menu     = ['customers','customers-address'];
             </a>
             <ul id="document-nav" class="nav-content @php if(!in_array($current_path,$document_menu)){ echo 'collapse'; } @endphp" data-bs-parent="#sidebar-nav">  
                 
-                <li>
+                <li> 
                     <a href="{{ route('document-category.index') }}" @php if( $current_path=='document-category' ){ echo 'class="active"'; } @endphp>
                         <i class="bi bi-circle"></i><span>Category</span>
                     </a>
                 </li>      
                 <li>
-                    <a href="{{ route('document.index') }}" @php if( $current_path=='document' ){ echo 'class="active"'; } @endphp>
+                    <a href="{{ route('document.index') }}" @php if(in_array($current_path,['document','questions','options'])){ echo 'class="active"'; } @endphp>
                         <i class="bi bi-circle"></i><span>Document</span>
                     </a>
                 </li>              

@@ -15,8 +15,8 @@ class PageController extends Controller
     use AllFunction; 
 
     public function __construct(){
-        $this->width  = 1200;
-        $this->height = 300;
+        $this->width  = 1920;
+        $this->height = 650;
     }
     
     public function index(Request $request)
@@ -199,6 +199,7 @@ class PageController extends Controller
                 $table->page_id             = $page_id;
                 $table->language_id         = $language_id;
                 $table->name                = $request['name'][$language_id] ?? '';
+                $table->banner_text         = $request['banner_text'][$language_id] ?? '';
                 $table->content             = $request['content'][$language_id] ?? '';
                 $table->meta_title          = $request['meta_title'][$language_id] ?? '';
                 $table->meta_keyword        = $request['meta_keyword'][$language_id] ?? '';
@@ -300,6 +301,7 @@ class PageController extends Controller
                 $table->page_id             = $id;
                 $table->language_id         = $language_id;
                 $table->name                = $request['name'][$language_id] ?? '';
+                $table->banner_text         = $request['banner_text'][$language_id] ?? '';
                 $table->content             = $request['content'][$language_id] ?? '';
                 $table->meta_title          = $request['meta_title'][$language_id] ?? '';
                 $table->meta_keyword        = $request['meta_keyword'][$language_id] ?? '';

@@ -141,9 +141,10 @@ class DocumentStepController extends Controller
             // store
             $table = new Documents_step;
             $table->document_id         = $document_id;
-            $table->name                = $request['name'];
-            $table->sort_order          = $request['sort_order'] ?? 0;
-            $table->status              = $request['status'] ?? 1;
+            $table->name                = $request['name'];            
+            $table->group_count         = ($request['group_count'] == '') ? 1 : $request['group_count'];
+            $table->sort_order          = ($request['sort_order'] == '') ? 0 : $request['sort_order']; 
+            $table->status              = ($request['status'] == '') ? 1 : $request['status'];  
             $table->save();
             // redirect
             return redirect( route('document.steps.index',$document_id) )->with('message','Document step created successfully');
@@ -206,9 +207,10 @@ class DocumentStepController extends Controller
             $document_id =  $step_row['document_id'] ?? '';  
 
             $table = Documents_step::find($step_id);            
-            $table->name         = $request['name'];            
-            $table->sort_order   = $request['sort_order'] ?? '';
-            $table->status       = $request['status'] ?? 1;
+            $table->name         = $request['name'];    
+            $table->group_count  = ($request['group_count'] == '') ? 1 : $request['group_count'];
+            $table->sort_order   = ($request['sort_order'] == '') ? 0 : $request['sort_order']; 
+            $table->status       = ($request['status'] == '') ? 1 : $request['status'];  
             $table->save();           
             return redirect( route('document.steps.index',$document_id) )->with('message','Documents step updated successfully');
         }

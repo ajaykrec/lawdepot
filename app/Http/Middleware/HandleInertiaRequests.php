@@ -1,8 +1,9 @@
 <?php
 
 namespace App\Http\Middleware;
-
+use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Inertia\Middleware;
 use App\Traits\AllFunction; 
 
@@ -46,4 +47,5 @@ class HandleInertiaRequests extends Middleware
             'common_data'=>AllFunction::get_common_data(),
         ]);
     }
+    
 }

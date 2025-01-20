@@ -155,12 +155,16 @@
                     <div class="col-md-6 col-12">     
                     <div class="my-3">
                     <label class="form-label">Group</label>
-                    <input type="number" class="form-control" id="label_group" name="label_group" value="{{ old('label_group') }}"> 
+                    <select class="form-select" name="label_group">                     
+                    @for( $i=1; $i<=$group_count; $i++ ) 
+                    <option value="{{ $i }}" {{ (old('label_group')==$i) ? 'selected' : '' }}>{{ $i }}</option> 
+                    @endfor
+                    </select>
                     <span class="err" id="error-label_group">
                     @error('label_group')
                     {{$message}}
                     @enderror 
-                    </span>                 
+                    </span>                      
                     </div>    
                     </div> 
                     

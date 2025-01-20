@@ -67,7 +67,8 @@
                                 <tr class="table-dark">
                                     <th style="width:5%;"><input class="form-check-input checkall" type="checkbox"></th>
                                     <th>#</th>
-                                    <th>Name</th>                                    
+                                    <th>Name</th> 
+                                    <th class="text-center">How many Groups?</th>                                                      
                                     <th>Status</th>                                    
                                     <th class="text-end px-5">Action</th>
                                 </tr>                                         
@@ -83,6 +84,7 @@
                                         </td>
                                         <td>{{ $start_count }}</td>
                                         <td>{{ $val['name'] }}</td>  
+                                        <td class="text-center">{{ $val['group_count'] }}</td>  
                                         <td>
                                             @if($val['status'] == '1')                                                
                                                 <span class="badge rounded-pill bg-success">Active</span>
@@ -111,7 +113,7 @@
                                     @endforeach
                                 @else
                                 <tr>
-                                    <td colspan="5">No record found</td>
+                                    <td colspan="6">No record found</td>
                                 </tr>
                                 @endif
                             </tbody>

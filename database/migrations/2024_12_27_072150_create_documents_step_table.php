@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('documents_step', function (Blueprint $table) {
             $table->id('step_id');
             $table->integer('document_id');           
-            $table->string('name',150)->nullable();            
+            $table->string('name',150)->nullable();    
+            $table->integer('group_count');                    
             $table->integer('sort_order');            
             $table->tinyInteger('status');
             $table->timestamps();

@@ -75,12 +75,12 @@ hr {
                     <div class="bgimg">
                         <div class="middle">
                         <p style="padding:15px; margin:0px">
-                        <img src="/assets/img/logo.png" style="width:200px;">
+                        <img src="/frontend-assets/images/logo.png" style="width:200px;">
                         <hr />
                         We're <b>coming soon!</b> with awesome template to present your future product or service. <br /> 
                         We're working hard to give you the best experience! <br /><br /> 
-                        <b>Email:</b> info@semtronics.co.uk<br /> 
-                        <b>Phone:</b> 441296319470</p>     
+                        <b>Email:</b> info@docmaker.com<br /> 
+                        <b>Phone:</b> 9876543210</p>     
                         </div>
                     </div>
                 </div>

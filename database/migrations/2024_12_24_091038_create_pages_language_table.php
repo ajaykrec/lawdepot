@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('language_id');
             $table->primary(['page_id','language_id']);
             $table->string('name',150); 
+            $table->text('banner_text')->nullable();            
             $table->text('content')->nullable();
             $table->string('meta_title',255);
             $table->text('meta_keyword')->nullable();

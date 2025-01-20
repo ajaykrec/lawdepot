@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, usePage,  Link } from '@inertiajs/react'
+import { Head, useForm, usePage, Link, router } from '@inertiajs/react'
 import Parser, { domToReact } from 'html-react-parser';
 import allFunction from './../../helper/allFunction';
 import $ from "jquery"
@@ -23,7 +23,7 @@ const Header = (props) => {
     const categories = common_data.categories
 
     const country = common_data.country
-    const countries = common_data.countries    
+    const countries = common_data.countries       
     
     useEffect(()=> {
 		//spinner(0)
@@ -38,7 +38,7 @@ const Header = (props) => {
             }
         }     
         return Parser(html, options);
-      }
+    }
 
     var spinner = function () {
         setTimeout(function () {
@@ -60,8 +60,7 @@ const Header = (props) => {
     return (
         <>
         <header className="header-with-topbar">
-            <div className="header-top-bar top-bar-dark cover-background" 
-            style={{backgroundImage:"url('frontend-assets/images/demo-hosting-header-bg.jpg')"}} >
+            <div className="header-top-bar top-bar-dark cover-background" style={{backgroundImage:"url('/frontend-assets/images/demo-hosting-header-bg.jpg')"}} >
                 <div className="container-fluid">
                     <div className="row h-42px align-items-center m-0">
                         <div className="col-md-7 text-center text-md-start">
@@ -86,16 +85,20 @@ const Header = (props) => {
                     </div>
                 </div>
             </div>   
-            <nav className="navbar navbar-expand-lg header-transparent bg-transparent header-reverse" data-header-hover="light">
+            <nav className="navbar navbar-expand-lg navBg header-reverse sticky-header" data-header-hover="light">
                 <div className="container-fluid">
                     <div className="col-auto col-lg-2 me-lg-0 me-auto">
                         <Link className="navbar-brand" href={ route('home') }>
-                        <img src="frontend-assets/images/demo-hosting-logo-white.png" data-at2x="frontend-assets/images/demo-hosting-logo-white@2x.png" alt="" className="default-logo" />
-                        <img src="frontend-assets/images/demo-hosting-logo-black.png" data-at2x="frontend-assets/images/demo-hosting-logo-black@2x.png" alt="" className="alt-logo" />
-                        <img src="frontend-assets/images/demo-hosting-logo-black.png" data-at2x="frontend-assets/images/demo-hosting-logo-black@2x.png" alt="" className="mobile-logo" /> 
+
+                        {/* <img src="/frontend-assets/images/demo-hosting-logo-white.png" data-at2x="/frontend-assets/images/demo-hosting-logo-white@2x.png" alt="" className="default-logo" /> */}
+
+                        <img src="/frontend-assets/images/demo-hosting-logo-black.png" data-at2x="/frontend-assets/images/demo-hosting-logo-black@2x.png" alt="" className="" />
+
+                        {/* <img src="/frontend-assets/images/demo-hosting-logo-black.png" data-at2x="/frontend-assets/images/demo-hosting-logo-black@2x.png" alt="" className="mobile-logo" />  */}
+
                         </Link>
                     </div>
-                    <div className="col-auto menu-order position-static">
+                    <div className="col-auto col-lg-7 menu-order position-static">
                         <button className="navbar-toggler float-start" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-label="Toggle navigation">  
                             <span className="navbar-toggler-line"></span>
                             <span className="navbar-toggler-line"></span>
@@ -115,16 +118,16 @@ const Header = (props) => {
                                             <li key={i} className="nav-item dropdown dropdown-with-icon-style02" id={liid}
                                             onMouseEnter={()=>openMenu(liid,true)} 
                                             onMouseLeave={()=>openMenu(liid,false)}>
-                                                <a href="#" className="nav-link">{val.name}</a>
+                                                <Link href={ route('category.index',val.slug) } className="nav-link">{val.name}</Link>
                                                 <i className="fa-solid fa-angle-down dropdown-toggle" id="navbarDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false"></i>
                                                 <ul className="dropdown-menu" aria-labelledby="navbarDropdownMenuLink"> 
                                                     {
                                                         document.map((val2,j)=>{
                                                             return(
                                                                 <li key={j}>
-                                                                    <a href="demo-business-services-details.html">{ val2.name }
+                                                                    <Link href={ route('doc.index',val2.slug) }>{ val2.name }
                                                                     <i className="feather icon-feather-arrow-right"></i>
-                                                                    </a>
+                                                                    </Link>
                                                                 </li>   
                                                             )
                                                         })
@@ -135,7 +138,7 @@ const Header = (props) => {
                                         }
                                         else{
                                             return (
-                                                <li key={i} className="nav-item"><a href="demo-hosting.html" className="nav-link">{val.name}</a></li>
+                                                <li key={i} className="nav-item"><Link href={ route('category.index',val.slug) } className="nav-link">{val.name}</Link></li>
                                             )
                                         }
                                     })
@@ -183,11 +186,11 @@ const Header = (props) => {
                                                 countries.map((val,i)=>{
                                                     return(
                                                         <li key={i} className="account-item">
-                                                            <a href="#">
+                                                            <Link href={`${route('home')}?loc=${val.code}`}>
                                                                 <span className="icon-country"> 
                                                                 <img src={`${file_storage_url}/uploads/country/${val.image}`} alt="" data-no-retina="" />
                                                                 </span> {val.name}
-                                                            </a>
+                                                            </Link>
                                                         </li>
                                                     )
                                                 })
@@ -198,13 +201,13 @@ const Header = (props) => {
                             }
 
                             {
-                                customer && customer.length > 0 ? 
+                                customer  ? 
                                 <div className="header-account-icon icon alt-font">
                                     <div className="header-account dropdown" id="account-menu-01" 
                                     onMouseEnter={()=>openMenu('account-menu-01',true)}                                 
                                     onMouseLeave={()=>openMenu('account-menu-01',false)}>                                     
                                         <a style={{cursor:"pointer"}} className="fw-500">                                        
-                                            <span className="icon-country"><img src="frontend-assets/images/user.png" alt="" style={{width:"20px"}} /></span>
+                                            <span className="icon-country"><img src="/frontend-assets/images/user.png" alt="" style={{width:"20px"}} /></span>
                                             <br />
                                             <span className="d-none d-sm-inline-block">My account</span>
                                         </a>
@@ -217,7 +220,14 @@ const Header = (props) => {
                                 </div>
                                 :
                                 <div className="header-button ms-30px xxl-ms-10px xs-ms-0">
-                                    <Link href={ route('customer.login') } className="fw-500">                                   
+                                    {/* <Link href={ 
+                                        route('customer.login') 
+                                        } className="fw-500">                                   
+                                        <span className="btn btn-white btn-small btn-rounded btn-box-shadow fw-600 d-sm-inline-block" style={{padding:"2px 5px"}}>
+                                            <span className="btn-double-text">Sign In</span> 
+                                        </span>
+                                    </Link> */}
+                                    <Link href="#" className="fw-500">                                   
                                         <span className="btn btn-white btn-small btn-rounded btn-box-shadow fw-600 d-sm-inline-block" style={{padding:"2px 5px"}}>
                                             <span className="btn-double-text">Sign In</span> 
                                         </span>

@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id('banner_id');
             $table->integer('bannercat_id');
             $table->string('banner_image',200)->nullable();
+            $table->string('floating_image',200)->nullable();            
+            $table->string('url',150)->nullable();
             $table->integer('sort_order');
             $table->enum('status', [0,1]);           
             $table->timestamps();

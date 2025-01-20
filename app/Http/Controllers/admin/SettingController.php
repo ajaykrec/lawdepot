@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use App\Traits\AllFunction;
 use App\Models\Settings;
-
+use Artisan;
 class SettingController extends Controller
 {
     use AllFunction; 
@@ -136,6 +136,7 @@ class SettingController extends Controller
 
             $data = Settings::find($id)->toArray();
             $field_type = isset($data['field_type']) ? $data['field_type'] : '';
+            $key = isset($data['key']) ? $data['key'] : '';
                 
             if($field_type == 'Image'){
                 //=== upload file
@@ -168,9 +169,18 @@ class SettingController extends Controller
             else{
                 $value = $request['value'] ?? '';
             }
+
+            //==== maintenance commant ====
+            if( $key=='under_construction' && $value==1){
+                Artisan::call('down');
+            }
+            elseif( $key=='under_construction' && $value==0){
+                Artisan::call('up');
+            }
+            //=============================
             
             $table = Settings::find($id);
-            $table->value    = $value;          
+            $table->value = $value;          
             $table->save();           
             return redirect( route('settings.index') )->with('message','Setting updated successfully');
         }

@@ -16,23 +16,37 @@ class ContactController extends Controller
 {
     use AllFunction; 
 
-    public function index(){
+    public function index(){       
 
-        $common = AllFunction::get_common_data();
-        $page   = Pages::select('page_id','slug','name','content','meta_title','meta_keyword','meta_description')->where('page_id','5')->first()->toArray();
-        
+        $language_id = AllFunction::get_current_language();    
+
+        $q = DB::table('pages');  
+        $q = $q->leftJoin('pages_language','pages_language.page_id','=','pages.page_id'); 
+        $q = $q->where('pages_language.language_id',$language_id);   
+        $q = $q->where('pages.slug','contact'); 
+        $page = $q->first(); 
+        $page = json_decode(json_encode($page), true); 
+
         $meta = [
             'title'=>$page['meta_title'] ?? '',
             'keywords'=>$page['meta_keyword'] ?? '',
             'description'=>$page['meta_description'] ?? '',
-        ];
-        
-        $pageData = compact('common','page','meta'); 
+        ];   
 
-        return Inertia::render('frontend/contact/Contact', [            
+        $header_banner = [
+            'title'=>$page['name'],
+            'banner_image'=>$page['banner_image'],
+            'banner_text'=>$page['banner_text'],
+        ];
+        $breadcrumb = [
+            ['name'=>'Home', 'url'=>route('home')],
+            ['name'=>$page['name'], 'url'=>''],
+        ];
+
+        $pageData = compact('page','meta','header_banner','breadcrumb'); 
+        return Inertia::render('frontend/pages/contact/Contact', [            
             'pageData' => $pageData,            
-        ]);
-       
+        ]);       
     }
     
     public function post_contact(Request $request){
@@ -62,7 +76,8 @@ class ContactController extends Controller
             $table = new Contacts;
             $table->name            = $request['name'] ?? '';           
             $table->email           = $request['email'] ?? '';
-            $table->phone           = $request['phone'] ?? '';   
+            $table->phone           = $request['phone'] ?? '';  
+            $table->subject         = $request['subject'] ?? '';    
             $table->message         = $request['message'] ?? '';                 
             $table->status          = $request['status'] ?? 0;
             $table->save();
@@ -80,6 +95,7 @@ class ContactController extends Controller
             $body    = str_replace('{name}',$request['name'],$body);
             $body    = str_replace('{email}',$request['email'],$body);
             $body    = str_replace('{phone}',$request['phone'],$body);
+            $body    = str_replace('{subject}',$request['subject'],$body);
             $body    = str_replace('{message}',$request['message'],$body);
             
             AllFunction::mail_with_sendgrid([

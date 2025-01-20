@@ -72,7 +72,7 @@ class BannerController extends Controller
                        $q->where('banners.bannercat_id',$val);
                    }   
                    if($key == 'url'){
-                       $q->where('banners_language.url','like','%'.$val.'%');
+                       $q->where('banners.url','like','%'.$val.'%');
                    }                   
                    if($key == 'status'){
                        $q->where('banners.status',$val);
@@ -136,9 +136,16 @@ class BannerController extends Controller
                 $result = Banners::query()->whereIn('banner_id', $id_array)->get()->toArray();
                 if($result){
                     foreach($result as $val){
+
                         $delArr = array(
                             'file_path'=>'uploads/banners',
                             'file_name'=>$val['banner_image']
+                        );
+                        AllFunction::delete_file($delArr);
+
+                        $delArr = array(
+                            'file_path'=>'uploads/banners',
+                            'file_name'=>$val['floating_image']
                         );
                         AllFunction::delete_file($delArr);
                     }
@@ -188,10 +195,27 @@ class BannerController extends Controller
                 $banner_image = $request['banner_image'] ?? '';
             }
 
+            //=== upload file
+            $file = $request->file('floating_image');
+            if($file){
+                $array = [
+                    'file'=>$file,
+                    'destination_path'=>'uploads/banners',                    
+                    'width'=>$bcategory['width'] ?? '',
+                    'height'=>$bcategory['height'] ?? '',                  
+                ];
+                $floating_image = AllFunction::upload_image($array);
+            }
+            else{
+                $floating_image = $request['floating_image'] ?? '';
+            }
+
             //== store
             $table = new Banners;
             $table->bannercat_id      = $bannercat_id;  
             $table->banner_image      = $banner_image;  
+            $table->floating_image    = $floating_image;  
+            $table->url               = $request['url'] ?? '';             
             $table->sort_order        = $request['sort_order'] ?? 0;                        
             $table->status            = $request['status'] ?? 0;
             $table->save();
@@ -204,10 +228,9 @@ class BannerController extends Controller
                 $table = new Banners_language;
                 $table->banner_id     = $banner_id;
                 $table->language_id   = $language_id;
-                $table->banner_text   = $request['banner_text'][$language_id] ?? '';
-                $table->url           = $request['url'][$language_id] ?? '';                
+                $table->banner_text   = $request['banner_text'][$language_id] ?? '';                
                 $table->save();
-            }              
+            }             
 
             // redirect
             return redirect( route('banner-category.banners.index',$bannercat_id) )->with('message','Banner created successfully');
@@ -305,10 +328,27 @@ class BannerController extends Controller
                  $banner_image = $request['banner_image'] ?? '';
              }
 
+             //=== upload file
+             $file = $request->file('floating_image');
+             if($file){
+                 $array = [
+                     'file'=>$file,
+                     'destination_path'=>'uploads/banners',                     
+                     'width'=>$width ?? '',
+                     'height'=>$height ?? '',                  
+                 ];
+                 $floating_image = AllFunction::upload_image($array);
+             }
+             else{
+                 $floating_image = $request['floating_image'] ?? '';
+             }
+
             
             $table = Banners::find($banner_id);
             $table->bannercat_id      = $bannercat_id;  
             $table->banner_image      = $banner_image;  
+            $table->floating_image    = $floating_image;  
+            $table->url               = $request['url'] ?? '';              
             $table->sort_order        = $request['sort_order'] ?? 0;                        
             $table->status            = $request['status'] ?? 0;
             $table->save();    
@@ -319,8 +359,7 @@ class BannerController extends Controller
                 $table = new Banners_language;
                 $table->banner_id     = $banner_id;
                 $table->language_id   = $language_id;
-                $table->banner_text   = $request['banner_text'][$language_id] ?? '';
-                $table->url           = $request['url'][$language_id] ?? '';                
+                $table->banner_text   = $request['banner_text'][$language_id] ?? '';                
                 $table->save();
             } 
 
@@ -342,6 +381,12 @@ class BannerController extends Controller
            'file_name'=>$tableData['banner_image']
        );
        AllFunction::delete_file($delArr);
+
+       $delArr = array(
+            'file_path'=>'uploads/banners',
+            'file_name'=>$tableData['floating_image']
+        );
+        AllFunction::delete_file($delArr);
        //======
        $table->delete();
        Banners_language::where('banner_id', $banner_id)->delete();

@@ -15,8 +15,7 @@ return new class extends Migration
             $table->integer('banner_id');
             $table->integer('language_id');
             $table->primary(['banner_id','language_id']);            
-            $table->text('banner_text')->nullable();
-            $table->string('url',150)->nullable();
+            $table->text('banner_text')->nullable();            
             $table->timestamps();
         });
     }

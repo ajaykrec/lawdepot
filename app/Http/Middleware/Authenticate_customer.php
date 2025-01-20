@@ -16,8 +16,7 @@ class Authenticate_customer
      */
     public function handle(Request $request, Closure $next): Response
     {     
-       $customer = Auth::guard('customer')->user();   
-       //p($customer->status);          
+       $customer = Auth::guard('customer')->user();  
        if(!$customer){
             return redirect( route('customer.login') );
        }

@@ -1355,6 +1355,11 @@ form span.err{
 }
 /***/
 
+.bgBox{
+  background: #0e1b7c;  
+  padding: 25px;  
+  border-radius: 2%;
+}
 /*!
 * ajay css [ends]
 */

@@ -28,7 +28,7 @@
       <section class="section register min-vh-100 d-flex flex-column align-items-center justify-content-center py-4">
         <div class="container">
           <div class="row justify-content-center">
-            <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
+            <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center bgBox">
 
               <div class="d-flex justify-content-center py-4">
                 <a class="logo d-flex align-items-center w-auto">                  

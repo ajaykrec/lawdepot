@@ -9,9 +9,9 @@ const GuestLayout = ({ children }) =>{
   return (
     <> 
     <Header />   
-    <main id="main" className="main">  
+    <div id="main" className="main page-layout">  
       {children}
-     </main>     
+    </div>     
     <Footer />   
     <SweetAlert />   
     </>

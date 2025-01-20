@@ -63,7 +63,7 @@
 
                         <div class="my-3">
                         <label class="form-label">Image ({{ $bcategory['width'] }}X{{ $bcategory['height'] }} Pixel)</label>
-                        <div id="imgdiv-outer">
+                        <div id="imgdiv-outer-1">
                             @if($data['banner_image'])  
                                 @php
                                     $array = [
@@ -77,7 +77,7 @@
                                     $json_string = json_encode($array);
                                 @endphp
                                 <div class="imgdiv">
-                                <span title="Remove" class="delete_image" data-content="{{ $json_string }}">X</span>
+                                <span title="Remove" class="delete_image" data-id="1" data-content="{{ $json_string }}">X</span>
                                 <img src="{{ url('/storage/uploads/banners/'.$data['banner_image']) }}" class="img-thumb" width="100">                    
                                 </div>      
                                 <input type="hidden" name="banner_image" value="{{ old('banner_image', $data['banner_image'] ?? '') }}">                                 
@@ -90,7 +90,49 @@
                                 </span>               
                             @endif
                         </div>                      
+                        </div>                        
+                        
+                        <div class="my-3">
+                        <label class="form-label">Floating Image ({{ $bcategory['width'] }}X{{ $bcategory['height'] }} Pixel)</label>
+                        <div id="imgdiv-outer-2">
+                            @if($data['floating_image'])  
+                                @php
+                                    $array = [
+                                        'table'=>'banners',
+                                        'table_id'=>'banner_id',
+                                        'table_id_value'=>$banner_id ?? '',
+                                        'table_field'=>'floating_image',
+                                        'file_name'=>old('floating_image', $data['floating_image'] ?? ''),
+                                        'file_path'=>'uploads/banners',
+                                    ];
+                                    $json_string = json_encode($array);
+                                @endphp
+                                <div class="imgdiv">
+                                <span title="Remove" class="delete_image" data-id="2" data-content="{{ $json_string }}">X</span>
+                                <img src="{{ url('/storage/uploads/banners/'.$data['floating_image']) }}" class="img-thumb" width="100">                    
+                                </div>      
+                                <input type="hidden" name="floating_image" value="{{ old('floating_image', $data['floating_image'] ?? '') }}">                                 
+                            @else
+                                <input class="form-control" type="file" name="floating_image"> 
+                                <span class="err" id="error-floating_image">
+                                @error('floating_image')
+                                {{$message}}
+                                @enderror 
+                                </span>               
+                            @endif
+                        </div>                      
                         </div>
+
+
+                        <div class="my-3">
+                        <label class="form-label">Url</label>
+                        <input type="text" class="form-control" name="url" value="{{ old('url', $data['url'] ?? '') }}"> 
+                        <span class="err" id="error-url">
+                        @error('url')
+                        {{$message}}
+                        @enderror 
+                        </span>                 
+                        </div>                         
                         
                         <div class="my-3">
                         <label class="form-label">Sort Order</label>
@@ -137,16 +179,6 @@
                         @enderror 
                         </span>        
                         </div> 
-
-                        <div class="mb-3">
-                        <label class="form-label">Url</label>
-                        <input type="text" class="form-control" name="url[{{ $language_id }}]" value="{{ old('url')[$language_id] ?? $lang_data[$language_id]['url'] ?? '' }}">
-                        <span class="err" id="error-url[{{ $language_id }}]">
-                        @error('url['.$language_id.']')
-                        {{$message}}
-                        @enderror 
-                        </span>        
-                        </div>                         
                     
                     </div>
                     @endforeach
@@ -169,8 +201,9 @@
     <script>
     $('.delete_image').on('click', (e)=>{
 
-        let json_string = e.target.getAttribute('data-content')    
+        let json_string = e.target.getAttribute('data-content')     
         let obj = JSON.parse(json_string)
+        let id = e.target.getAttribute('data-id')
 
         swal({		  
             title				: 'Are you sure?',
@@ -194,7 +227,7 @@
                 url: "{{ route('delete.file') }}",   
                 data: obj, 
                 success: function(response){          
-                    $('#imgdiv-outer').html(response.message)  
+                    $('#imgdiv-outer-'+id).html(response.message)  
                     swal('Deleted!','Your file has been deleted.', 'success' )   
                 }
             });  
