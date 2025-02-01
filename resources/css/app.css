@@ -12,6 +12,11 @@ form .error-msg {
     color: #EC5A5A;
     font-size: 16px;
 }
+/* placeholder */
+input::placeholder,
+textarea::placeholder {
+  color: #c7c7c7 !important;
+}
 /** main container for stick-footer 72 + 42 **/
 #main{
     min-height:calc(100vh - 114px); 
@@ -294,4 +299,76 @@ input[type='checkbox'] {
     margin-left: auto !important;
     margin-right: auto !important;
 }
-
+.horizontal{
+    display: inline-table; 
+}
+.vertical{
+    display: block; 
+}
+#documentForm .label_text{
+    display: block;
+    font-size: 30px;
+    font-weight: bold; 
+    margin-bottom: 25px;    
+}
+#documentForm .question{
+    display: block;
+    font-size: 24px;
+}
+.q-margin{
+    margin-top: 30px;
+}
+#documentForm .radio{
+    position: relative;
+    padding-left: 0px;    
+    margin: 15px 15px 15px 0px;  
+}
+#documentForm .radio:first-child{   
+    margin: 10px !important;   
+}
+#documentForm .radio label{    
+    cursor: pointer;
+    text-align: center;
+    padding: 15px;
+    border: 5px solid #e6e2e2;
+}
+#documentForm .radio label p{
+   font-size: 18px;
+   font-weight: 500;
+   margin-bottom:0;   
+}
+#documentForm .checkbox label{  
+    padding: 0px 5px;
+}
+#documentForm .radio label.checked,
+#documentForm .radio input[type="radio"]:checked+label{   
+    border: 5px solid #1769ff;
+}
+.form-check-input[type=radio] {
+    border-radius: 50% !important;
+    border: 1px solid #444 !important;
+}
+.radio-group-row .form-check .form-check-input {
+    float: inherit;
+    margin-left:inherit;
+}
+.contractPreview{
+    width: 970px;
+    margin: 0 auto;
+    position: relative;
+}
+.contractPreview .contract{
+    border: 1px solid #808285;
+    height: 600px;
+    background: #fff;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0px 0px 0px 1px #808285;   
+    text-align: left;
+    color: #000;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+    overflow-x: hidden;
+}

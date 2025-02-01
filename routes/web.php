@@ -45,6 +45,7 @@ Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
     //=== Documents ==
     Route::get('/group/{slug}', [DocumentCategoryController::class, 'index'])->name('category.index');
     Route::get('/document/{slug}', [DocumentController::class, 'index'])->name('doc.index');   
+    Route::post('/document/{slug}', [DocumentController::class, 'doc_post'])->name('doc.post');   
     Route::get('/document-download/{slug}', [DocumentController::class, 'download'])->name('doc.download');   
 
     //=== membership ==

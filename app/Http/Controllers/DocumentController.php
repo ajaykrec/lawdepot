@@ -12,11 +12,17 @@ use App\Models\Documents_question_option;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia; 
 
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Validator;
+
 class DocumentController extends Controller
 {
     use AllFunction; 
 
     public function index($slug, Request $request){  
+
+        //Session::forget('document_id');  
+        //Session::forget('fields');  
        
         $country = AllFunction::get_current_country();         
         $country_id = $country['country_id'] ?? '';
@@ -51,7 +57,16 @@ class DocumentController extends Controller
         $steps = json_decode(json_encode($steps), true);       
         
         $step_id  = $request['step_id'] ?? $steps[0]['step_id'] ?? '';        
-        $label_group  = $request['group'] ?? 1;        
+        $group  = $request['group'] ?? 1;   
+        
+        $urlArry = AllFunction::get_next_previous_url([
+            'document_id'=>$document_id,  
+            'step_id'=>$step_id,  
+            'group'=>$group,  
+        ]);
+
+        $previous_url = $urlArry['previous_url'] ?? '';
+        $next_url = $urlArry['next_url'] ?? '';
 
         $steps_length = count($steps) + 1;        
         $percent = 100/$steps_length;
@@ -59,59 +74,135 @@ class DocumentController extends Controller
         foreach($steps as $val){
             $count++;
             if($val['step_id']==$step_id){                
-                $percent =  $percent*$count;                
+                $percent = $percent*$count;                
             }
         }   
         
         $questions = [];
         $result = DB::table('documents_question')->select('*')
+        ->where('document_id',$document_id)
         ->where('step_id',$step_id)
-        ->where('label_group',$label_group)
-        ->orderBy('label','asc')->get()->toArray(); 
-        $result = json_decode(json_encode($result), true);
+        ->where('label_group',$group)
+        ->orderBy('label','desc')->get()->toArray(); 
+        $result = json_decode(json_encode($result), true);        
         if($result){
             foreach($result as $val){
-                $val['options'] = DocumentController::get_options([
+                $val['options'] = AllFunction::get_options([
                     'question_id'=>$val['question_id'],  
                 ]);
                 $questions[$val['question_id']] = $val;
             }
-        }        
-        //p($questions);
+        }  
+        $questions = array_values($questions);  
+        //p($questions);      
         
-        $pageData = compact('document','meta','header_banner','breadcrumb','steps','step_id','percent','questions'); 
+        $fields = AllFunction::get_document_fields($questions,'field_name');        
+        if( Session::has('fields') ){ 
+            //$session_fields = (array)json_decode(Session::get('fields'));
+            // $result = [];
+            // foreach($fields as $key=>$val){
+            //     $result[$key] = $session_fields[$key] ?? '';
+            // }
+            // $fields = $result;  
+            
+            // $returnArr = [];
+            // foreach($session_fields as $key=>$val){
+            //     $returnArr[$key] = $fields[$key] ?? $val;
+            // }
+            // $fields = array_merge($returnArr, $fields);  
+            $session_fields = (array)json_decode(Session::get('fields')); 
+            $fields = array_merge($fields, $session_fields); 
+        }   
+        //p((array)json_decode(Session::get('fields'))); 
+
+        $filter_question_value = AllFunction::filter_question_value([
+            'document_id'=>$document_id ?? '',
+            'step_id'=>$step_id ?? '',  
+            'group'=>$group ?? ''  
+        ]);
+        //p($filter_question_value);
+
+        $pageData = compact('document','meta','header_banner','breadcrumb','steps','step_id','group','percent','questions','fields','previous_url','next_url'); 
         return Inertia::render('frontend/pages/document/Document', [            
             'pageData' => $pageData,            
         ]);
+    }   
+    public function doc_post($slug, Request $request){
+
+        $rules = [];
+        $messages = [];
+        $validation = Validator::make( 
+            $request->toArray(), 
+            $rules, 
+            $messages
+        );        
+        if($validation->fails()){   
+            echo json_encode(
+                array(
+                'status'  => 'error',                 
+                'message' => $validation->messages()->toArray(),							
+            ));		
+            exit;
+        }
+        else{           
+            $step_id = $request['step_id'] ?? '';        
+            $group  = $request['group'] ?? ''; 
+            $inputs = $request['fields'] ?? [];  
+            $inputs = (array)json_decode($inputs); 
+            //p($inputs);           
+            
+            $returnfields = [];
+            foreach($inputs as $key=>$val){                 
+                // if( is_array($val) ){
+                //     $returnfields[$key] = $val;
+                // }     
+                // elseif( AllFunction::is_json_data($val) ){
+                //     $returnfields[$key] = (array)json_decode($val);
+                // }   
+                // else{
+                //     $returnfields[$key] = $val;
+                // }      
+                $returnfields[$key] = $val;
+            }
+            $fields = $returnfields;  
+            //p($fields);
+           
+            $step_row = DB::table('documents_step')->select('*')->where('step_id',$step_id)->first(); 
+            $step_row = json_decode(json_encode($step_row), true); 
+            $document_id = $step_row['document_id'] ?? ''; 
+            
+            //== reset session: for different document_id ====
+            if( Session::has('document_id') ){  
+                if($document_id!=Session::get('document_id')){
+                    Session::forget('document_id');  
+                    Session::forget('fields');  
+                }                
+            }
+            //==========
+
+            if( Session::has('fields') ){  
+                $session_fields = (array)json_decode(Session::get('fields')); 
+                $returnArr = [];
+                foreach($session_fields as $key=>$val){
+                    $returnArr[$key] = $fields[$key] ?? $val;
+                }
+                $fields = array_merge($returnArr, $fields);                 
+            }           
+
+            Session::put('document_id', $document_id);          
+            Session::put('fields', json_encode($fields));
+            
+            $urlArry = AllFunction::get_next_previous_url([
+                'document_id'=>$document_id,  
+                'step_id'=>$step_id,  
+                'group'=>$group,  
+            ]);    
+            $previous_url = $urlArry['previous_url'] ?? '';
+            $next_url = $urlArry['next_url'] ?? '';
+            
+            return redirect( $next_url )->with(['success'=>'']);
+        }        
     }
-    public function get_options($data){  
-        $options = [];
-        $question_id = $data['question_id'] ?? ''; 
-
-        $result = DB::table('documents_question_option')->select('*')->where('question_id',$question_id)->orderBy('option_id','asc')->get()->toArray(); 
-        $result = json_decode(json_encode($result), true);
-        foreach($result as $val){
-            $val['questions'] = DocumentController::get_questions([
-                'option_id'=>$val['option_id'],  
-            ]);
-            $options[$val['option_id']] = $val;
-        }
-        return $options;
-    }  
-    public function get_questions($data){  
-        $questions = [];
-        $option_id = $data['option_id'] ?? ''; 
-
-        $result = DB::table('documents_question')->select('*')->where('option_id',$option_id)->orderBy('label_group','asc')->get()->toArray(); 
-        $result = json_decode(json_encode($result), true);
-        foreach($result as $val){
-            $val['options'] = DocumentController::get_options([
-                'question_id'=>$val['question_id'],  
-            ]);
-            $questions[$val['question_id']] = $val;
-        }
-        return $questions;
-    }  
     public function download($slug, Request $request){  
        
         $country = AllFunction::get_current_country();         
@@ -152,6 +243,5 @@ class DocumentController extends Controller
         return Inertia::render('frontend/pages/document/Document_download', [            
             'pageData' => $pageData,            
         ]);
-    }    
-    
+    }   
 }

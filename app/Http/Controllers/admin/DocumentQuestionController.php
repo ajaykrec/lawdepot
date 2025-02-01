@@ -17,7 +17,7 @@ class DocumentQuestionController extends Controller
     use AllFunction; 
 
     public function __construct(){
-        $this->answer_types = ['text','textarea','dropdown','radio','checkbox','date']; 
+        $this->answer_types = ['radio','radio_group','checkbox','dropdown','text','textarea','date']; 
     }
     
     public function index(Request $request)
@@ -121,9 +121,19 @@ class DocumentQuestionController extends Controller
             }
         } 
         $q->with(['options']);
-        $q->orderBy("sort_order", "asc"); 
+        $q->orderBy("question_id", "asc"); 
         $count    = $q->count();     
         $results  = $q->limit($limit)->offset($offset)->get()->toArray(); 
+
+        $return_array = [];
+        foreach($results as $val){
+            $add_another_max = AllFunction::get_add_another_max($val['question_id']);     
+            $val['add_another_max'] = $add_another_max;   
+            $return_array[] = $val;
+        }
+        $results  = $return_array;
+        //p($results);        
+
         $paginate = AllFunction::paginate($count, $limit, $page, 3, $pagi_url);
 
         $answer_types = $this->answer_types;
@@ -140,7 +150,7 @@ class DocumentQuestionController extends Controller
         if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }
 
         $step_id      = $request['step_id'] ?? '';
-        $option_id    = $request['option_id'] ?? '';  
+        $option_id    = $request['option_id'] ?? '';            
 
         $breadcrumb = AllFunction::get_questions_breadcrumb([
             'step_id'=>$step_id,
@@ -165,6 +175,9 @@ class DocumentQuestionController extends Controller
             $group_count = 1;       
         }  
 
+        $show_add_another = AllFunction::show_add_another($step_id); 
+        $add_another_max = AllFunction::get_add_another_max($question_id); 
+
         //=== url start====
         $URL = DocumentQuestionController::get_url($step_id,$option_id);
         $url_1=$URL[0] ?? '';
@@ -179,7 +192,7 @@ class DocumentQuestionController extends Controller
 
         $answer_types = $this->answer_types;
         
-        $data = compact('meta','document_id','step_id','option_id','question_id','answer_types','url_1','url_2','breadcrumb','group_count'); 
+        $data = compact('meta','document_id','step_id','option_id','question_id','answer_types','url_1','url_2','breadcrumb','group_count','show_add_another','add_another_max'); 
         return view('admin.document_questions.create')->with($data);
     }
 
@@ -211,8 +224,7 @@ class DocumentQuestionController extends Controller
         $rules = [
             'question'      => 'required',   
             'answer_type'   => 'required',            
-            'display_type'  => 'required',            
-            'field_name'    => 'required',    
+            'display_type'  => 'required',  
         ];
         $messages = [];
         $validation = Validator::make( 
@@ -232,7 +244,16 @@ class DocumentQuestionController extends Controller
             else{
                 $row_data = Documents_question_option::find($option_id)->toArray();                 
                 $document_id = $row_data['document_id'] ?? ''; 
-            }            
+            }     
+            
+            $answer_type = $request['answer_type'] ?? '';
+            $arrType = ['radio','radio_group'];
+            if( in_array($answer_type, $arrType) ){
+                $display_type = $request['display_type'] ?? 0;
+            }
+            else{
+                $display_type = 0;
+            }
 
             // store
             $table = new Documents_question;
@@ -243,12 +264,22 @@ class DocumentQuestionController extends Controller
             $table->question        = $request['question'] ?? '';
             $table->placeholder     = $request['placeholder'] ?? '';
             $table->answer_type     = $request['answer_type'] ?? '';
-            $table->display_type    = $request['display_type'] ?? 0;
-            $table->field_name      = $request['field_name'] ?? '';
+            $table->display_type    = $display_type;
             $table->label_group     = $request['label_group'] ?? 1;
-            $table->is_add_another  = $request['is_add_another'] ?? 0;
-            $table->sort_order      = $request['sort_order'] ?? 0;
+            $table->blank_space     = $request['blank_space'] ?? 1;
+            $table->is_add_another  = $request['is_add_another'] ?? 0; 
+            $table->add_another_max = $request['add_another_max'] ?? 0;           
+            $table->add_another_text= $request['add_another_text'] ?? '';           
             $table->save();
+
+            $question_id = $table->question_id;
+
+            //=== generate_field_name ===
+            $table = Documents_question::find($question_id);  
+            $table->field_name = AllFunction::generate_field_name($question_id);
+            $table->save();          
+            //========           
+
             // redirect
             return redirect( $url )->with('message','Document question created successfully');
         }        
@@ -273,6 +304,9 @@ class DocumentQuestionController extends Controller
         $step_id = $data['step_id'] ?? '';
         $option_id = $data['option_id'] ?? '';
         $document_id = $data['document_id'] ?? '';
+
+        $show_add_another = AllFunction::show_add_another($step_id); 
+        $add_another_max = AllFunction::get_add_another_max($question_id);         
 
         $breadcrumb = AllFunction::get_questions_breadcrumb([
             'step_id'=>$step_id,
@@ -306,7 +340,7 @@ class DocumentQuestionController extends Controller
         //=== url ends====           
 
         $answer_types = $this->answer_types;
-        $data = compact('meta','data','document_id','step_id','option_id','question_id','answer_types','url','breadcrumb','group_count');         
+        $data = compact('meta','data','document_id','step_id','option_id','question_id','answer_types','url','breadcrumb','group_count','show_add_another','add_another_max');         
         return view('admin.document_questions.edit')->with($data);
     }
     
@@ -318,8 +352,7 @@ class DocumentQuestionController extends Controller
         $rules = [
             'question'      => 'required',   
             'answer_type'   => 'required',            
-            'display_type'  => 'required',            
-            'field_name'    => 'required',  
+            'display_type'  => 'required', 
         ];
         $messages = [];
         $validation = Validator::make( 
@@ -343,7 +376,16 @@ class DocumentQuestionController extends Controller
             //=== url start====
             $URL = DocumentQuestionController::get_url($step_id,$option_id);
             $url= $URL[0] ?? '';        
-            //=== url ends====          
+            //=== url ends====   
+            
+            $answer_type = $request['answer_type'] ?? '';
+            $arrType = ['radio','radio_group'];
+            if( in_array($answer_type, $arrType) ){
+                $display_type = $request['display_type'] ?? 0;
+            }
+            else{
+                $display_type = 0;
+            }
 
             $table = Documents_question::find($question_id);   
             $table->document_id     = $document_id;
@@ -353,11 +395,13 @@ class DocumentQuestionController extends Controller
             $table->question        = $request['question'] ?? '';
             $table->placeholder     = $request['placeholder'] ?? '';
             $table->answer_type     = $request['answer_type'] ?? '';
-            $table->display_type    = $request['display_type'] ?? 0;
-            $table->field_name      = $request['field_name'] ?? '';
+            $table->display_type    = $display_type;
+            $table->field_name      = AllFunction::generate_field_name($question_id);
             $table->label_group     = $request['label_group'] ?? 1;
+            $table->blank_space     = $request['blank_space'] ?? 1;
             $table->is_add_another  = $request['is_add_another'] ?? 0;
-            $table->sort_order      = $request['sort_order'] ?? 0;
+            $table->add_another_max = $request['add_another_max'] ?? 0;           
+            $table->add_another_text= $request['add_another_text'] ?? '';                       
             $table->save();           
             return redirect( $url )->with('message','Documents question updated successfully');
         }

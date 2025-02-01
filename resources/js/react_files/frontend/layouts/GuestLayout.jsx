@@ -6,13 +6,27 @@ import Toasts from './../components/messages/Toasts'
 import SweetAlert from './../components/messages/SweetAlert'
 
 const GuestLayout = ({ children }) =>{
+
+  let ccp             = window.location.pathname;
+	let ccp2     		    = ccp.split('/')
+	let current_path    = (ccp2[1]) ? ccp2[1] : ''  
+
+  const document_menu = ['document','document-download']; 
+  
   return (
     <> 
-    <Header />   
+    {
+       document_menu.includes(current_path) ? '' : <Header />   
+    }
+    
     <div id="main" className="main page-layout">  
       {children}
-    </div>     
-    <Footer />   
+    </div> 
+
+    {
+      document_menu.includes(current_path) ? '' : <Footer />   
+    }    
+    
     <SweetAlert />   
     </>
   )

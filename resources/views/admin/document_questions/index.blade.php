@@ -66,12 +66,6 @@
                                 <input type="text" class="form-control" id="field_name" name="field_name" value="{{ $field_name ?? '' }}" placeholder="Field Name">                                
                                 </div>  
                                 </div>   
-
-                                <div class="col-lg-4 col-md-6 col-12">
-                                <div class="mb-2">
-                                <input type="text" class="form-control" id="label" name="label" value="{{ $label ?? '' }}" placeholder="Label">                                
-                                </div>  
-                                </div>     
                                 
                                 <div class="col-lg-4 col-md-6 col-12">
                                 <div class="mb-2">
@@ -115,14 +109,13 @@
                         <form id="applyForm" name="applyForm" method="post" action="{!! $url_1 !!}" >  
                         @csrf
                         <div class="table-responsive">                          
-                        <table class="table table-hover table-striped">                            
+                        <table class="table table-hover table-striped" style="table-layout: fixed; width: 100%;">                            
                             <thead>                                                         
                                 <tr class="table-dark">
-                                    <th style="width:5%;"><input class="form-check-input checkall" type="checkbox"></th>
-                                    <th>#</th>
+                                    <th style="width:3%;"><input class="form-check-input checkall" type="checkbox"></th>
+                                    <th style="width:3%;">#</th>
                                     <th>Question</th>                                     
-                                    <th>Field Name</th>  
-                                    <th>Label</th>   
+                                    <th>Field Name</th> 
                                     <th>Group</th>                                                               
                                     <th>Answer Type</th>                       
                                     <th>Display Type</th>  
@@ -140,8 +133,17 @@
                                         </td>
                                         <td>{{ $start_count }}</td>
                                         <td>{{ $val['question'] }}</td>                                          
-                                        <td>{{ $val['field_name'] }}</td>  
-                                        <td>{{ $val['label'] }}</td>  
+                                        <td>
+                                            <div class="break-word">                                               
+                                            @if($val['add_another_max'] > 0 )
+                                                @for($i=1; $i<= $val['add_another_max']; $i++)
+                                                  {{ $val['field_name'].'_'.$i }}<br />
+                                                @endfor
+                                            @else
+                                            {{ $val['field_name'] }}
+                                            @endif                                            
+                                            </div>
+                                        </td> 
                                         <td>{{ $val['label_group'] }}</td>  
                                         <td>{{ $val['answer_type'] }}</td> 
                                         <td>
@@ -172,7 +174,7 @@
                                     @endforeach
                                 @else
                                 <tr>
-                                    <td colspan="9">No record found</td>
+                                    <td colspan="8">No record found</td>
                                 </tr>
                                 @endif
                             </tbody>

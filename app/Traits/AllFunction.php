@@ -23,7 +23,14 @@ use App\Models\Documents_step;
 use App\Models\Documents_question;
 use App\Models\Documents_question_option;
 
-trait AllFunction {    
+trait AllFunction {  
+    
+      static function construct_value($index){
+        $inFieldGroup = ['text','textarea','dropdown','date']; 
+
+        $data = compact('inFieldGroup');  
+        return $data[$index] ?? '';
+      }
 
       static function admin_limit($number=0){
         return $number ? $number : 25;
@@ -132,7 +139,13 @@ trait AllFunction {
         }		
        return $pagination;
     }
-
+    static function is_json_data($data){
+        if(!empty($data)){
+            @json_decode($data);
+            return (json_last_error() === JSON_ERROR_NONE);
+        }
+        return false;
+    }
     static function get_setting($keyArray){
         $result = Settings::select('field_type','key','value')->whereIn('key',$keyArray)->get()->toArray();           
         $data   = [];
@@ -532,5 +545,289 @@ trait AllFunction {
         //p($breadcrumb);        
         return $breadcrumb;
     }  
+
+    //==========
+    // documents
+    //==========  
+    static function show_add_another($step_id){         
+        return $step_id ? true : false;
+    }
+    static function get_add_another_max($question_id){ 
+        $return_value = 0;
+        $q_row = Documents_question::find($question_id); 
+        if($q_row){
+            $option_id = $q_row->option_id; 
+            if($q_row->is_add_another == 1){
+                $return_value = ($q_row->add_another_max > 0) ? $q_row->add_another_max : 1;
+            }
+            elseif($option_id > 0){
+                $o_row = Documents_question_option::find($option_id); 
+                $return_value = AllFunction::get_add_another_max($o_row->question_id);
+            }                
+            else{
+                $return_value = 0;
+            }
+        }    
+        else{
+            $return_value = 0;
+        }
+        //p($return_value);
+        return $return_value;
+    }    
+    static function generate_field_name($question_id){ 
+        return 'q'.$question_id;
+    }  
+    static function get_questions($data){  
+        $questions = [];
+        $option_id = $data['option_id'] ?? ''; 
+
+        $result = DB::table('documents_question')->select('*')->where('option_id',$option_id)->orderBy('label_group','asc')->get()->toArray(); 
+        $result = json_decode(json_encode($result), true);
+        foreach($result as $val){
+            $val['options'] = AllFunction::get_options([
+                'question_id'=>$val['question_id'],  
+            ]);
+            $questions[$val['question_id']] = $val;
+        }
+        $questions = array_values($questions);
+        return $questions;
+    }  
+    static function get_options($data){  
+        $options = [];
+        $question_id = $data['question_id'] ?? ''; 
+
+        $result = DB::table('documents_question_option')->select('*')->where('question_id',$question_id)->orderBy('option_id','asc')->get()->toArray(); 
+        $result = json_decode(json_encode($result), true);
+        foreach($result as $val){
+            $is_table_value = $val['is_table_value'] ?? '';
+            if($is_table_value == 1){
+                $table       = $val['value'] ?? '';                
+                $document_id = $val['document_id'] ?? '';
+                $country     = Document::find($document_id)->toArray(); 
+                $country_id  = $country['country_id'] ?? '';
+                $table_result= DB::table($table)->select('zone_id as id','zone_name as title','zone_name as value')->where('country_id',$country_id)->where('status','1')->orderBy('zone_name','asc')->get()->toArray(); 
+                $table_result= json_decode(json_encode($table_result), true);
+                foreach($table_result as $tval){
+                    $options[$tval['id']] = $tval;
+                }   
+            }
+            else{
+                $val['questions'] = AllFunction::get_questions([
+                    'option_id'=>$val['option_id'],  
+                ]);
+                $options[$val['option_id']] = $val;
+            }
+            
+        }
+        $options = array_values($options);
+        return $options;
+    }  
+    static function get_document_fields($array, $key) {
+        $results = [];        
+        if( is_array($array) ){            
+            if ( isset($array[$key]) ) {
+                $results[$array[$key]] = '';
+            }
+            foreach ($array as $subarray) {
+                $results = array_merge($results,
+                AllFunction::get_document_fields($subarray, $key));
+            }
+        }    
+        return $results;
+    }
+    static function get_next_previous_url($data){ 
+        $previous_url = '';
+        $next_url = '';        
+       
+        $document_id = $data['document_id'] ?? ''; 
+        $step_id = $data['step_id'] ?? ''; 
+        $group = $data['group'] ?? 1; 
+        //=======
+
+        $document = DB::table('documents')->select('slug')->where('document_id',$document_id)->first(); 
+        $document = json_decode(json_encode($document), true); 
+        $slug = $document['slug'] ?? ''; 
+        
+        $DOC_URL = route('doc.index',$slug);
+
+        $step_row = DB::table('documents_step')->select('*')->where('step_id',$step_id)->first();
+        $step_row = json_decode(json_encode($step_row), true); 
+        $group_count = $step_row['group_count'] ?? 1;        
+
+        $steps = DB::table('documents_step')->select('*')->where('document_id',$document_id)->where('status',1)->orderBy('sort_order','asc')->get()->toArray(); 
+        $steps = json_decode(json_encode($steps), true);
+
+        $step_index = 0;
+        foreach($steps as $key=>$val){
+            if($val['step_id'] == $step_id){
+                $step_index = $key;
+            }
+        }
+        //$step_index = array_search($step_row,$steps,true);
+
+        if($group_count > $group){
+            $stepArr = $steps[$step_index-1] ?? [];
+            if( $stepArr && $group == 1 ){
+                $previous_url = $DOC_URL.'?step_id='.$stepArr['step_id'].'&group='.$stepArr['group_count'];
+                $next_url     = $DOC_URL.'?step_id='.$step_id.'&group='.( $group + 1 );            
+            }
+            else{
+                $previous_url = $DOC_URL.'?step_id='.$step_id.'&group='.( $group - 1 );
+                $next_url     = $DOC_URL.'?step_id='.$step_id.'&group='.( $group + 1 );            
+            }           
+        }
+        elseif($group_count==$group){
+            
+            $stepArrNxt  = $steps[$step_index+1] ?? [];
+            $stepArrPrev = $steps[$step_index-1] ?? [];
+
+            if($stepArrNxt){
+                
+                if( $step_index > 1 ){    
+                    
+                    if( $group_count > 1){
+                        $previous_url = $DOC_URL.'?step_id='.$step_id.'&group='.( $group_count > 1 ? $group - 1 : 1);
+                    }       
+                    else{
+                        $previous_url = $DOC_URL.'?step_id='.$stepArrPrev['step_id'].'&group='.$stepArrPrev['group_count'];
+                    }                      
+                }
+                else{
+                    $previous_url = $DOC_URL.'?step_id='.$step_id.'&group='.( $group - 1 ); 
+                }                
+                $next_url =$DOC_URL.'?step_id='.$stepArrNxt['step_id'].'&group=1';
+            }
+            else{
+
+                if( $step_index > 1 ){
+                    $previous_url = $DOC_URL.'?step_id='.$stepArrPrev['step_id'].'&group='.$stepArrPrev['group_count'];
+                }
+                else{
+                    $previous_url = $DOC_URL.'?step_id='.$step_id.'&group='.( $group - 1 ); 
+                }       
+                //$previous_url = $DOC_URL.'?step_id='.$step_id.'&group='.( $group - 1);
+                $next_url=route('doc.download',$slug);
+            }            
+        }
+        if($step_index == 0 && $group == 1){
+            $previous_url = '';
+        }
+
+        return [
+            'previous_url'=>$previous_url,
+            'next_url'=>$next_url,
+        ];
+    } 
+
+    static function filter_question_value($data){ 
+
+        $document_id = $data['document_id'] ?? ''; 
+        $step_id = $data['step_id'] ?? ''; 
+        $group = $data['group'] ?? ''; 
+
+        $questions = [];        
+        $q = DB::table('documents_question')->select('*');  
+        if($document_id){
+            $q = $q->where('document_id',$document_id);
+        }
+        if($step_id){
+            $q = $q->where('step_id',$step_id);
+        }
+        if($group){
+            $q = $q->where('label_group',$group);
+        }        
+        $q = $q->orderBy('label','desc')->get()->toArray(); 
+        $result = json_decode(json_encode($q), true);        
+        if($result){
+            foreach($result as $val){
+                $val['options'] = AllFunction::get_options([
+                    'question_id'=>$val['question_id'],  
+                ]);
+                $questions[$val['question_id']] = $val;
+            }
+        }  
+        $questions = array_values($questions); 
+        //p($questions);
+
+        $fields = AllFunction::get_document_fields($questions,'field_name');        
+        if( Session::has('fields') ){ 
+            $session_fields = (array)json_decode(Session::get('fields'));           
+            $result = [];
+            foreach($fields as $key=>$val){
+                $result[$key] = $session_fields[$key] ?? '';
+            }
+            $fields = $result;           
+        }  
+        
+        $inFieldGroup = AllFunction::construct_value('inFieldGroup');        
+        $returnArr = [];        
+        foreach($questions as $key=>$val){
+
+            $answer_type    = $val['answer_type'] ?? ''; 
+            $field_name     = $val['field_name'] ?? ''; 
+            $options        = $val['options'] ?? []; 
+            $row_element    = $fields[$field_name] ?? '';
+
+            $returnArr[$field_name] = '';
+
+            if( in_array($answer_type, $inFieldGroup) ){  
+                $returnArr[$field_name] = AllFunction::get_value($row_element);                
+            }
+            else{
+
+                foreach($options as $key2=>$val2){
+                    $value = $val2['value'] ?? ''; 
+                    $questions_2 = $val2['questions'] ?? [];
+                    
+                    if( $questions_2 ){
+                      $returnArr = AllFunction::loop_questions_value($questions_2, $fields, $returnArr, $field_name);
+                    }
+                    elseif( $row_element == $value ){                       
+                        $returnArr[$field_name] = AllFunction::get_value($row_element);
+                    }
+                }
+            }  
+        
+        }        
+        return $returnArr;
+        
+    
+    }
+    static function loop_questions_value($questions, $fields, $returnArr, $parent_field_name){ 
+
+        $inFieldGroup = AllFunction::construct_value('inFieldGroup'); 
+
+        foreach($questions as $key=>$val){            
+
+            $answer_type    = $val['answer_type'] ?? ''; 
+            $field_name     = $val['field_name'] ?? ''; 
+            $options        = $val['options'] ?? []; 
+            $row_element    = $fields[$field_name] ?? '';
+            $return_field_name = $parent_field_name ? $parent_field_name : $field_name;
+          $returnArr[$field_name] = '';
+            if( in_array($answer_type, $inFieldGroup) ){ 
+                $returnArr[$return_field_name] = AllFunction::get_value($row_element);                
+            }
+            else{
+                
+                foreach($options as $key2=>$val2){
+                    $value = $val2['value'] ?? ''; 
+                    $questions_2 = $val2['questions'] ?? [];
+                    
+                    if( $questions_2 ){
+                        $returnArr = AllFunction::loop_questions_value($questions_2, $fields, $returnArr, $field_name);
+                    }
+                    elseif( $row_element == $value ){ 
+                        $returnArr[$return_field_name] = AllFunction::get_value($row_element);
+                    }
+                }
+            }          
+        }
+        return $returnArr;
+    }    
+    static function get_value($val){ 
+        return $val;
+    }
+   
     
 }

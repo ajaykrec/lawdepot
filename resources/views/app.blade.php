@@ -26,10 +26,11 @@
         ])
         @inertiaHead
     </head>
-    <body>
+    <body>    
     @routes
     @inertia    
     <div id="main-modal"></div>     
+    
     <script type="text/javascript" src="/frontend-assets/js/vendors.min.js"></script>
     <script type="text/javascript" src="/frontend-assets/js/main.js"></script>    
     </body>  

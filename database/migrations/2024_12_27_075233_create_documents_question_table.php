@@ -23,8 +23,10 @@ return new class extends Migration
             $table->tinyInteger('display_type')->comment('0:vertical, 1:horizontal');   
             $table->string('field_name',150)->nullable();   
             $table->integer('label_group');
-            $table->tinyInteger('is_add_another')->comment('0:No, 1:Yes');   
-            $table->integer('sort_order');            
+            $table->integer('blank_space');            
+            $table->tinyInteger('is_add_another')->comment('0:No, 1:Yes');  
+            $table->integer('add_another_max');   
+            $table->string('add_another_text',150)->nullable();          
             $table->timestamps();
         });
     }

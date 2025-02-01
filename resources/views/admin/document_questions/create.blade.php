@@ -68,7 +68,7 @@
                 </span>                 
                 </div>
 
-
+                {{--
                 <div class="my-3">
                 <label class="form-label">Field Name <span class="text-info small">(Template reserve field)</span></label>
                 <input type="text" class="form-control" id="field_name" name="field_name" value="{{ old('field_name') }}"> 
@@ -78,6 +78,7 @@
                 @enderror 
                 </span>                 
                 </div>
+                --}}
 
                 <div class="my-3">
                 <label class="form-label">Placeholder</label>
@@ -89,12 +90,46 @@
                 </span>                 
                 </div>
 
+
+                @php 
+                $is_add_another = old('is_add_another') ?? 0;                
+                if( $is_add_another == 1 ){
+                    $div_2_style = '';                    
+                }
+                else{
+                    $div_2_style = 'style="display:none"';                   
+                }    
+                $addAnotherArr = ['radio','dropdown','text','textarea','date'];            
+                @endphp
+
+                @if($show_add_another)
+                    @include('admin.document_questions.add_another')
+                @endif    
+
+                @php 
+                $answer_type = old('answer_type') ?? '';
+                $arrType = ['radio','radio_group'];
+                if( in_array($answer_type, $arrType) ){
+                    $div_1_style = '';                    
+                }
+                else{
+                    $div_1_style = 'style="display:none"';                   
+                }                
+                @endphp
                 <div class="my-3">
                 <label class="form-label">Answer Type</label>
-                <select class="form-select" name="answer_type"> 
+                <select class="form-select" id="answer_type" name="answer_type" onchange="get_value(this.value)"> 
                 <option value=""></option>   
                 @foreach($answer_types as $val)
-                <option value="{{ $val }}" {{ (old('answer_type')==$val) ? 'selected' : '' }}>{{ $val }}</option>   
+                    
+                    @if($is_add_another == 1 || (!$show_add_another && $add_another_max > 0) )
+                        @if(in_array($val, $addAnotherArr))
+                        <option value="{{ $val }}" {{ ($answer_type==$val) ? 'selected' : '' }}>{{ $val }}</option> 
+                        @endif 
+                    @else
+                    <option value="{{ $val }}" {{ ($answer_type==$val) ? 'selected' : '' }}>{{ $val }}</option>   
+                    @endif
+                
                 @endforeach
                 </select>
                 <span class="err" id="error-answer_type">
@@ -104,50 +139,27 @@
                 </span>      
                 </div>
 
-                <div class="my-3">
-                <label class="form-label">Display Type</label>
-                <div class="col-sm-10">
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="display_type" id="display_type_1" value="0" @php if(old('display_type')==0){ echo 'checked'; } @endphp >
-                      <label class="form-check-label" for="display_type_1">
-                      Vertical
-                      </label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="display_type" id="display_type_2" value="1" @php if(old('display_type')==1){ echo 'checked'; } @endphp>
-                      <label class="form-check-label" for="display_type_2">
-                      Horizontal
-                      </label>
-                    </div>                    
-                </div>                
-                <span class="err" id="error-display_type">
-                @error('display_type')
-                {{$message}}
-                @enderror 
-                </span>      
-                </div>
-
-                <div class="my-3">
-                <label class="form-label">is add another?</label>
-                <div class="col-sm-10">
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="is_add_another" id="is_add_another_1" value="0" @php if(old('is_add_another')==0){ echo 'checked'; } @endphp >
-                      <label class="form-check-label" for="is_add_another_1">
-                      No
-                      </label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="is_add_another" id="is_add_another_2" value="1" @php if(old('is_add_another')==1){ echo 'checked'; } @endphp>
-                      <label class="form-check-label" for="is_add_another_2">
-                      Yes
-                      </label>
-                    </div>                    
-                </div>                
-                <span class="err" id="error-is_add_another">
-                @error('is_add_another')
-                {{$message}}
-                @enderror 
-                </span>      
+                <div class="my-3" id="value_div_1" {!! $div_1_style !!}>
+                    <label class="form-label">Display Type</label>
+                    <div class="col-sm-10">
+                        <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="display_type" id="display_type_1" value="0" @php if(old('display_type')==0){ echo 'checked'; } @endphp >
+                        <label class="form-check-label" for="display_type_1">
+                        Vertical
+                        </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="display_type" id="display_type_2" value="1" @php if(old('display_type')==1){ echo 'checked'; } @endphp>
+                        <label class="form-check-label" for="display_type_2">
+                        Horizontal
+                        </label>
+                        </div>                    
+                    </div>                
+                    <span class="err" id="error-display_type">
+                    @error('display_type')
+                    {{$message}}
+                    @enderror 
+                    </span>      
                 </div>
                
                 <div class="row">
@@ -166,19 +178,25 @@
                     @enderror 
                     </span>                      
                     </div>    
-                    </div> 
+                    </div>   
                     
                     <div class="col-md-6 col-12">     
                     <div class="my-3">
-                    <label class="form-label">Sort order</label>
-                    <input type="number" class="form-control" id="sort_order" name="sort_order" value="{{ old('sort_order') }}"> 
-                    <span class="err" id="error-sort_order">
-                    @error('sort_order')
+                    <label class="form-label">Blank space 
+                    <small class="text-muted small">(if answer is not given)</small>
+                    </label>
+                    <select class="form-select" name="blank_space">                     
+                    @for( $i=1; $i<=100; $i++ ) 
+                    <option value="{{ $i }}" {{ (old('blank_space')==$i) ? 'selected' : '' }}>{{ $i }}</option> 
+                    @endfor
+                    </select>
+                    <span class="err" id="error-blank_space">
+                    @error('blank_space')
                     {{$message}}
                     @enderror 
-                    </span>                 
+                    </span>                      
                     </div>    
-                    </div>      
+                    </div>                     
                     
                 </div>              
 
@@ -193,7 +211,17 @@
 
             </div>
         </div>
-    </section>  
-
+    </section> 
+    <script>
+    const get_value = (text)=>{
+        const arrType = ['radio','radio_group'];
+        if( arrType.includes(text) ){
+            $('#value_div_1').show();
+        }
+        else{
+            $('#value_div_1').hide();
+        }        
+    }
+    </script>    
 
 @endsection

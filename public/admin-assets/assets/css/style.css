@@ -1360,6 +1360,10 @@ form span.err{
   padding: 25px;  
   border-radius: 2%;
 }
+.break-word{
+  word-wrap: break-word;         
+  overflow-wrap: break-word; 
+}
 /*!
 * ajay css [ends]
 */

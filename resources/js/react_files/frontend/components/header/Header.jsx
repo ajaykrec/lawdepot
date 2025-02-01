@@ -20,7 +20,7 @@ const Header = (props) => {
     const { file_storage_url, customer, common_data } = usePage().props
 
     const settings = common_data.settings
-    const categories = common_data.categories
+    const categories = common_data.categories  
 
     const country = common_data.country
     const countries = common_data.countries       

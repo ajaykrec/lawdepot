@@ -1,10 +1,25 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Layout from './../../layouts/GuestLayout'
-import {Head, useForm, usePage,  Link } from '@inertiajs/react'
+import {Head, useForm, usePage, Link, router } from '@inertiajs/react'
 import Parser, { domToReact } from 'html-react-parser';
 
 import Category_banner from '../../components/banner/Category_banner';
+import Steps_header from './Steps_header';
 import Breadcrumb from '../../components/breadcrumb/Breadcrumb';
+
+//=== answer_type == 
+import Add_more from '../../components/answer_type/Add_more';
+import Radio from '../../components/answer_type/Radio';
+import Checkbox from '../../components/answer_type/Checkbox';
+import Dropdown from '../../components/answer_type/Dropdown';
+import Text from '../../components/answer_type/Text';
+import Textarea from '../../components/answer_type/Textarea';
+import Date from '../../components/answer_type/Date';
+//=====
+import $ from "jquery"
+
+import { useSelector, useDispatch } from 'react-redux'
+import { fieldAction } from '../../actions/fields'
 
 const Document = ({ pageData }) => {
 
@@ -13,21 +28,37 @@ const Document = ({ pageData }) => {
   const document = pageData.document
   const steps = pageData.steps
   const step_id = pageData.step_id
+  const group = pageData.group
   const percent = pageData.percent
-
-  const { data, setData, post, processing, errors } = useForm({
-      email: '',
-      password: '',
-      remember: '',
-  })  
+  const questions = pageData.questions
+  const fields = Object.assign({}, pageData.fields)   
+  const previous_url = pageData.previous_url
+  const next_url = pageData.next_url
   
+  const formRef = useRef();
+  const { data, setData, post, processing, errors } = useForm({
+      ...fields,      
+  })  
+
   const [error, setError] = useState(errors) 
 
   useEffect(() => {
-    setError(errors)
-  }, [errors]);
-  
+    dispatch(fieldAction(data))
+  }, []);
 
+  const dispatch     = useDispatch()
+  const fieldState   = useSelector( (state)=> state.fields ) 
+
+  useEffect(() => {
+    setData(fieldState)
+  }, [fieldState]);
+
+  //console.log(data)
+   
+  const handleChildInputChange = (arg) => {
+    setData(arg);
+  }
+    
   const parseWithLinks = (html) =>{
       const options = {     
           replace: ({ name, attribs, children }) => {
@@ -40,8 +71,17 @@ const Document = ({ pageData }) => {
   }  
   
   function submit(e) {
-    e.preventDefault()
-    //post(route('customer.login.post'))       
+      e.preventDefault()
+      let url = route('doc.post',document.slug)+'?group='+group+'&step_id='+step_id 
+      
+      let formData = new FormData() 
+      formData.append('fields', JSON.stringify(data)); 
+      router.post(url,formData)  
+
+      // let formData   = new FormData(e.target) 
+      // let formObject = Object.fromEntries(formData.entries());  
+      // formData  = JSON.stringify(formObject)      
+      // router.post(url,{'fields':formData})  
   }
  
   return (
@@ -49,77 +89,79 @@ const Document = ({ pageData }) => {
     <Head>
         <title>{pageData.meta.title}</title>
         <meta name="description" content={pageData.meta.description} />
-    </Head>    
-    
-    <section className="ipad-top-space-margin py-5" style={{background:"#152bca"}}> 
-        <div className="container">
-            <div className="row text-center">
-                
-                <div className="col-12 page-title-extra-small">                    
-                    <h2 className="text-white fw-600 ls-minus-1px">                    
-                    { document.name }                   
-                    </h2>                                                       
-                </div>
-                <div className="col-12 mb-2"> 
-                  
-                  <div className="steps">
-                    {
-                        steps.map((val,i)=>{
-                          return(
-                            <Link key={i} href={ route('doc.index',document.slug)+'?step_id='+val.step_id+'&group=1' } className={ (val.step_id == step_id) ? 'btn btn-very-small bg-info bg-light' : 'btn btn-very-small bg-info' }>{val.name}<i className="fa-solid fa-arrow-right"></i></Link>
-                          )                          
-                        })
-
-                    }                    
-                    <Link href={ route('doc.download',document.slug) } className="btn btn-very-small bg-info">Print/Download</Link>                    
-                  </div>                  
-                  
-                  <div className="progress-bar-style-03 m-1" style={{width:"70%"}}>                               
-                    <div className="progress bg-info text-dark-gray ">
-                        {/* <div className="fs-18 fw-600 progress-bar-title d-inline-block text-white">Progress</div> */}
-                        <div className="progress-bar bg-light m-0 border-radius-3px" 
-                        role="progressbar" 
-                        aria-valuenow={percent} 
-                        aria-valuemin="0" 
-                        aria-valuemax="100" 
-                        aria-label="consulting" 
-                        style={{width:percent+"%"}}>
-                        </div>
-                        {/* <span className="progress-bar-percent fs-16 fw-600 text-white">83%</span> */}
-                    </div>                                
-                  </div>                        
-
-                </div>                
-            </div>
-        </div>
-    </section> 
-    {/* <Breadcrumb />    */}
+    </Head> 
+    <Steps_header /> 
+    <Breadcrumb /> 
 
     <section className="py-5">
       <div className="container h-100">  
           <div className="row"> 
-          <div className="col-12 pb-5">
-          <form onSubmit={submit}>
-                          
-                  <div className="my-3 mt-0">
-                    <label className="form-label">Email</label>   
+          <div className="col-lg-8 col-md-12 col-12 pb-5">          
+            <form onSubmit={submit} id="documentForm" ref={formRef}>                          
+                    
+                    {
+                        questions.map((val, i) => { 
 
-                    <input type="radio" className="btn-check" name="options" id="option1" autocomplete="off" />
-                    <label className="btn btn-secondary" for="option1">Checked</label>
+                          const answer_type = val.answer_type
+                          const display_type = val.display_type
+                          const options = val.options
+                          const is_add_another = val.is_add_another
 
-                      
-                  </div>
-                  
+                          return(
+                            <div key={i} className="my-3"> 
+                              { 
+                                is_add_another == 1 ?  
+                                <Add_more propsData={val} />                                             
+                                :
+                                answer_type == 'radio' ?  
+                                <Radio propsData={val} />                                             
+                                :
+                                answer_type == 'checkbox' ?  
+                                <Checkbox propsData={val} />                                             
+                                :
+                                answer_type == 'dropdown' ?  
+                                <Dropdown propsData={val} />                                             
+                                :
+                                answer_type == 'text' ?  
+                                <Text propsData={val} />                                             
+                                :
+                                answer_type == 'textarea' ?  
+                                <Textarea propsData={val} />                                             
+                                :                            
+                                answer_type == 'date' ?  
+                                <Date propsData={val} />                                             
+                                :                            
+                                ''                            
+                              }                                                                      
+                            </div>
+                          )
+                      })
 
-                  <div className="my-3">
-                    {/* <Link href='#' className="btn btn-medium btn-light btn-box-shadow btn-rounded mx-1 b-1" style={{border:"1px solid #ccc"}}>
-                    <i className="fa fa-arrow-left-long"></i> Back
-                    </Link> */}
-                    <button className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded mx-1" type="submit" disabled={processing}>Save and Continue</button>
-                    <Link href='#' className="text-secondary mx-2">Skip this step for now</Link>
-                  </div>                                  
-              
-              </form>  
+                    }
+
+                    {
+                      questions && questions.length > 0 &&
+                          <div className="mt-3">
+                          {
+                            previous_url &&
+                            <Link href={previous_url} className="btn btn-medium btn-light btn-box-shadow btn-rounded mx-1 b-1" style={{border:"1px solid #ccc"}}>
+                            <i className="fa fa-arrow-left-long"></i> Back
+                            </Link>
+                          }                   
+                          <button className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded mx-1" type="submit" disabled={processing}>
+                            Save and Continue
+                          </button>
+                          {
+                            next_url &&
+                            <Link href={next_url} className="text-secondary mx-2">Skip this step for now</Link>
+                          }                    
+                        </div>             
+                    }                 
+                
+            </form>  
+          </div>
+          <div className="col-lg-4 col-md-12 col-12 py-5">          
+          Faq section....          
           </div>
           </div>
       </div>
