@@ -8,7 +8,8 @@
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
                 <li class="breadcrumb-item"><a href="{{ route('document.index') }}">Document</a></li>
-                <li class="breadcrumb-item active">Steps</li>
+                <li class="breadcrumb-item"><a href="{{ route('document.steps.index', $document_id) }}">Steps</a></li>
+                <li class="breadcrumb-item active">Faqs</li>
             </ol>
         </nav>
     </div>
@@ -22,12 +23,12 @@
 
                         <div class="row my-3">
                             <div class="col-lg-10 col-md-12 col-12">
-                            <form id="filterForm" name="filterForm" method="get" action="{{ route('document.steps.index',$document_id) }}"> 
+                            <form id="filterForm" name="filterForm" method="get" action="{{ route('document.faqs.index',$step_id) }}"> 
                             <div class="row">
 
                                 <div class="col-lg-4 col-md-6 col-12">
                                 <div class="mb-2">
-                                <input type="text" class="form-control" id="name" name="name" value="{{ $name ?? '' }}" placeholder="Name">                                
+                                <input type="text" class="form-control" id="question" name="question" value="{{ $question ?? '' }}" placeholder="Question">                                
                                 </div>  
                                 </div>                                  
                                 
@@ -53,13 +54,13 @@
                             @if(has_permision(['document'=>'RW']))
                             <div class="col-lg-2 col-md-12 col-12">
                                 <div class="text-end">
-                                <a href="{{ route('document.steps.create',$document_id) }}" class="btn btn-secondary">+ Add new step</a>
+                                <a href="{{ route('document.faqs.create',$step_id) }}" class="btn btn-secondary">+ Add new faq</a>
                                 </div>
                             </div>   
                             @endif                      
                         </div>                       
                         
-                        <form id="applyForm" name="applyForm" method="post" action="{{ route('document.steps.index',$document_id) }}" >  
+                        <form id="applyForm" name="applyForm" method="post" action="{{ route('document.faqs.index',$step_id) }}" >  
                         @csrf
                         <div class="table-responsive">                          
                         <table class="table table-hover table-striped">                            
@@ -67,8 +68,8 @@
                                 <tr class="table-dark">
                                     <th style="width:5%;"><input class="form-check-input checkall" type="checkbox"></th>
                                     <th>#</th>
-                                    <th>Name</th> 
-                                    <th class="text-center">How many Groups?</th>                                                      
+                                    <th>Question</th> 
+                                    <th class="text-center">Group</th>                                                      
                                     <th>Status</th>                                    
                                     <th class="text-end px-5">Action</th>
                                 </tr>                                         
@@ -76,15 +77,13 @@
                             <tbody>
                                 @if($results)
                                     @foreach($results as $val)
-                                    <tr id="row-{{ $val['step_id'] }}">
+                                    <tr id="row-{{ $val['dfaq_id'] }}">
                                         <td>
-                                            @if( count($val['questions']) < 1)
-                                            <input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['step_id'] }}">
-                                            @endif
+                                            <input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['dfaq_id'] }}">
                                         </td>
                                         <td>{{ $start_count }}</td>
-                                        <td>{{ $val['name'] }}</td>  
-                                        <td class="text-center">{{ $val['group_count'] }}</td>  
+                                        <td>{{ $val['question'] }}</td>  
+                                        <td class="text-center">{{ $val['label_group'] }}</td>  
                                         <td>
                                             @if($val['status'] == '1')                                                
                                                 <span class="badge rounded-pill bg-success">Active</span>
@@ -94,23 +93,14 @@
                                         </td>
                                         <td class="text-end">                                           
 
-                                            @if(has_permision(['document'=>'RW']))
+                                            @if(has_permision(['document'=>'RW']))                                            
 
-                                            <a href="{{ route('document.faqs.index',$val['step_id']) }}" class="btn btn-md" title="Steps">
-                                                Faqs ({{ count($val['faqs']) }})
-                                            </a>
-                                            
-                                            <a href="{{ route('questions.index').'?step_id='.$val['step_id'] }}" class="btn btn-md" title="Questions">
-                                                Questions ({{ count($val['questions']) }})
-                                            </a>
-
-                                            <a href="{{ route('steps.edit',$val['step_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
-
-                                                @if( count($val['questions']) < 1)
-                                                <button type="button" class="btn btn-md delete"                                            
-                                                onclick="delete_row({{ $val['step_id'] }})"                      
-                                                title="Delete"><i class="bi bi-trash text-danger"></i></button>
-                                                @endif
+                                            <a href="{{ route('faqs.edit',$val['dfaq_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
+                                                
+                                            <button type="button" class="btn btn-md delete"                                            
+                                            onclick="delete_row({{ $val['dfaq_id'] }})"                      
+                                            title="Delete"><i class="bi bi-trash text-danger"></i>
+                                            </button>                                                
 
                                             @endif
                                         </td>
@@ -173,7 +163,7 @@
             closeOnConfirm	: false	
         }).then(function () {
 
-            var url = "{{ route('steps.destroy','id') }}"
+            var url = "{{ route('faqs.destroy','id') }}"
             url = url.replace('id',id);       
 
             $.ajax({

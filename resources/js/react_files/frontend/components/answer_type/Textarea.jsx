@@ -33,7 +33,28 @@ const Textarea = ({propsData, addMoreIndex}) => {
  
     return (
         <>    
-        
+        <div className="col-lg-10 col-md-12 col-12">
+            {
+            label_text &&
+            <>  
+            <div className="label_text">{ label_text }</div> 
+            </>
+            } 
+            <div className={`question ${ label_text ? '' : 'q-margin' }`}>
+            { question_text }                                        
+            </div>
+            <textarea className="form-control" placeholder={ propsData.placeholder } style={{height:"150px"}}
+            name={field_name}  
+            value={data[field_name] ?? ''}                         
+            onChange={ (e) => {
+                
+                dispatch(fieldAction({
+                    ...fields,
+                    [field_name]:e.target.value
+                }))
+            }}
+            /> 
+        </div>
     </> 
     )
 }

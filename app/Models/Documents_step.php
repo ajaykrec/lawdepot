@@ -18,4 +18,7 @@ class Documents_step extends Model
     function questions(){         
         return $this->hasMany('App\Models\Documents_question','step_id','step_id');
     }    
+    function faqs(){         
+        return $this->hasMany('App\Models\Documents_faq','step_id','step_id');
+    }
 }

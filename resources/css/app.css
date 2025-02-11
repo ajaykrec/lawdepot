@@ -372,3 +372,27 @@ input[type='checkbox'] {
     word-break: break-word;
     overflow-x: hidden;
 }
+
+
+/*** faq ****/
+.documentfaq h6{
+    font-size: 24px;
+    line-height: 28px;
+    color: #6e7982;
+}
+.documentfaq .question{
+    font-size: 18px;
+    line-height: 20px;
+    color: #62676b;
+}
+.documentfaq .answer{
+    font-size: 14px;
+    line-height: 24px;
+    color: #a0a3a5;
+}
+
+
+.pricing-table{
+    padding: 40px 25px;
+    background: #e7e2e2;
+}

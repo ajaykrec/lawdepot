@@ -6,6 +6,7 @@ import Parser, { domToReact } from 'html-react-parser';
 import Category_banner from '../../components/banner/Category_banner';
 import Steps_header from './Steps_header';
 import Breadcrumb from '../../components/breadcrumb/Breadcrumb';
+import Document_faq from './Document_faq';
 
 //=== answer_type == 
 import Add_more from '../../components/answer_type/Add_more';
@@ -34,6 +35,7 @@ const Document = ({ pageData }) => {
   const fields = Object.assign({}, pageData.fields)   
   const previous_url = pageData.previous_url
   const next_url = pageData.next_url
+  const faqs = pageData.faqs
   
   const formRef = useRef();
   const { data, setData, post, processing, errors } = useForm({
@@ -96,9 +98,8 @@ const Document = ({ pageData }) => {
     <section className="py-5">
       <div className="container h-100">  
           <div className="row"> 
-          <div className="col-lg-8 col-md-12 col-12 pb-5">          
-            <form onSubmit={submit} id="documentForm" ref={formRef}>                          
-                    
+          <div className={ faqs.length > 0 ? 'col-lg-8 col-md-12 col-12 pb-5' : 'col-lg-12 col-md-12 col-12 pb-5' }>          
+            <form onSubmit={submit} id="documentForm" ref={formRef}> 
                     {
                         questions.map((val, i) => { 
 
@@ -160,8 +161,8 @@ const Document = ({ pageData }) => {
                 
             </form>  
           </div>
-          <div className="col-lg-4 col-md-12 col-12 py-5">          
-          Faq section....          
+          <div className={ faqs.length > 0 ? 'col-lg-4 col-md-12 col-12 pb-5' : 'col-lg-12 col-md-12 col-12 pb-5' } >          
+          <Document_faq />
           </div>
           </div>
       </div>

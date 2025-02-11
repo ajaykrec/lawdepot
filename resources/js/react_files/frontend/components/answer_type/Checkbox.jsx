@@ -47,7 +47,105 @@ const Checkbox = ({propsData}) => {
     
     return (
       <> 
-      
+        {
+          label_text &&
+          <>  
+          <div className="label_text">{ label_text }</div> 
+          </>
+        } 
+        <div className={`question ${ label_text ? '' : 'q-margin' }`}>
+        { question_text }                                        
+        </div>
+        { 
+            options.map((val,i)=>{                  
+              
+                return(                                    
+                <div 
+                key={i} 
+                title={val.placeholder} 
+                className={`form-check form-check-inline checkbox 
+                ${display_type=='0' ? 'vertical' : 'horizontal'}
+                ${i==0 ? 'ms-0' : ''}
+                `}>
+                  <input type="checkbox" className="form-check-input" 
+                  name={`${field_name}`}                                  
+                  id={`o-${val.option_id}`}                  
+                  
+                  onChange={(e)=>{                       
+
+                      if(e.target.checked){
+                        selected_rows.push(val.value)
+                      }
+                      else{  
+                        selected_rows.splice(selected_rows.indexOf(val.value), 1)
+                      }        
+                      
+                      set_selected_rows(selected_rows)
+                      dispatch(fieldAction({
+                          ...fields,
+                          [field_name]:JSON.stringify(Object.assign({}, selected_rows))
+                          
+                      }))                      
+
+                  }}
+                  defaultChecked={ selected_rows.includes(val.value) ? true : false }
+                  />                      
+                  <label className="form-check-label" htmlFor={`o-${val.option_id}`}>
+                  {
+                    val.image &&
+                    <>
+                    <img src={`${file_storage_url}/uploads/document_option/`+val.image} /><br />
+                    </>
+                  }                                  
+                  { val.title }
+                  </label>
+                </div>                                                             
+                )
+            })                                                               
+        }
+        
+        { 
+            options.map((val,i)=>{
+
+                let questions = val.questions  
+                let style = {  
+                  'display' : selected_rows.includes(val.value)  ? '' : 'none' 
+                }                  
+
+                return questions.map((val2,j)=>{  
+                  const answer_type = val2.answer_type
+                  return(                                         
+                    
+                      <div key={j} className={`my-3 oqall-${val.question_id}`} id={`oq-${val.option_id}`} style={style}>                        
+                        {
+                          answer_type == 'radio' ?  
+                          <Radio  propsData={val2} />  
+                          :   
+                          answer_type == 'radio_group' ?  
+                          <Radio_group  propsData={val2} index={j} />  
+                          :  
+                          answer_type == 'checkbox' ?  
+                          <Checkbox  propsData={val2} />  
+                          :   
+                          answer_type == 'dropdown' ?  
+                          <Dropdown  propsData={val2} />  
+                          :                          
+                          answer_type == 'text' ?  
+                          <Text  propsData={val2} />                                             
+                          :
+                          answer_type == 'textarea' ?  
+                          <Textarea  propsData={val2} /> 
+                          :  
+                          answer_type == 'date' ?  
+                          <Date  propsData={val2} />  
+                          : 
+                          ''                        
+                        }  
+                      </div>                    
+                    )
+                })                              
+            })                                
+        }                            
       </> 
     )
 }

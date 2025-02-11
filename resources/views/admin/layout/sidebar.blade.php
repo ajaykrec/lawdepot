@@ -17,6 +17,7 @@ $document_menu      = ['document','document-category','questions','options'];
 $language_menu      = ['language'];
 $location_menu      = ['country','zones'];
 $customers_menu     = ['customers','customers-address'];
+$membership_menu    = ['membership-setting'];
 
 @endphp
 
@@ -134,6 +135,15 @@ $customers_menu     = ['customers','customers-address'];
                 </li>              
                           
             </ul>
+        </li>
+        @endif
+
+        @if(has_permision(['membership']))
+        <li class="nav-item">
+            <a class="nav-link @php if(!in_array($current_path,$membership_menu)){ echo 'collapsed'; } @endphp" href="{{ route('membership-setting.index') }}">
+                <i class="bi bi-bookmarks-fill"></i>
+                <span>Membership Setting</span>
+            </a>
         </li>
         @endif
 

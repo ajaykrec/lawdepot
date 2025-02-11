@@ -7,33 +7,34 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use App\Traits\AllFunction;
 use App\Models\Document;
-use App\Models\Document_category;
 use App\Models\Documents_step;
+use App\Models\Documents_faq;
 
-class DocumentStepController extends Controller
+class DocumentFaqController extends Controller
 {
     use AllFunction; 
     
-    public function index($document_id,Request $request)
+    public function index($step_id,Request $request)
     {       
         //=== check permision
         if(!has_permision(['document'])){ return redirect( route('dashboard') ); }
 
-        $document = Document::find($document_id)->toArray();         
+        $step = Documents_step::find($step_id)->toArray();        
 
         $meta = [
-            'title'=>'Steps for : '.$document['name'] ?? '',
+            'title'=>'Faqs for : '.$step['name'] ?? '',
             'keywords'=>'',
             'description'=>'',
         ];    
-        
+        $document_id   = $step['document_id'] ?? '';        
+
         $filterArr                 = [];
-        $filterArr['document_id']  = $document_id;
-        $filterArr['name']         = $request['name'] ?? '';
+        $filterArr['step_id']      = $step_id;
+        $filterArr['question']     = $request['question'] ?? '';
         $filterArr['status']       = $request['status'] ?? '';   
 
         //=== pagi_url
-        $pagi_url = route('document.steps.index',$document_id).'?';
+        $pagi_url = route('document.faqs.index',$step_id).'?';
         if($filterArr){
             $count = 0;
             foreach($filterArr as $key=>$val){
@@ -54,15 +55,15 @@ class DocumentStepController extends Controller
         $offset = ($page - 1)*$limit;
         $start_count  = ($page * $limit - $limit + 1);
 
-        $q = Documents_step::query();
+        $q = Documents_faq::query();
         if($filterArr){
             foreach($filterArr as $key=>$val){
                 if($val!=''){
-                    if($key == 'document_id'){
-                        $q->where('document_id',$val);
+                    if($key == 'step_id'){
+                        $q->where('step_id',$val);
                     }
-                    if($key == 'name'){
-                        $q->where('name','like','%'.$val.'%');
+                    if($key == 'question'){
+                        $q->where('question','like','%'.$val.'%');
                     }                    
                     if($key == 'status'){
                         $q->where('status',$val);
@@ -70,36 +71,39 @@ class DocumentStepController extends Controller
                 }
             }
         }     
-        $q->with(['questions','faqs']);                
-        $q->orderBy("sort_order", "asc"); 
+        $q->with(['step']);     
+        $q->orderBy("label_group", "asc");     
+        $q->orderBy("question", "asc"); 
         $count    = $q->count();     
         $results  = $q->limit($limit)->offset($offset)->get()->toArray(); 
         $paginate = AllFunction::paginate($count, $limit, $page, 3, $pagi_url);
 
-        $data = compact('meta','results','count','start_count','paginate'); 
+        $data = compact('meta','results','count','start_count','paginate','document_id','step_id'); 
         $data = array_merge($data,$filterArr);        
        
-        return view('admin.document_steps.index')->with($data);
+        return view('admin.document_faqs.index')->with($data);
     }
     
-    public function create($document_id)
+    public function create($step_id)
     {
         //=== check permision
         if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }
 
-        $document = Document::find($document_id)->toArray(); 
+        $step = Documents_step::find($step_id)->toArray();        
+        $document_id   = $step['document_id'] ?? '';
+        $group_count   = $step['group_count'] ?? 1;
 
         $meta = [
-            'title'=>'Add step for : '.$document['name'] ?? '',
+            'title'=>'Add Faq for : '.$step['name'] ?? '',
             'keywords'=>'',
             'description'=>'',
         ];    
         
-        $data = compact('meta','document_id'); 
-        return view('admin.document_steps.create')->with($data);
+        $data = compact('meta','step_id','document_id','group_count'); 
+        return view('admin.document_faqs.create')->with($data);
     }
 
-    public function store($document_id,Request $request)
+    public function store($step_id,Request $request)
     {
         //=== check permision
         if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }
@@ -110,22 +114,24 @@ class DocumentStepController extends Controller
             $id_array = $request['id'] ?? [];
 
             if( $apply_action == 'active' && $id_array){
-                Documents_step::whereIn('step_id', $id_array)->update(array('status' => '1'));
-                return redirect( route('document.steps.index',$document_id) )->with('message','Selected item Updated successfully');
+                Documents_faq::whereIn('dfaq_id', $id_array)->update(array('status' => '1'));
+                return redirect( route('document.faqs.index',$step_id) )->with('message','Selected item Updated successfully');
             }
             else if( $apply_action == 'in_active' && $id_array){                
-                Documents_step::whereIn('step_id', $id_array)->update(array('status' => '0'));
-                return redirect( route('document.steps.index',$document_id) )->with('message','Selected item Updated successfully');
+                Documents_faq::whereIn('dfaq_id', $id_array)->update(array('status' => '0'));
+                return redirect( route('document.faqs.index',$step_id) )->with('message','Selected item Updated successfully');
             }
             else if( $apply_action == 'delete' && $id_array){     
-                Documents_step::whereIn('step_id', $id_array)->delete();
-                return redirect( route('document.steps.index',$document_id) )->with('message','Selected item deleted successfully');
+                Documents_faq::whereIn('dfaq_id', $id_array)->delete();
+                return redirect( route('document.faqs.index',$step_id) )->with('message','Selected item deleted successfully');
             }  
         }
 
         //==== Add new data =====        
         $rules = [
-            'name' => 'required',            
+            'question' => 'required',    
+            'answer' => 'required',         
+            'label_group' => 'required',                               
         ];
         $messages = [];
         $validation = Validator::make( 
@@ -139,15 +145,15 @@ class DocumentStepController extends Controller
         else{
 
             // store
-            $table = new Documents_step;
-            $table->document_id         = $document_id;
-            $table->name                = $request['name'];            
-            $table->group_count         = ($request['group_count'] == '') ? 1 : $request['group_count'];
-            $table->sort_order          = ($request['sort_order'] == '') ? 0 : $request['sort_order']; 
-            $table->status              = ($request['status'] == '') ? 1 : $request['status'];  
+            $table = new Documents_faq;
+            $table->step_id     = $step_id;
+            $table->question    = $request['question'] ?? '';            
+            $table->answer      = $request['answer'] ?? '';
+            $table->label_group = $request['label_group']  ?? 1;
+            $table->status      = $request['status'] ?? 1;
             $table->save();
             // redirect
-            return redirect( route('document.steps.index',$document_id) )->with('message','Document step created successfully');
+            return redirect( route('document.faqs.index',$step_id) )->with('message','Document Faq created successfully');
         }        
     }
     
@@ -156,37 +162,41 @@ class DocumentStepController extends Controller
         //====
     }
     
-    public function edit($step_id)
+    public function edit($dfaq_id)
     {
         //=== check permision
         if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }
 
-        $data = Documents_step::query()
-        ->with(['document'])
-        ->where('step_id',$step_id)
+        $data = Documents_faq::query()
+        ->with(['step'])
+        ->where('dfaq_id',$dfaq_id)
         ->first()->toArray();         
         if(!$data){
             return redirect( route('document.index') );
         }        
-        $document_id = $data['document_id'] ?? '';
+        $step_id = $data['step_id'] ?? '';
+        $document_id = $data['step']['document_id'] ?? '';
+        $group_count = $data['step']['group_count'] ?? 1;
 
         $meta = [
-            'title'=>'Edit step for : '.$data['document']['name'] ?? '',
+            'title'=>'Edit step for : '.$data['step']['name'] ?? '',
             'keywords'=>'',
             'description'=>'',
         ];
         
-        $data = compact('meta','data','step_id','document_id');         
-        return view('admin.document_steps.edit')->with($data);
+        $data = compact('meta','data','step_id','document_id','dfaq_id','group_count');         
+        return view('admin.document_faqs.edit')->with($data);
     }
     
-    public function update(Request $request, string $step_id)
+    public function update(Request $request, string $dfaq_id)
     {
         //=== check permision
         if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }        
 
         $rules = [
-            'name' => 'required',            
+            'question' => 'required',    
+            'answer' => 'required',         
+            'label_group' => 'required',                               
         ];
         $messages = [];
         $validation = Validator::make( 
@@ -199,35 +209,36 @@ class DocumentStepController extends Controller
         }
         else{                
            
-            $step_row = Documents_step::query()
-            ->with(['document'])
-            ->where('step_id',$step_id)
+            $dstep_row = Documents_faq::query()
+            ->with(['step'])
+            ->where('dfaq_id',$dfaq_id)
             ->first()->toArray();       
 
-            $document_id =  $step_row['document_id'] ?? '';  
+            $step_id =  $dstep_row['step_id'] ?? '';  
 
-            $table = Documents_step::find($step_id);            
-            $table->name         = $request['name'];    
-            $table->group_count  = ($request['group_count'] == '') ? 1 : $request['group_count'];
-            $table->sort_order   = ($request['sort_order'] == '') ? 0 : $request['sort_order']; 
-            $table->status       = ($request['status'] == '') ? 1 : $request['status'];  
+            $table = Documents_faq::find($dfaq_id);            
+            $table->step_id     = $step_id;
+            $table->question    = $request['question'] ?? '';            
+            $table->answer      = $request['answer'] ?? '';
+            $table->label_group = $request['label_group']  ?? 1;
+            $table->status      = $request['status'] ?? 1;
             $table->save();           
-            return redirect( route('document.steps.index',$document_id) )->with('message','Documents step updated successfully');
+            return redirect( route('document.faqs.index',$step_id) )->with('message','Documents faq updated successfully');
         }
     }
    
-    public function destroy(string $step_id)
+    public function destroy(string $dfaq_id)
     {
         //=== check permision
         if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }
 
-        $table = Documents_step::find($step_id); 
-        $document_id =  $table->document_id ?? '';  
+        $table = Documents_faq::find($dfaq_id); 
+        $step_id =  $table->step_id ?? '';  
         $table->delete();
 
         return json_encode(array(
             'status'=>'success',
-            'url'=>route('document.steps.index',$document_id)
+            'url'=>route('document.faqs.index',$step_id)
         ));
         exit;
     }

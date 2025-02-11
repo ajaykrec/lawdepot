@@ -13,8 +13,11 @@ return new class extends Migration
     {
         Schema::create('customers_document', function (Blueprint $table) {
             $table->id('cus_document_id');   
+            $table->integer('customer_id');         
             $table->integer('document_id');         
-            $table->string('document_file',150)->nullable();
+            $table->string('file_name',150)->nullable();
+            $table->text('session_fields')->nullable(); 
+            $table->text('filter_values')->nullable(); 
             $table->timestamps();
         });
     }

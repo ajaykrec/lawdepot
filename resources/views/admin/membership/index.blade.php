@@ -7,8 +7,7 @@
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-                <li class="breadcrumb-item"><a href="{{ route('document.index') }}">Document</a></li>
-                <li class="breadcrumb-item active">Steps</li>
+                <li class="breadcrumb-item active">{{ $meta['title'] ?? '' }}</li>
             </ol>
         </nav>
     </div>
@@ -22,19 +21,30 @@
 
                         <div class="row my-3">
                             <div class="col-lg-10 col-md-12 col-12">
-                            <form id="filterForm" name="filterForm" method="get" action="{{ route('document.steps.index',$document_id) }}"> 
+                            <form id="filterForm" name="filterForm" method="get" action="{{ route('membership-setting.index') }}"> 
                             <div class="row">
 
                                 <div class="col-lg-4 col-md-6 col-12">
                                 <div class="mb-2">
                                 <input type="text" class="form-control" id="name" name="name" value="{{ $name ?? '' }}" placeholder="Name">                                
                                 </div>  
-                                </div>                                  
+                                </div>      
+                                
+                                <div class="col-lg-4 col-md-6 col-12">
+                                <div class="mb-2">
+                                <select class="form-select" id="country_id" name="country_id">
+                                    <option value="">Country</option>
+                                    @foreach($countries as $val)
+                                    <option value="{{ $val['country_id'] }}" {{ ($country_id==$val['country_id']) ? 'selected' : '' }}>{{ $val['name'] }}</option>
+                                    @endforeach
+                                </select>                             
+                                </div>  
+                                </div>     
                                 
                                 <div class="col-lg-4 col-md-6 col-12">
                                 <div class="mb-2">
                                 <select class="form-select" id="status" name="status">
-                                    <option value="">Status</option>
+                                    <option value=""></option>
                                     <option value="1" {{ ($status=='1') ? 'selected' : '' }}>Active</option>
                                     <option value="0" {{ ($status=='0') ? 'selected' : '' }}>In-Active</option>
                                 </select>                             
@@ -50,16 +60,16 @@
                             </div>
                             </form> 
                             </div> 
-                            @if(has_permision(['document'=>'RW']))
+                            @if(has_permision(['membership'=>'RW']))
                             <div class="col-lg-2 col-md-12 col-12">
                                 <div class="text-end">
-                                <a href="{{ route('document.steps.create',$document_id) }}" class="btn btn-secondary">+ Add new step</a>
+                                <a href="{{ route('membership-setting.create') }}" class="btn btn-secondary">+ Add New</a>
                                 </div>
                             </div>   
                             @endif                      
                         </div>                       
                         
-                        <form id="applyForm" name="applyForm" method="post" action="{{ route('document.steps.index',$document_id) }}" >  
+                        <form id="applyForm" name="applyForm" method="post" action="{{ route('membership-setting.index') }}" >  
                         @csrf
                         <div class="table-responsive">                          
                         <table class="table table-hover table-striped">                            
@@ -68,7 +78,8 @@
                                     <th style="width:5%;"><input class="form-check-input checkall" type="checkbox"></th>
                                     <th>#</th>
                                     <th>Name</th> 
-                                    <th class="text-center">How many Groups?</th>                                                      
+                                    <th>Country</th>
+                                    <th>Price</th>
                                     <th>Status</th>                                    
                                     <th class="text-end px-5">Action</th>
                                 </tr>                                         
@@ -76,15 +87,12 @@
                             <tbody>
                                 @if($results)
                                     @foreach($results as $val)
-                                    <tr id="row-{{ $val['step_id'] }}">
-                                        <td>
-                                            @if( count($val['questions']) < 1)
-                                            <input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['step_id'] }}">
-                                            @endif
-                                        </td>
+                                    <tr id="row-{{ $val['membership_id'] }}">
+                                        <td><input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['membership_id'] }}"></td>
                                         <td>{{ $start_count }}</td>
                                         <td>{{ $val['name'] }}</td>  
-                                        <td class="text-center">{{ $val['group_count'] }}</td>  
+                                        <td>{{ $val['country']['name'] ?? '' }}</td>    
+                                        <td>{{ $val['price'] }}</td>                                     
                                         <td>
                                             @if($val['status'] == '1')                                                
                                                 <span class="badge rounded-pill bg-success">Active</span>
@@ -94,24 +102,15 @@
                                         </td>
                                         <td class="text-end">                                           
 
-                                            @if(has_permision(['document'=>'RW']))
-
-                                            <a href="{{ route('document.faqs.index',$val['step_id']) }}" class="btn btn-md" title="Steps">
-                                                Faqs ({{ count($val['faqs']) }})
-                                            </a>
-                                            
-                                            <a href="{{ route('questions.index').'?step_id='.$val['step_id'] }}" class="btn btn-md" title="Questions">
-                                                Questions ({{ count($val['questions']) }})
+                                            @if(has_permision(['membership'=>'RW']))
+                                            <a href="{{ route('membership-setting.edit',$val['membership_id']) }}" class="btn btn-md" title="Edit">
+                                                <i class="bi bi-pencil-square text-success"></i>
                                             </a>
 
-                                            <a href="{{ route('steps.edit',$val['step_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
-
-                                                @if( count($val['questions']) < 1)
-                                                <button type="button" class="btn btn-md delete"                                            
-                                                onclick="delete_row({{ $val['step_id'] }})"                      
-                                                title="Delete"><i class="bi bi-trash text-danger"></i></button>
-                                                @endif
-
+                                            <button type="button" class="btn btn-md delete"                                            
+                                            onclick="delete_row({{ $val['membership_id'] }})"                      
+                                            title="Delete"><i class="bi bi-trash text-danger"></i>
+                                            </button>
                                             @endif
                                         </td>
                                     </tr> 
@@ -119,13 +118,13 @@
                                     @endforeach
                                 @else
                                 <tr>
-                                    <td colspan="6">No record found</td>
+                                    <td colspan="7">No record found</td>
                                 </tr>
                                 @endif
                             </tbody>
                         </table>                        
                         </div>
-                        @if(has_permision(['document'=>'RW']))
+                        @if(has_permision(['membership'=>'RW']))
                         <div class="d-flex justify-content-start py-0">
                             <div>
                             <select class="form-select" name="apply_action">
@@ -173,7 +172,7 @@
             closeOnConfirm	: false	
         }).then(function () {
 
-            var url = "{{ route('steps.destroy','id') }}"
+            var url = "{{ route('membership-setting.destroy','id') }}"
             url = url.replace('id',id);       
 
             $.ajax({

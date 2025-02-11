@@ -94,35 +94,27 @@ class DocumentController extends Controller
             }
         }  
         $questions = array_values($questions);  
-        //p($questions);      
         
         $fields = AllFunction::get_document_fields($questions,'field_name');        
-        if( Session::has('fields') ){ 
-            //$session_fields = (array)json_decode(Session::get('fields'));
-            // $result = [];
-            // foreach($fields as $key=>$val){
-            //     $result[$key] = $session_fields[$key] ?? '';
-            // }
-            // $fields = $result;  
-            
-            // $returnArr = [];
-            // foreach($session_fields as $key=>$val){
-            //     $returnArr[$key] = $fields[$key] ?? $val;
-            // }
-            // $fields = array_merge($returnArr, $fields);  
+        if( Session::has('fields') ){             
             $session_fields = (array)json_decode(Session::get('fields')); 
             $fields = array_merge($fields, $session_fields); 
-        }   
-        //p((array)json_decode(Session::get('fields'))); 
-
+        }  
+       
+        $q = DB::table('documents_faq')->select('*')
+        ->where('step_id',$step_id)
+        ->where('label_group',$group)
+        ->orderBy('question','asc')->get()->toArray();         
+        $faqs = json_decode(json_encode($q), true);         
+        
+        /*
         $filter_question_value = AllFunction::filter_question_value([
-            'document_id'=>$document_id ?? '',
-            'step_id'=>$step_id ?? '',  
-            'group'=>$group ?? ''  
+            'document_id'=>$document_id ?? '',            
         ]);
-        //p($filter_question_value);
+        p($filter_question_value);
+        */
 
-        $pageData = compact('document','meta','header_banner','breadcrumb','steps','step_id','group','percent','questions','fields','previous_url','next_url'); 
+        $pageData = compact('document','meta','header_banner','breadcrumb','steps','step_id','group','percent','questions','fields','previous_url','next_url','faqs'); 
         return Inertia::render('frontend/pages/document/Document', [            
             'pageData' => $pageData,            
         ]);
@@ -235,9 +227,19 @@ class DocumentController extends Controller
         ];
 
         $steps = DB::table('documents_step')->select('*')->where('document_id',$document_id)->where('status',1)->orderBy('sort_order','asc')->get()->toArray(); 
-        $steps = json_decode(json_encode($steps), true);
-        
+        $steps = json_decode(json_encode($steps), true);        
         $percent = 100;
+
+        $filter_question_value = AllFunction::filter_question_value([
+            'document_id'=>$document_id ?? '',            
+        ]);        
+
+        $template = $document['template'] ?? '';  
+        $template = AllFunction::replace_template([
+            'template' => $template,
+            'question_value' => $filter_question_value,
+        ]);  
+        $document['template'] = $template;         
         
         $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent'); 
         return Inertia::render('frontend/pages/document/Document_download', [            

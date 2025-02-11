@@ -27,8 +27,17 @@ trait AllFunction {
     
       static function construct_value($index){
         $inFieldGroup = ['text','textarea','dropdown','date']; 
+        $blankVal = [
+            'radio'         =>'_________________________',
+            'radio_group'   =>'_________________________',
+            'checkbox'      =>'_________________________',
+            'dropdown'      =>'_________________________',
+            'text'          =>'________________________________________________________',
+            'textarea'      =>'_____________________________________________________________________',            
+            'date'          =>'_________________________'
+        ]; 
 
-        $data = compact('inFieldGroup');  
+        $data = compact('inFieldGroup','blankVal');  
         return $data[$index] ?? '';
       }
 
@@ -735,8 +744,8 @@ trait AllFunction {
         }
         if($group){
             $q = $q->where('label_group',$group);
-        }        
-        $q = $q->orderBy('label','desc')->get()->toArray(); 
+        }  
+        $q = $q->orderBy('question_id','asc')->get()->toArray(); 
         $result = json_decode(json_encode($q), true);        
         if($result){
             foreach($result as $val){
@@ -747,66 +756,132 @@ trait AllFunction {
             }
         }  
         $questions = array_values($questions); 
-        //p($questions);
 
-        $fields = AllFunction::get_document_fields($questions,'field_name');        
+        $fields = AllFunction::get_document_fields($questions,'field_name');                 
+        $session_fields = [];
         if( Session::has('fields') ){ 
-            $session_fields = (array)json_decode(Session::get('fields'));           
-            $result = [];
-            foreach($fields as $key=>$val){
-                $result[$key] = $session_fields[$key] ?? '';
-            }
-            $fields = $result;           
-        }  
-        
+            $session_fields = (array)json_decode(Session::get('fields')); 
+        } 
+               
         $inFieldGroup = AllFunction::construct_value('inFieldGroup');        
-        $returnArr = [];        
+        $returnArr = [];    
+        $qv = [];    
         foreach($questions as $key=>$val){
 
             $answer_type    = $val['answer_type'] ?? ''; 
             $field_name     = $val['field_name'] ?? ''; 
             $options        = $val['options'] ?? []; 
-            $row_element    = $fields[$field_name] ?? '';
+            $is_add_another = $val['is_add_another'] ?? 0; 
+            $row_element    = $session_fields[$field_name] ?? ''; 
+            
+            if( $is_add_another == 1 && in_array($answer_type, $inFieldGroup) ){   
+                $cc_count =  $session_fields[$field_name.'_count'] ?? 1; 
+                for($i=1; $i<=$cc_count; $i++){
+                    $row_element_another = $session_fields[$field_name.'_'.$i] ?? ''; 
+                    $returnArr[$field_name.'_'.$i] = AllFunction::get_value([
+                        'value'=>$row_element_another,
+                        'type'=>$answer_type
+                    ]);   
+                }
+            }
+            elseif( $is_add_another == 1 && !in_array($answer_type, $inFieldGroup)){   
 
-            $returnArr[$field_name] = '';
+                $cc_count  = $session_fields[$field_name.'_count'] ?? 1; 
 
-            if( in_array($answer_type, $inFieldGroup) ){  
-                $returnArr[$field_name] = AllFunction::get_value($row_element);                
+                for($i=1; $i<=$cc_count; $i++){  
+
+                    $row_element_another = $session_fields[$field_name.'_'.$i] ?? '';  
+                    foreach($options as $key2=>$val2){    
+
+                        $value       = $val2['value'] ?? ''; 
+                        $questions_2 = $val2['questions'] ?? []; 
+
+                        if( $row_element_another == $value && $questions_2 ){ 
+                            $returnArr = AllFunction::loop_add_another_questions_value($questions_2, $session_fields, $returnArr, $field_name, $i);   
+                        } 
+                        elseif( $row_element_another == $value && !$questions_2){  
+                            $returnArr[$field_name.'_'.$i] = AllFunction::get_value([
+                                'value'=>$row_element_another,
+                                'type'=>$answer_type
+                            ]);  
+                        }
+                        else{  
+                            
+                            if( !isset($returnArr[$field_name.'_'.$i]) ){
+                                $returnArr[$field_name.'_'.$i] = AllFunction::get_value([
+                                    'value'=>$row_element_another,
+                                    'type'=>$answer_type
+                                ]);  
+                            } 
+                        }
+                    }
+                    
+                }
+                
+            }
+            elseif( in_array($answer_type, $inFieldGroup) ){ 
+                $returnArr[$field_name] = AllFunction::get_value([
+                    'value'=>$row_element,
+                    'type'=>$answer_type
+                ]);                  
             }
             else{
-
-                foreach($options as $key2=>$val2){
-                    $value = $val2['value'] ?? ''; 
-                    $questions_2 = $val2['questions'] ?? [];
+                                     
+                foreach($options as $key2=>$val2){                   
                     
-                    if( $questions_2 ){
-                      $returnArr = AllFunction::loop_questions_value($questions_2, $fields, $returnArr, $field_name);
+                    $value = $val2['value'] ?? ''; 
+                    $questions_2 = $val2['questions'] ?? []; 
+                    
+                    if( $row_element == $value && $questions_2 ){                         
+                        $returnArr = AllFunction::loop_questions_value($questions_2, $session_fields, $returnArr, $field_name);
                     }
-                    elseif( $row_element == $value ){                       
-                        $returnArr[$field_name] = AllFunction::get_value($row_element);
+                    elseif( $row_element == $value && !$questions_2){                        
+                        $returnArr[$field_name] = AllFunction::get_value([
+                            'value'=>$row_element,
+                            'type'=>$answer_type
+                        ]);                                         
+                    }
+                    else{  
+                        
+                        if( !isset($returnArr[$field_name]) ){
+                            $returnArr[$field_name] = AllFunction::get_value([
+                                'value'=>$row_element,
+                                'type'=>$answer_type
+                            ]);                  
+                        } 
                     }
                 }
+                
             }  
         
-        }        
-        return $returnArr;
-        
-    
+        } 
+        return $returnArr; 
     }
-    static function loop_questions_value($questions, $fields, $returnArr, $parent_field_name){ 
-
+    static function loop_add_another_questions_value($questions, $session_fields, $returnArr, $parent_field_name, $i){ 
         $inFieldGroup = AllFunction::construct_value('inFieldGroup'); 
-
-        foreach($questions as $key=>$val){            
-
+        $qv = [];
+        foreach($questions as $key=>$val){ 
             $answer_type    = $val['answer_type'] ?? ''; 
             $field_name     = $val['field_name'] ?? ''; 
-            $options        = $val['options'] ?? []; 
-            $row_element    = $fields[$field_name] ?? '';
-            $return_field_name = $parent_field_name ? $parent_field_name : $field_name;
-          $returnArr[$field_name] = '';
-            if( in_array($answer_type, $inFieldGroup) ){ 
-                $returnArr[$return_field_name] = AllFunction::get_value($row_element);                
+            $options        = $val['options'] ?? [];  
+            $row_element_another = $session_fields[$field_name.'_'.$i] ?? '';  
+            $return_field_name = $parent_field_name ? $parent_field_name.'_'.$i : $field_name.'_'.$i;           
+           
+           if( in_array($answer_type, $inFieldGroup) ){ 
+            
+                if( count($questions) > 1 ){
+                    $qv[] = AllFunction::get_value([
+                        'value'=>$row_element_another,
+                        'type'=>$answer_type
+                    ]); 
+                    $returnArr[$return_field_name] = $qv;         
+                }
+                else{
+                    $returnArr[$return_field_name] = AllFunction::get_value([
+                        'value'=>$row_element_another,
+                        'type'=>$answer_type
+                    ]); 
+                }                
             }
             else{
                 
@@ -814,20 +889,161 @@ trait AllFunction {
                     $value = $val2['value'] ?? ''; 
                     $questions_2 = $val2['questions'] ?? [];
                     
-                    if( $questions_2 ){
-                        $returnArr = AllFunction::loop_questions_value($questions_2, $fields, $returnArr, $field_name);
+                    if( $row_element_another == $value && $questions_2 ){
+                        $returnArr = AllFunction::loop_add_another_questions_value($questions_2, $session_fields, $returnArr, $field_name, $i);
                     }
-                    elseif( $row_element == $value ){ 
-                        $returnArr[$return_field_name] = AllFunction::get_value($row_element);
+                    elseif( $row_element_another == $value && !$questions_2 ){ 
+                        $returnArr[$return_field_name] = AllFunction::get_value([
+                            'value'=>$row_element_another,
+                            'type'=>$answer_type
+                        ]); 
+                    }
+                    else{ 
+                        if( !isset($returnArr[$return_field_name]) ){
+                            $returnArr[$return_field_name] = AllFunction::get_value([
+                                'value'=>$row_element_another,
+                                'type'=>$answer_type
+                            ]); 
+                        }
+                        
+                    }
+                }
+            }          
+        }
+        return $returnArr;
+    }
+    static function loop_questions_value($questions, $session_fields, $returnArr, $parent_field_name){ 
+
+        $inFieldGroup = AllFunction::construct_value('inFieldGroup'); 
+
+        $qv = [];
+        foreach($questions as $key=>$val){            
+
+            $answer_type    = $val['answer_type'] ?? ''; 
+            $field_name     = $val['field_name'] ?? ''; 
+            $options        = $val['options'] ?? [];             
+            $row_element    = $session_fields[$field_name] ?? '';
+            $return_field_name = $parent_field_name ? $parent_field_name : $field_name;           
+           
+            if( in_array($answer_type, $inFieldGroup) ){ 
+            
+                if( count($questions) > 1 ){
+                    $qv[] = AllFunction::get_value([
+                        'value'=>$row_element,
+                        'type'=>$answer_type
+                    ]);                  
+                    $returnArr[$return_field_name] = $qv;         
+                }
+                else{
+                    $returnArr[$return_field_name] = AllFunction::get_value([
+                        'value'=>$row_element,
+                        'type'=>$answer_type
+                    ]);                            
+                }                
+            }
+            else{
+                
+                foreach($options as $key2=>$val2){
+                    
+                    $value = $val2['value'] ?? ''; 
+                    $questions_2 = $val2['questions'] ?? [];
+                    
+                    if( $row_element == $value && $questions_2 ){
+                        $returnArr = AllFunction::loop_questions_value($questions_2, $session_fields, $returnArr, $field_name);
+                    }
+                    elseif( $row_element == $value && !$questions_2 ){ 
+
+                        if( $answer_type == 'radio_group' ){                            
+                            $returnArr[$return_field_name] = AllFunction::get_value([
+                                'value'=>$session_fields[$return_field_name] ?? '', 
+                                'type'=>$answer_type
+                            ]);             
+                        }
+
+                        if( !isset($returnArr[$return_field_name]) ){
+                            $returnArr[$return_field_name] = AllFunction::get_value([
+                                'value'=>$row_element,
+                                'type'=>$answer_type
+                            ]);            
+                        }
+                              
+                    }
+                    else{ 
+                        if( !isset($returnArr[$return_field_name]) ){
+                            $returnArr[$return_field_name] = AllFunction::get_value([
+                                'value'=>$row_element,
+                                'type'=>$answer_type
+                            ]);                  
+                        }
+                        
                     }
                 }
             }          
         }
         return $returnArr;
     }    
-    static function get_value($val){ 
-        return $val;
+    static function format_date($date){ 
+        return date('j F, Y',strtotime($date));
     }
-   
+    static function get_value($data){ 
+
+        $type  = $data['type'] ?? ''; 
+        $value = $data['value'] ?? ''; 
+
+        $blankVal = AllFunction::construct_value('blankVal');   
+        $blankVal = $blankVal[$type] ?? ''; 
+
+        $date_pattern = '/^\d{4}-\d{2}-\d{2}$/';   
+        
+        $return_value = $value;
+        if($value == ''){
+            $return_value = $blankVal;
+        }  
+        elseif( preg_match($date_pattern, $value) ){
+            $return_value = AllFunction::format_date($value);
+        }   
+        return $return_value;
+    }
+    //====
+    static function replace_template($data){       
+        $question_value = $data['question_value'] ?? []; 
+        $template = $data['template'] ?? '';   
+        foreach($question_value as $key=>$val){   
+
+           
+            if( is_array($val) ){
+                $i = 0;
+                $html = '';
+                foreach($val as $k=>$v){
+                    $i++;
+                    $html.= $v;
+                    if($i < count($val) ){
+                        $html.= '<br />';
+                    }
+                }
+                
+            }     
+            elseif( AllFunction::is_json_data($val) ){
+                $val = (array)json_decode($val);
+                $i = 0;
+                $html = '';
+                foreach($val as $k=>$v){
+                    $i++;
+                    $html.= $v;
+                    if($i < count($val) ){
+                        $html.= ',';
+                    }
+                }
+            }  
+            else{
+                $html = $val;
+            }
+
+            $template = str_replace( '{{'.$key.'}}', $html, $template);
+        }  
+        return $template;
+    }
+    //===
+
     
 }

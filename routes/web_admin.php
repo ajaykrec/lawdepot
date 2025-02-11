@@ -26,12 +26,15 @@ use App\Http\Controllers\admin\ZonesController;
 use App\Http\Controllers\admin\DocumentCategoryController;
 use App\Http\Controllers\admin\DocumentController;
 use App\Http\Controllers\admin\DocumentStepController;
+use App\Http\Controllers\admin\DocumentFaqController;
 use App\Http\Controllers\admin\DocumentQuestionController;
 use App\Http\Controllers\admin\DocumentQuestionOptionController;
 
 use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\CustomerAddressController;
 
+
+use App\Http\Controllers\admin\MembershipController;
 
 /*
 |--------------------------------------------------------------------------
@@ -84,6 +87,7 @@ Route::middleware(['auth'])->group( function(){
     Route::resource('/document',DocumentController::class); 
     Route::get('/doc-categories/{country_id}', [DocumentController::class, 'get_categories'])->name('doc.categories');   
     Route::resource('/document.steps',DocumentStepController::class)->shallow();
+    Route::resource('/document.faqs',DocumentFaqController::class)->shallow();    
     
     //Route::resource('/document.questions',DocumentQuestionController::class)->shallow();
     Route::resource('/questions',DocumentQuestionController::class)->shallow();
@@ -103,6 +107,8 @@ Route::middleware(['auth'])->group( function(){
 
     Route::resource('/customers',CustomerController::class)->shallow();
     Route::resource('/customers.address',CustomerAddressController::class)->shallow(); 
+
+    Route::resource('/membership-setting',MembershipController::class)->shallow();
     
     Route::get('/common',[CommonController::class, 'index'])->name('common');
     

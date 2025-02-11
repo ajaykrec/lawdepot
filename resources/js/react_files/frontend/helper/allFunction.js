@@ -30,9 +30,15 @@ const allFunction = {
   dateFormat: (myDateTime)=> {    
     return dayjs(myDateTime).format('MM-DD-YYYY');
   },
-  currency: (amount)=>{
+  currency: (amount,country_code)=>{
+    const codes = {
+      'in':'₹',
+      'uk':'£',
+      'us':'$',
+      'au':'A$'
+    }
     let Amt = amount.replace('.00', '');
-    return '₹'+Amt;
+    return codes[country_code] + Amt; 
   },
   objToQuerystring : (obj)=> {
     const keyValuePairs = [];

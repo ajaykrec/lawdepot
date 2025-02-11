@@ -33,7 +33,29 @@ const Text = ({propsData, addMoreIndex}) => {
 
     return (
         <>  
-       
+        <div className="col-lg-10 col-md-12 col-12">
+            {
+                label_text &&
+                <>  
+                <div className="label_text">{ label_text }</div>
+                </>
+            } 
+            <div className={`question ${ label_text ? '' : 'q-margin' }`}>
+            { question_text }                                        
+            </div>
+            <input type="text" className="form-control" placeholder={ propsData.placeholder } autoComplete='off'
+            name={field_name}  
+            value={data[field_name] ?? ''}                         
+            onChange={ (e) => {
+                
+                dispatch(fieldAction({
+                    ...fields,
+                    [field_name]:e.target.value
+                }))
+
+            }}
+            /> 
+        </div>         
     </> 
   )
 }

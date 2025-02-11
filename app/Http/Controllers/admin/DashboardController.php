@@ -28,7 +28,10 @@ class DashboardController extends Controller
         (SELECT COUNT(*) FROM documents) as document_count,  
         (SELECT COUNT(*) FROM documents_category ) as document_category_count,
 
-        (SELECT COUNT(*) FROM language ) as language_count
+        (SELECT COUNT(*) FROM language ) as language_count,
+
+        (SELECT COUNT(*) FROM membership ) as membership_count
+        
         ");
         $table_count = array_map(function ($value) {
             return (array) $value;

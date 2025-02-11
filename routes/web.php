@@ -50,6 +50,9 @@ Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
 
     //=== membership ==
     Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');
+    Route::post('/select-membership', [MembershipController::class, 'select_membership'])->name('select.membership.post');   
+    Route::get('/checkout', [MembershipController::class, 'checkout'])->name('membership.checkout');
+    
 
     //=== pages ==
     Route::get('/about-us', [PagesController::class,'about'])->name('about');    

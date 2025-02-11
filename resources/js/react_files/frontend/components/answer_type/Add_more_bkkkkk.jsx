@@ -37,19 +37,19 @@ const Add_more = ({propsData}) => {
     useEffect(()=> {  
       setData({
         ...fields,
-        [selected_field_count]:fields[selected_field_count] ?? 1
+        [selected_field_count]:fields[selected_field_count] ?? [field_name+'_1']
       })
     },[fields])   
     
-    const [count, setCount] = useState( fields[selected_field_count] ? parseInt(fields[selected_field_count]) : 1)   
+    const [listItems, setlistItems] = useState( fields[selected_field_count] ? fields[selected_field_count] : [field_name+'_1'])     
     
-    var listItems = [] 
-    for (let i = 0; i < count; i++) {
-      listItems.push(i)      
-    }    
+    var listItems_ = [] 
+    listItems.map((item,i)=>{    
+      listItems_.push(item)      
+    })   
     
     let firstWord = label_text.split(' ')[0]   
-     
+    var count = 1
     return (
 
       <>      
@@ -66,24 +66,28 @@ const Add_more = ({propsData}) => {
           let index = i + 1
 
           return(              
-              <div key={i}  className="my-3 p-3" style={{border:"2px solid #ccc"}}>
+              <div key={i} className="my-3 p-3" style={{border:"2px solid #ccc"}}>
 
                 <div className="d-flex justify-content-between mb-2">
                   <div>{firstWord} {i+1}</div>
                   <div>
                     {
-                      count > 1 &&
+                      listItems.length > 1 &&
                       <button
                       type="button"
                       className="btn btn-link"
                       style={{color:"#dc3545",borderBottom:"none"}}
                       onClick={() =>{ 
                         
-                        setCount( (count-1) > 0 ? count-1 : 1 )  
+                        let ff = field_name +'_'+ (count + 1)                         
+                        listItems_.splice(listItems_.indexOf(ff), 1)
+                        
+                        setlistItems(listItems_)
                         dispatch(fieldAction({
                           ...fields,
-                          [selected_field_count]: (count-1) > 0 ? count - 1 : 1
+                          [selected_field_count]:listItems_
                         }))
+
 
                       }}
                       >Remove</button>
@@ -115,7 +119,7 @@ const Add_more = ({propsData}) => {
       }   
 
       {
-        add_another_max > count &&
+        add_another_max > listItems.length &&
         <>
         <p>
           <button
@@ -124,10 +128,15 @@ const Add_more = ({propsData}) => {
           style={{borderBottom:"none"}}
           onClick={() => {
 
-            setCount(count + 1)
+            let ff = field_name +'_'+ (count + 1) 
+            if( !listItems_.includes(ff) ){
+              listItems_.push(ff)
+            }
+           
+            setlistItems(listItems_)
             dispatch(fieldAction({
               ...fields,
-              [selected_field_count]:count + 1
+              [selected_field_count]:listItems_
             }))
 
 
