@@ -287,6 +287,26 @@
             </div>
             @endif
 
+            @if(has_permision(['orders']))     
+            <div class="col-xxl-3 col-md-4">
+              <a href="{{ route('orders.index') }}">
+              <div class="card info-card revenue-card">
+                <div class="card-body">
+                  <h5 class="card-title">Orders</h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-cash-coin"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6>{{ $table_count['orders_count'] ?? '0' }}</h6>                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </a>
+            </div>
+            @endif
+
           </div>
         </div>
       </div>

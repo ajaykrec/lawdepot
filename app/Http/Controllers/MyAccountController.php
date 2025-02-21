@@ -7,7 +7,7 @@ use App\Models\Pages;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia; 
 
-class DashboardController extends Controller
+class MyAccountController extends Controller
 {
     use AllFunction; 
 
@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $q = DB::table('pages');  
         $q = $q->leftJoin('pages_language','pages_language.page_id','=','pages.page_id'); 
         $q = $q->where('pages_language.language_id',$language_id);   
-        $q = $q->where('pages.slug','dashboard'); 
+        $q = $q->where('pages.slug','my-account'); 
         $page = $q->first(); 
         $page = json_decode(json_encode($page), true); 
        
@@ -37,9 +37,11 @@ class DashboardController extends Controller
             ['name'=>'Home', 'url'=>route('home')],
             ['name'=>$page['name'], 'url'=>''],
         ];
+
+        $active_membership = AllFunction::get_active_membership();  
         
-        $pageData = compact('page','meta','header_banner','breadcrumb'); 
-        return Inertia::render('frontend/pages/dashboard/Dashboard', [            
+        $pageData = compact('page','meta','header_banner','breadcrumb','active_membership'); 
+        return Inertia::render('frontend/pages/my_account/My_account', [            
             'pageData' => $pageData,            
         ]);
     }

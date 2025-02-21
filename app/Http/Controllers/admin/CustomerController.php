@@ -77,7 +77,8 @@ class CustomerController extends Controller
                     }
                 }
             }
-        }            
+        }     
+        $q->with(['membership','documents']);        
         $q->orderBy("name", "asc"); 
         $count = $q->count();     
         $results  = $q->limit($limit)->offset($offset)->get()->toArray(); 

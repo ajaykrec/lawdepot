@@ -10,12 +10,12 @@ const Header = (props) => {
 	let ccp2     		        = ccp.split('/')
 	let current_path            = (ccp2[1]) ? ccp2[1] : ''
 
-    const home_menu   = ['']; 
-    const about_menu  = ['about-us']; 
+    const home_menu     = ['']; 
+    const about_menu    = ['about-us']; 
     const service_menu  = ['services']; 
-    const blog_menu  = ['blog']; 
+    const blog_menu     = ['blog']; 
     const contact_menu  = ['contact']; 
-    const pages_menu  = ['features','cars','teams','testimonial'];   
+    const pages_menu    = ['features','cars','teams','testimonial'];   
 
     const { file_storage_url, customer, common_data } = usePage().props
 
@@ -56,6 +56,7 @@ const Header = (props) => {
         $('#'+id).removeClass('open');
       }       
     }
+
 
     return (
         <>
@@ -209,29 +210,26 @@ const Header = (props) => {
                                         <a style={{cursor:"pointer"}} className="fw-500">                                        
                                             <span className="icon-country"><img src="/frontend-assets/images/user.png" alt="" style={{width:"20px"}} /></span>
                                             <br />
-                                            <span className="d-none d-sm-inline-block">My account</span>
+                                            <span className="d-none d-sm-inline-block">{ customer.email }</span>
                                         </a>
-                                        <ul className="account-item-list">
-                                            <li className="account-item"><Link href={ route('customer.dashboard') }>Dashboard</Link></li>                                            
-                                            <li className="account-item"><Link href={ route('customer.dashboard') }>Account details</Link></li>                                            
+                                        <ul className="account-item-list">                                            
+                                            <li className="account-item"><Link href={ route('customer.account') }>My Account</Link></li>      
+                                            <li className="account-item"><Link href={ route('customer.documents') }>My Documents</Link></li>   
+                                            <li className="account-item"><Link href={ route('membership.index') }>Upgrade Account</Link></li>  
                                             <li className="account-item"><Link href={ route('customer.logout') }>Logout</Link></li>
                                         </ul>
                                     </div> 
                                 </div>
                                 :
                                 <div className="header-button ms-30px xxl-ms-10px xs-ms-0">
-                                    {/* <Link href={ 
-                                        route('customer.login') 
-                                        } className="fw-500">                                   
-                                        <span className="btn btn-white btn-small btn-rounded btn-box-shadow fw-600 d-sm-inline-block" style={{padding:"2px 5px"}}>
-                                            <span className="btn-double-text">Sign In</span> 
-                                        </span>
-                                    </Link> */}
-                                    <Link href="#" className="fw-500">                                   
-                                        <span className="btn btn-white btn-small btn-rounded btn-box-shadow fw-600 d-sm-inline-block" style={{padding:"2px 5px"}}>
-                                            <span className="btn-double-text">Sign In</span> 
-                                        </span>
-                                    </Link>
+                                    <Link 
+                                    href={ route('customer.login') } 
+                                    className="fw-500"
+                                    >                                   
+                                    <span className="btn btn-white btn-small btn-rounded btn-box-shadow fw-600 d-sm-inline-block" style={{padding:"2px 5px"}}>
+                                        <span className="btn-double-text">Sign In</span> 
+                                    </span>
+                                    </Link> 
                                 </div>
                             }   
 

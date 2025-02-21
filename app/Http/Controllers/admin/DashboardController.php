@@ -21,16 +21,13 @@ class DashboardController extends Controller
         (SELECT COUNT(*) FROM settings) as settings_count, 
         (SELECT COUNT(*) FROM users_types) as users_types_count,  
         (SELECT COUNT(*) FROM users ) as users_count,
-
         (SELECT COUNT(*) FROM country) as country_count,  
         (SELECT COUNT(*) FROM zones ) as zones_count,
-
         (SELECT COUNT(*) FROM documents) as document_count,  
         (SELECT COUNT(*) FROM documents_category ) as document_category_count,
-
         (SELECT COUNT(*) FROM language ) as language_count,
-
-        (SELECT COUNT(*) FROM membership ) as membership_count
+        (SELECT COUNT(*) FROM membership ) as membership_count,
+        (SELECT COUNT(*) FROM orders ) as orders_count             
         
         ");
         $table_count = array_map(function ($value) {

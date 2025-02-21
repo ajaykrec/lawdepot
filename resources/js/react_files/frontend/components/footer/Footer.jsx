@@ -11,12 +11,11 @@ const Footer = () => {
 	let ccp2     		= ccp.split('/')
 	let current_path    = (ccp2[1]) ? ccp2[1] : ''
        
-    const about_menu  = ['about-us']; 
-    const car_menu  = ['cars']; 
-    const team_menu  = ['teams']; 
+    const about_menu    = ['about-us']; 
+    const car_menu      = ['cars']; 
+    const team_menu     = ['teams']; 
     const contact_menu  = ['contact']; 
     const terms_condition_menu  = ['terms-and-condition']; 
-
 
     const { file_storage_url, customer, common_data } = usePage().props
     const settings = common_data.settings      
@@ -120,19 +119,11 @@ const Footer = () => {
                     <div className="col-6 col-lg-2 col-sm-4 xs-mb-30px order-sm-4 order-lg-3">
                         <span className="fs-17 fw-500 d-block text-white mb-5px">Customer</span>
                         <ul>  
-                            {/* 
                             <li>
-                                <Link href={ route('customer.dashboard') }>Dashboard</Link>
-                            </li>    
+                                <Link href={ route('customer.account') }>My account</Link>
+                            </li>   
                             <li>
-                                <Link href={ route('customer.dashboard') }>My account</Link>
-                            </li>                         
-                            */}
-                            <li>
-                                <Link href="#">Dashboard</Link>
-                            </li>    
-                            <li>
-                                <Link href="#">My account</Link>
+                                <Link href={ route('terms') }>Terms of Use</Link>
                             </li>  
                         </ul>
                     </div>
@@ -238,9 +229,7 @@ const Footer = () => {
             </div>
            </>
 
-        }
-
-        
+        }        
 
         <div className="scroll-progress d-none d-xxl-block">
         <a href="#" className="scroll-top" aria-label="scroll">

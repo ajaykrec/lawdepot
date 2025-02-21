@@ -391,8 +391,27 @@ input[type='checkbox'] {
     color: #a0a3a5;
 }
 
-
 .pricing-table{
     padding: 40px 25px;
     background: #e7e2e2;
+}
+.my-account-navbar a{
+    font-size: 16px !important;
+    background: rgb(108 117 125) !important;    
+    color: #fff!important;
+    margin-right: 7px;
+}
+.my-account-navbar a:hover,
+.my-account-navbar a.present{ 
+    background: rgb(13 110 253)!important;    
+}
+
+/*** Buttons **/
+.btn1{
+    font-size: 12px !important;
+    background: rgb(108 117 125) !important;
+    color: #fff !important;
+    margin: 2px;
+    padding: 2px 10px;
+    border-radius: 0
 }

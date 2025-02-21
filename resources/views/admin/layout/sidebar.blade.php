@@ -18,7 +18,7 @@ $language_menu      = ['language'];
 $location_menu      = ['country','zones'];
 $customers_menu     = ['customers','customers-address'];
 $membership_menu    = ['membership-setting'];
-
+$orders_menu        = ['orders'];
 @endphp
 
 <aside id="sidebar" class="sidebar">
@@ -67,7 +67,7 @@ $membership_menu    = ['membership-setting'];
         </li>
         @endif
 
-        <!-- <li class="nav-heading">Pages</li> -->
+       
         @if(has_permision(['pages','blocks']))
         <li class="nav-item">
             <a class="nav-link @php if(!in_array($current_path,$page_menu)){ echo 'collapsed'; } @endphp" data-bs-target="#cms-nav" data-bs-toggle="collapse" href="#">
@@ -164,6 +164,15 @@ $membership_menu    = ['membership-setting'];
                                           
             </ul>
         </li>
+        @endif
+
+        @if(has_permision(['orders']))    
+        <li class="nav-item">
+            <a class="nav-link @php if(!in_array($current_path,$orders_menu)){ echo 'collapsed'; } @endphp" href="{{ route('orders.index') }}">
+                <i class="bi bi-cash-coin"></i>
+                <span>Orders</span>
+            </a>
+        </li>  
         @endif
 
        

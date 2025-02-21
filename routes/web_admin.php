@@ -32,7 +32,7 @@ use App\Http\Controllers\admin\DocumentQuestionOptionController;
 
 use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\CustomerAddressController;
-
+use App\Http\Controllers\admin\OrderController;
 
 use App\Http\Controllers\admin\MembershipController;
 
@@ -107,8 +107,8 @@ Route::middleware(['auth'])->group( function(){
 
     Route::resource('/customers',CustomerController::class)->shallow();
     Route::resource('/customers.address',CustomerAddressController::class)->shallow(); 
-
     Route::resource('/membership-setting',MembershipController::class)->shallow();
+    Route::resource('/orders',OrderController::class)->shallow();
     
     Route::get('/common',[CommonController::class, 'index'])->name('common');
     

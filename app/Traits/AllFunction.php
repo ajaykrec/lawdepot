@@ -344,6 +344,26 @@ trait AllFunction {
         }
         return $data;
     }
+    static function get_active_membership(){  
+
+        $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
+        $customer_id = $customer['customer_id'] ?? '';
+        
+        $q = DB::table('customers_membership'); 
+        $q = $q->where('customer_id',$customer_id);   
+        $q = $q->where('status',1); 
+        $q = $q->where('end_date','>=',date('Y-m-d')); 
+        $q = $q->orderBy('cus_membership_id','desc'); 
+        $q = $q->first(); 
+        $data = json_decode(json_encode($q), true); 
+        
+        if($data){
+            return true;
+        }
+        else{
+            return false;
+        }        
+    }
     static function get_common_data(){ 
         Cache::pull('data');
         if(Cache::has('data')){

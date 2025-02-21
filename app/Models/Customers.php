@@ -24,4 +24,10 @@ class Customers extends Authenticatable
     function address(){
         return $this->hasMany('App\Models\Customers_address','customer_id','customer_id');
     }
+    function membership(){
+        return $this->hasMany('App\Models\Customers_membership','customer_id','customer_id');
+    }
+    function documents(){
+        return $this->hasMany('App\Models\Customers_document','customer_id','customer_id');
+    }
 }

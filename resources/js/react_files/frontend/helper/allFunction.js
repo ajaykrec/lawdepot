@@ -28,7 +28,7 @@ const allFunction = {
     return dayjs(myDateTime).format('MMM D, YYYY h:mm A');
   },
   dateFormat: (myDateTime)=> {    
-    return dayjs(myDateTime).format('MM-DD-YYYY');
+    return dayjs(myDateTime).format('MMM D, YYYY');
   },
   currency: (amount,country_code)=>{
     const codes = {

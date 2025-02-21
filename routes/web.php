@@ -5,12 +5,17 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PagesController;
 
-use App\Http\Controllers\DashboardController;
-
 use App\Http\Controllers\DocumentCategoryController;
 use App\Http\Controllers\DocumentController; 
 
 use App\Http\Controllers\MembershipController; 
+
+use App\Http\Controllers\Auth\CustomerController;
+use App\Http\Controllers\MyAccountController;
+use App\Http\Controllers\MyDocumentController;
+use App\Http\Controllers\MyMembershipController;
+use App\Http\Controllers\MySettingsController;
+use App\Http\Controllers\ChangePasswordController;
 
 
 //=== download file ====
@@ -34,13 +39,35 @@ Route::get('/linkstorage', function () {
 
 //== protected routes
 Route::middleware(['auth.customer','front_view'])->group( function(){
-    Route::get('/dashboard',[DashboardController::class, 'index'])->name('customer.dashboard'); 
+
+    Route::get('/my-account',[MyAccountController::class, 'index'])->name('customer.account');     
+    Route::get('/my-membership',[MyMembershipController::class, 'index'])->name('customer.membership'); 
+    Route::get('/my-account-settings',[MySettingsController::class, 'index'])->name('customer.settings'); 
+    Route::post('/my-account-settings',[MySettingsController::class, 'account_post'])->name('customer.settings.post'); 
+    Route::get('/change-password',[ChangePasswordController::class, 'index'])->name('customer.changepassword'); 
+    Route::post('/change-password',[ChangePasswordController::class, 'password_post'])->name('customer.changepassword.post'); 
+    Route::get('/my-documents',[MyDocumentController::class, 'index'])->name('customer.documents');     
+    
 });
 
 Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
     
     Route::get('/coming-soon', [PagesController::class,'coming_soon'])->name('comingsoon');
-    Route::get('/', [HomeController::class,'index'])->name('home');    
+    Route::get('/', [HomeController::class,'index'])->name('home'); 
+    
+    //=== Auth ===
+    Route::get('/register', [CustomerController::class, 'register'])->name('customer.register');
+    Route::post('/register', [CustomerController::class, 'register_post'])->name('customer.register.post');     
+
+    Route::get('/login', [CustomerController::class, 'login'])->name('customer.login');
+    Route::post('/login', [CustomerController::class, 'login_post'])->name('customer.login.post');     
+
+    Route::get('/forgot-password', [CustomerController::class, 'forgot_password'])->name('customer.forgot.password');  
+    Route::post('/forgot-password', [CustomerController::class, 'forgot_password_post'])->name('customer.forgot.password.post');
+
+    Route::get('/reset-password/{token}', [CustomerController::class, 'reset_password'])->name('customer.password.reset');
+    Route::post('/reset-password', [CustomerController::class, 'reset_password_post'])->name('customer.reset.password.post');      
+    Route::get('/logout', [CustomerController::class, 'logout'])->name('customer.logout');
 
     //=== Documents ==
     Route::get('/group/{slug}', [DocumentCategoryController::class, 'index'])->name('category.index');

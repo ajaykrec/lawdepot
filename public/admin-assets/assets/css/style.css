@@ -1364,6 +1364,26 @@ form span.err{
   word-wrap: break-word;         
   overflow-wrap: break-word; 
 }
+
+.discount-label {
+  top: -6px;
+  right: -6px;
+  width: 100px;
+  height: 100px;
+  text-align: center;
+  position: absolute;
+  background-image: url(../img/download.png);
+  transform: rotate(90deg);
+}
+.discount-label span {
+  color: #fff;
+  margin-left: -25px;
+  margin-top: 27px;
+  -webkit-transform: rotate(-45deg);
+  transform: rotate(315deg);
+  display: inline-block;
+  text-transform: uppercase;
+}
 /*!
 * ajay css [ends]
 */

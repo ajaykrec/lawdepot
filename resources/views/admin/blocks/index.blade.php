@@ -97,7 +97,8 @@
 
                                             @if(has_permision(['blocks'=>'RW']))
                                             <a href="{{ route('blocks.edit',$val['block_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
-                                            <button type="button" class="btn btn-md delete"                                             
+                                            <button type="button" 
+                                            class="btn btn-md delete"                                             
                                             onclick="delete_row({{ $val['block_id'] }})"         
                                             title="Delete"><i class="bi bi-trash text-danger"></i></button>
                                             @endif
@@ -143,7 +144,7 @@
     </section>
 
     <script>
-    const delete_row = (id) =>{  
+    const delete_row = (id) =>{ 
 
         swal({		  
             title				: 'Are you sure?',

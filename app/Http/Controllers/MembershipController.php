@@ -75,6 +75,10 @@ class MembershipController extends Controller
             return redirect( route('membership.index') );   
         }
 
+        //==== remove return_url session ====
+        Session::forget('return_url'); 
+        //=====  
+
         $language_id = AllFunction::get_current_language();    
         $country     = AllFunction::get_current_country();         
         $country_id  = $country['country_id'] ?? '';
