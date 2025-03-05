@@ -31,7 +31,7 @@ const Membership_modal = (props)=>{
       <Modal.Body className="modal-body">
         <ul className="list-group list-group-flush">          
           <li className="list-group-item px-0">
-            <b>Price : </b> { allFunction.currency(data.price, country.code) } 
+            <b>Price : </b> { allFunction.currency(data.price, data.currency_code) } 
           </li>
           <li className="list-group-item px-0">
             <b>Time Period : </b> { data.time_period +' '+data.time_period_sufix }

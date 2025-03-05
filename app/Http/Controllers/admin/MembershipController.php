@@ -142,6 +142,9 @@ class MembershipController extends Controller
         }
         else{
 
+            $country_id = $request['country_id'] ?? '';
+            $country = Country::find($country_id);
+
             // store
             $table = new Membership;
             $table->country_id          = $request['country_id'] ?? '';
@@ -149,6 +152,7 @@ class MembershipController extends Controller
             $table->description         = $request['description'] ?? '';
             $table->specification       = json_encode($request['specification'] ?? '');
             $table->price               = $request['price'] ?? 0;
+            $table->currency_code       = $country->currency_code ?? '';
             $table->time_period         = $request['time_period'] ?? 0;
             $table->time_period_sufix   = $request['time_period_sufix'] ?? '';
             $table->button_color        = $request['button_color'] ?? '';            
@@ -211,12 +215,16 @@ class MembershipController extends Controller
         }
         else{
 
+            $country_id = $request['country_id'] ?? '';
+            $country = Country::find($country_id);
+
             $table = Membership::find($id);
             $table->country_id          = $request['country_id'] ?? '';
             $table->name                = $request['name'];           
             $table->description         = $request['description'] ?? '';
             $table->specification       = json_encode($request['specification'] ?? '');    
             $table->price               = $request['price'] ?? 0;
+            $table->currency_code       = $country->currency_code ?? '';
             $table->time_period         = $request['time_period'] ?? 0;
             $table->time_period_sufix   = $request['time_period_sufix'] ?? '';
             $table->button_color        = $request['button_color'] ?? '';            

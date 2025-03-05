@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id('country_id');   
             $table->integer('language_id');         
             $table->string('name',200)->nullable();
-            $table->string('code',200)->unique();  
+            $table->string('code',200)->unique();
+            $table->string('currency_code',10)->unique();    
             $table->string('image',200)->nullable();  
             $table->integer('default');            
             $table->integer('sort_order');

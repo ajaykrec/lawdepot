@@ -20,8 +20,9 @@ return new class extends Migration
             $table->string('item_description',255)->nullable();       
             $table->integer('item_type')->nullable()->comment('0:membership, 1:product'); 
             $table->string('image',150)->nullable();       
-            $table->text('options')->nullable();            
-            $table->decimal('price');
+            $table->text('options')->nullable();   
+            $table->string('currency_code',10)->nullable();          
+            $table->decimal('price');            
             $table->integer('quantity');            
             $table->timestamps();
         });

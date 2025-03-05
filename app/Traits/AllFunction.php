@@ -22,6 +22,8 @@ use App\Models\Document;
 use App\Models\Documents_step;
 use App\Models\Documents_question;
 use App\Models\Documents_question_option;
+use App\Models\Orders;
+
 
 trait AllFunction {  
     
@@ -48,6 +50,35 @@ trait AllFunction {
       static function limit($number=0){
         return $number ? $number : 25;
       }
+
+      static function get_invoice_sufix() {
+        $max = Orders::max('invoice_sufix');         	
+        return $max + 1;
+      }	
+      static function get_invoice_number(){		
+        $invoice_prefix = 'INST1000'; 
+        $invoice_sufix  = AllFunction::get_invoice_sufix();		
+        $invoice_number = $invoice_prefix.$invoice_sufix;		
+        return $invoice_number;	
+      }
+      static function get_client_ip() {
+        $ipaddress = '';
+        if (getenv('HTTP_CLIENT_IP'))
+            $ipaddress = getenv('HTTP_CLIENT_IP');
+        else if(getenv('HTTP_X_FORWARDED_FOR'))
+            $ipaddress = getenv('HTTP_X_FORWARDED_FOR');
+        else if(getenv('HTTP_X_FORWARDED'))
+            $ipaddress = getenv('HTTP_X_FORWARDED');
+        else if(getenv('HTTP_FORWARDED_FOR'))
+            $ipaddress = getenv('HTTP_FORWARDED_FOR');
+        else if(getenv('HTTP_FORWARDED'))
+           $ipaddress = getenv('HTTP_FORWARDED');
+        else if(getenv('REMOTE_ADDR'))
+            $ipaddress = getenv('REMOTE_ADDR');
+        else
+            $ipaddress = 'UNKNOWN';
+        return $ipaddress;
+    }
 
       static function paginate($total_items, $item_per_page, $current_page, $adjacents, $url = NULL){
 
@@ -280,7 +311,9 @@ trait AllFunction {
             }          
         }
      }
-
+     static function send_mail($data){  
+        AllFunction::mail_with_sendgrid($data);	
+    }
     static function mail_with_sendgrid($data){  
         
         $email      = isset($data['email']) ? $data['email'] : '';  

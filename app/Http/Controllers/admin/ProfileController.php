@@ -178,7 +178,7 @@ class ProfileController extends Controller
         }
         else{
             $meta = [
-                'title'=>'change Profile Password',
+                'title'=>'Change Profile Password',
                 'keywords'=>'',
                 'description'=>'',
             ];

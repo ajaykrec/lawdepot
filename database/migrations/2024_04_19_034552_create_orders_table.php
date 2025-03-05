@@ -44,7 +44,8 @@ return new class extends Migration
             $table->string('payment_method',150)->nullable();   
             $table->string('shipping_method',150)->nullable(); 
             $table->text('comment')->nullable(); 
-            $table->string('ip',150)->nullable();  
+            $table->string('ip',150)->nullable();             
+            $table->string('currency_code',10)->nullable();  
             $table->decimal('total'); 
             $table->decimal('sub_total'); 
             $table->decimal('discount'); 

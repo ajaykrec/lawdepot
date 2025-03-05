@@ -73,9 +73,9 @@ const My_membership = () => {
                                 const membership = val.membership
                                 return(
                                   <tr key={i}>
-                                    <th scope="row">{start_count}</th>
+                                    <th scope="row">{start_count}</th> 
                                     <td>{membership.name}</td>
-                                    <td>{ allFunction.currency(membership.price,country.code) }</td>
+                                    <td>{ allFunction.currency(membership.price, membership.currency_code) }</td>
                                     <td>{ allFunction.dateFormat(val.start_date) }</td>
                                     <td>{ allFunction.dateFormat(val.end_date) }</td>  
                                     <td className='text-center'>

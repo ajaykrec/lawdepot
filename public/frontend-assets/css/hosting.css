@@ -35,7 +35,8 @@ body{
     font-size: 15px;
 }
 header .navbar-brand img {
-    max-height: 32px;
+    /* max-height: 32px; */
+    max-height: 50px;
 }
 .sticky .header-transparent .header-button .btn {
     background-color: var(--dark-gray);

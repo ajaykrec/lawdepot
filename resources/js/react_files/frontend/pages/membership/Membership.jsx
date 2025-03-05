@@ -89,7 +89,7 @@ const Membership = () => {
                                         item.price <= 0 ?
                                         <>FREE</>
                                         :
-                                        allFunction.currency(item.price,country.code) 
+                                        allFunction.currency(item.price,item.currency_code) 
                                     }                                    
                                     </h2>
                                     <p className="mb-25px lh-28">

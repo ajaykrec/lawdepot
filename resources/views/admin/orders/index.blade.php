@@ -91,7 +91,7 @@
                                         <td>{{ $val['name'] }}</td>   
                                         <td>{{ $val['email'] }}</td>  
                                         <td>{{ $val['phone'] }}</td>    
-                                        <td>{{ currency($val['total']) }}</td>  
+                                        <td>{{ currency($val['total'], $val['currency_code']) }}</td>  
                                         <td>{{ full_date_format($val['created_at']) }}</td>                                                      
                                         <td>
                                             @if($val['order_status'] == '0')                                                

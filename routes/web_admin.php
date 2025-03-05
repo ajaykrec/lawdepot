@@ -32,21 +32,13 @@ use App\Http\Controllers\admin\DocumentQuestionOptionController;
 
 use App\Http\Controllers\admin\CustomerController;
 use App\Http\Controllers\admin\CustomerAddressController;
+use App\Http\Controllers\admin\CustomerMembershipController;  
+use App\Http\Controllers\admin\CustomerDocumentController;
 use App\Http\Controllers\admin\OrderController;
 
 use App\Http\Controllers\admin\MembershipController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
+//==============
 
 Route::any('/', [LoginController::class, 'login'])->name('login');
 Route::get('/forgot-password', [LoginController::class, 'forgot_password'])->name('forgot.password');
@@ -107,8 +99,10 @@ Route::middleware(['auth'])->group( function(){
 
     Route::resource('/customers',CustomerController::class)->shallow();
     Route::resource('/customers.address',CustomerAddressController::class)->shallow(); 
+    Route::resource('/customers.membership',CustomerMembershipController::class)->shallow(); 
+    Route::resource('/customers.document',CustomerDocumentController::class)->shallow(); 
     Route::resource('/membership-setting',MembershipController::class)->shallow();
-    Route::resource('/orders',OrderController::class)->shallow();
+    Route::resource('/orders',OrderController::class)->shallow();    
     
     Route::get('/common',[CommonController::class, 'index'])->name('common');
     

@@ -29,15 +29,13 @@ const Checkout = () => {
       return Parser(html, options);
   }    
 
-  console.log(customer)
+  console.log(membership)
  
   return (
     <>
     <Head>
         <title>{pageData.meta.title}</title>
         <meta name="description" content={pageData.meta.description} />
-        <script src="https://secure.nochex.com/exp/jquery.js"></script>        
-	      <script src="https://secure.nochex.com/exp/nochex_lib.js"></script>  
     </Head> 
     <Header_banner />
     <Breadcrumb />    
@@ -53,24 +51,18 @@ const Checkout = () => {
                 customer ?
                 <>
                 <h6>{ membership.name }</h6>
-                <h6><b>{ allFunction.currency(membership.price,membership.currency_code) }</b></h6>                  
-
-                <button id="ncx-show-checkout" title="Checkout" className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded">Pay</button> 
-                <form id="nochexForm" className="ncx-form" name="nochexForm">
-                  <script 
-                  id="ncx-config"
-                  ncxfield-api_key="nvkd236fb549072428dbb0d2e98a40272b0"
-                  ncxfield-merchant_id="Instantly_Legal"
-                  ncxfield-amount={membership.price}
-                  ncxfield-fullname={customer.name}
-                  ncxfield-email={customer.email}
-                  ncxfield-phone={customer.phone}
-                  ncxfield-order_id={pageData.order_id}
-                  ncxfield-test_transaction="true"
-                  ncxfield-use_apc="true"                      
-                  ncxfield-success_url ={ route('membership.checkout.success') }
-                  ncxfield-callback_url={ route('membership.checkout.callback') }
-                  ></script>
+                <h6><b>{ allFunction.currency(membership.price,membership.currency_code) }</b></h6>                
+                <form action="https://secure.nochex.com/" method="post" name="nochexForm">
+                  <input type="hidden" name="merchant_id" value="Instantly_legal" />
+                  <input type="hidden" name="description" value={membership.name} />
+                  <input type="hidden" name="order_id" value={pageData.order_id} />
+                  <input type="hidden" name="initial_amount" value={membership.price} />
+                  <input type="hidden" name="amount" value={membership.price} />
+                  <input type="hidden" name="interval_number" value="1" />
+                  <input type="hidden" name="interval_unit" value="M" />
+                  <input type="hidden" name="recurrence_number" value="N" />
+                  <input type="hidden" name="recurring_payment" value="1" />
+                  <button className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded" type="submit">Place Secure Order</button>                  
                 </form>
 
                 <p className="p-2">

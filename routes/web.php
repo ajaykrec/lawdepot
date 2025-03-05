@@ -79,6 +79,8 @@ Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
     Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');
     Route::post('/select-membership', [MembershipController::class, 'select_membership'])->name('select.membership.post');   
     Route::get('/checkout', [MembershipController::class, 'checkout'])->name('membership.checkout');
+    Route::get('/checkout-success', [MembershipController::class, 'success'])->name('membership.checkout.success');
+    Route::get('/checkout-callback', [MembershipController::class, 'callback'])->name('membership.checkout.callback');
     
 
     //=== pages ==

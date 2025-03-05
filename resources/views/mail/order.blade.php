@@ -39,16 +39,24 @@ $show_tag = $data['show_tag'] ?? '';
             {{ $data['name'] ?? '' }}<br>
             Email : {{ $data['email'] ?? '' }}<br>
             Phone : {{ $data['phone'] ?? '' }}<br>
-            {{ $data['address'] ?? '' }} 
-            {{ $data['billing_city'] ?? '' }} <br>
-            {{ $data['billing_zone'] ?? '' }} {{ $data['billing_postcode'] ?? '' }}<br>
+
+            @if( $data['billing_city'] )
+              {{ $data['address'] ?? '' }} 
+              {{ $data['billing_city'] ?? '' }} <br>
+            @endif
+
+            @if( $data['billing_zone'] || $data['billing_postcode'] )
+              {{ $data['billing_zone'] ?? '' }} 
+              {{ $data['billing_postcode'] ?? '' }}<br>
+            @endif
+
             {{ $data['billing_country'] ?? '' }}
             </div>
         
             <div class="col-sm-4" style="padding:10px;float:left;"> 
             <b>Invoice ID:</b> {{ $data['invoice_number'] }}<br>
             <b>Order Date:</b> {{ full_date_format($data['created_at']) }}<br>
-            <b>Amount:</b> {{ currency($data['total']) }}<br>
+            <b>Amount:</b> {{ currency($data['total'], $data['currency_code']) }}<br>
             <b>Payment Methods:</b> {{ $data['payment_method'] }}
             </div>            
         </div>
@@ -116,8 +124,8 @@ $show_tag = $data['show_tag'] ?? '';
                 </td> 
                 <td>{{ $option_value_html }}</td>              
                 <td align="center">{{ $val['quantity'] }}</td>
-                <td align="center">{{ currency($val['price']) }}</td>
-                <td align="right" style="padding-right:15px;">{{ currency($item_total) }}</td>
+                <td align="center">{{ currency($val['price'], $val['currency_code']) }}</td>
+                <td align="right" style="padding-right:15px;">{{ currency($item_total, $val['currency_code']) }}</td>
                 </tr>
                 @php
 			    }
@@ -135,33 +143,33 @@ $show_tag = $data['show_tag'] ?? '';
         <table border="0" cellpadding="0" cellspacing="15" style="float:right;">
           <tr>
             <td align="right" style="width:250px;">Subtotal : </td>
-            <td align="right">&nbsp;{{ currency($data['sub_total']) }}</td>
+            <td align="right">&nbsp;{{ currency($data['sub_total'], $data['currency_code']) }}</td>
           </tr>
           
           @if( $data['discount'] > 0 )				
 				<tr>
 				<td align="right">Discount : </td>
-				<td align="right">&nbsp;-{{ currency($data['discount']) }}</td>
+				<td align="right">&nbsp;-{{ currency($data['discount'], $data['currency_code']) }}</td>
 				</tr>				
 		  @endif
 
 		  @if( $data['delivery_charge'] > 0 )
 				<tr>
 				<td align="right">Shipping and handling : </td>
-				<td align="right">&nbsp;{{ currency($data['delivery_charge']) }}</td>
+				<td align="right">&nbsp;{{ currency($data['delivery_charge'], $data['currency_code']) }}</td>
 				</tr>
           @endif
           
           @if( $data['tax'] > 0 )
 				<tr>
 				<td align="right">Tax : </td>
-				<td align="right">&nbsp;{{ currency($data['tax']) }}</td>
+				<td align="right">&nbsp;{{ currency($data['tax'], $data['currency_code']) }}</td>
 				</tr>
 		  @endif
           
           <tr>
             <td align="right"><strong>Total : </strong></td>
-            <td align="right">&nbsp;{{ currency($data['total']) }}</td>
+            <td align="right">&nbsp;{{ currency($data['total'], $data['currency_code']) }}</td>
           </tr>
           
         </table>

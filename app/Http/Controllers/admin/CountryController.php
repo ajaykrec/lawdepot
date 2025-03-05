@@ -150,6 +150,7 @@ class CountryController extends Controller
             'language_id'=> 'required',
             'name'     => 'required',
             'code'     => 'required|unique:country', 
+            'currency_code' => 'required|unique:country', 
             'image'    => 'required|mimes:png,jpeg,gif,webp|image|max:2048', // size : 1024*2 = 2048 = 2MB
             'status'   => 'required'
         ];
@@ -187,8 +188,9 @@ class CountryController extends Controller
             // store
             $table = new Country;
             $table->language_id     = $request['language_id'];            
-            $table->name            = $request['name'];            
+            $table->name            = $request['name'];             
             $table->code            = $request['code'];
+            $table->currency_code   = $request['currency_code'];
             $table->image           = $image ?? '';  
             $table->default         = $request['default'] ?? 0;                   
             $table->status          = $status; 
@@ -236,10 +238,10 @@ class CountryController extends Controller
         $rules = [
             'language_id'=> 'required',
             'name'     => 'required',            
-            'code'     => 'required|unique:country,code,'.$id.',country_id',             
+            'code'     => 'required|unique:country,code,'.$id.',country_id',  
+            'currency_code' => 'required|unique:country,currency_code,'.$id.',country_id',                        
             'status'   => 'required'
-        ]; 
-        
+        ];         
         $image = $request['image'] ?? '';
         if(!$image){
             $rules['image'] = 'required|mimes:png,jpeg,gif,webp|image|max:2048'; // size : 1024*2 = 2048 = 2MB 
@@ -279,6 +281,7 @@ class CountryController extends Controller
             $table->language_id     = $request['language_id'];            
             $table->name            = $request['name'];            
             $table->code            = $request['code'];
+            $table->currency_code   = $request['currency_code'];
             $table->image           = $image ?? '';  
             $table->default         = $request['default'] ?? 0;                   
             $table->status          = $status; 

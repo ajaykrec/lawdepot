@@ -45,14 +45,25 @@
                 </div>
 
                 <div class="my-3">
-                <label class="form-label">Code</label>
+                <label class="form-label">Country Code</label>
                 <input type="text" class="form-control" id="code" name="code" value="{{ old('code') }}"> 
                 <span class="err" id="error-code">
                 @error('code')
                 {{$message}}
                 @enderror 
                 </span>                 
-                </div>  
+                </div> 
+
+                <div class="my-3">
+                <label class="form-label">Currency Code</label>
+                <input type="text" class="form-control" id="currency_code" name="currency_code" value="{{ old('currency_code') }}"> 
+                <span class="err" id="error-currency_code">
+                @error('currency_code')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div> 
+                
 
                 <div class="my-3">
                 <label class="form-label">Language</label>

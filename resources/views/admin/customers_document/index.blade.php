@@ -7,7 +7,8 @@
         <nav>
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
-                <li class="breadcrumb-item active">{{ $meta['title'] ?? '' }}</li>
+                <li class="breadcrumb-item"><a href="{{ route('customers.index') }}">Customers</a></li>
+                <li class="breadcrumb-item active">Document</li>
             </ol>
         </nav>
     </div>
@@ -21,55 +22,28 @@
 
                         <div class="row my-3">
                             <div class="col-lg-10 col-md-12 col-12">
-                            <form id="filterForm" name="filterForm" method="get" action="{{ route('membership-setting.index') }}"> 
-                            <div class="row">
-
-                                <div class="col-lg-4 col-md-6 col-12">
-                                <div class="mb-2">
-                                <input type="text" class="form-control" id="name" name="name" value="{{ $name ?? '' }}" placeholder="Name">                                
-                                </div>  
-                                </div>      
+                            <form id="filterForm" name="filterForm" method="get" action="{{ route('customers.document.index',$customer_id) }}"> 
+                            <div class="row">   
                                 
                                 <div class="col-lg-4 col-md-6 col-12">
                                 <div class="mb-2">
-                                <select class="form-select" id="country_id" name="country_id">
-                                    <option value="">Country</option>
-                                    @foreach($countries as $val)
-                                    <option value="{{ $val['country_id'] }}" {{ ($country_id==$val['country_id']) ? 'selected' : '' }}>{{ $val['name'] }}</option>
-                                    @endforeach
-                                </select>                             
+                                <input type="text" class="form-control" id="file_name" name="file_name" value="{{ $file_name ?? '' }}" placeholder="File Name">                                
                                 </div>  
-                                </div>     
-                                
-                                <div class="col-lg-4 col-md-6 col-12">
-                                <div class="mb-2">
-                                <select class="form-select" id="status" name="status">
-                                    <option value=""></option>
-                                    <option value="1" {{ ($status=='1') ? 'selected' : '' }}>Active</option>
-                                    <option value="0" {{ ($status=='0') ? 'selected' : '' }}>In-Active</option>
-                                </select>                             
                                 </div>  
-                                </div>     
 
                                 <div class="col-lg-4 col-md-6 col-12">
                                 <div class="mb-2">
-                                    <button type="submit" class="btn btn-primary">Filter</button>
+                                <button type="submit" class="btn btn-primary">Filter</button>
                                 </div>
                                 </div>
 
                             </div>
                             </form> 
                             </div> 
-                            @if(has_permision(['membership'=>'RW']))
-                            <div class="col-lg-2 col-md-12 col-12">
-                                <div class="text-end">
-                                <a href="{{ route('membership-setting.create') }}" class="btn btn-secondary">+ Add New</a>
-                                </div>
-                            </div>   
-                            @endif                      
+                           
                         </div>                       
                         
-                        <form id="applyForm" name="applyForm" method="post" action="{{ route('membership-setting.index') }}" >  
+                        <form id="applyForm" name="applyForm" method="post" action="{{ route('customers.document.index',$customer_id) }}" >  
                         @csrf
                         <div class="table-responsive">                          
                         <table class="table table-hover table-striped">                            
@@ -77,40 +51,29 @@
                                 <tr class="table-dark">
                                     <th style="width:5%;"><input class="form-check-input checkall" type="checkbox"></th>
                                     <th>#</th>
-                                    <th>Name</th> 
-                                    <th>Country</th>
-                                    <th>Price</th>
-                                    <th>Status</th>                                    
+                                    <th>File name</th> 
+                                    <th class="text-center">Date</th> 
                                     <th class="text-end px-5">Action</th>
                                 </tr>                                         
                             </thead>                            
                             <tbody>
                                 @if($results)
                                     @foreach($results as $val)
-                                    <tr id="row-{{ $val['membership_id'] }}">
-                                        <td><input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['membership_id'] }}"></td>
-                                        <td>{{ $start_count }}</td>
-                                        <td>{{ $val['name'] }}</td>  
-                                        <td>{{ $val['country']['name'] ?? '' }}</td>    
-                                        <td>{{ currency($val['price'], $val['currency_code']) }}</td>                                     
+                                    <tr id="row-{{ $val['cus_document_id'] }}">
                                         <td>
-                                            @if($val['status'] == '1')                                                
-                                                <span class="badge rounded-pill bg-success">Active</span>
-                                            @else
-                                                <span class="badge rounded-pill bg-danger">In-Active</span>                                                
-                                            @endif
+                                            <input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['cus_document_id'] }}">
                                         </td>
-                                        <td class="text-end">                                           
-
-                                            @if(has_permision(['membership'=>'RW']))
-                                            <a href="{{ route('membership-setting.edit',$val['membership_id']) }}" class="btn btn-md" title="Edit">
-                                                <i class="bi bi-pencil-square text-success"></i>
-                                            </a>
-
+                                        <td>{{ $start_count }}</td>
+                                        <td>{{ $val['file_name'] }}</td>  
+                                        <td class="text-center">
+                                        {{ full_date_format($val['created_at']) }}
+                                        </td> 
+                                        <td class="text-end px-5">  
+                                            @if(has_permision(['customers'=>'RW']))  
                                             <button type="button" class="btn btn-md delete"                                            
-                                            onclick="delete_row({{ $val['membership_id'] }})"                      
+                                            onclick="delete_row({{ $val['cus_document_id'] }})"                      
                                             title="Delete"><i class="bi bi-trash text-danger"></i>
-                                            </button>
+                                            </button>  
                                             @endif
                                         </td>
                                     </tr> 
@@ -118,19 +81,17 @@
                                     @endforeach
                                 @else
                                 <tr>
-                                    <td colspan="7">No record found</td>
+                                    <td colspan="5">No record found</td>
                                 </tr>
                                 @endif
                             </tbody>
                         </table>                        
                         </div>
-                        @if(has_permision(['membership'=>'RW']))
+                        @if(has_permision(['document'=>'RW']))
                         <div class="d-flex justify-content-start py-0">
                             <div>
                             <select class="form-select" name="apply_action">
                                 <option value="">Choose an action...</option>
-                                <option value="active">Set as [Active]</option>
-                                <option value="in_active">Set as [In-Active]</option>   
                                 <option value="delete">Delete</option>                                         
                             </select> 
                             </div>
@@ -172,7 +133,7 @@
             closeOnConfirm	: false	
         }).then(function () {
 
-            var url = "{{ route('membership-setting.destroy','id') }}"
+            var url = "{{ route('document.destroy','id') }}"
             url = url.replace('id',id);       
 
             $.ajax({

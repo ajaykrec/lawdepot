@@ -26,10 +26,20 @@ if(!function_exists('first_letter')){
     }
 }
 
-function currency($amount){      
-    $row = AllFunction::get_setting(['currency']);
-    $currency = $row['currency'] ?? '';  
-    return $currency.$amount;
+function currency($amount, $currency_code){ 
+
+    // $row = AllFunction::get_setting(['currency']);
+    // $currency = $row['currency'] ?? '';  
+    // return $currency.$amount;    
+
+    $codes = [
+        'INR'=>'₹',
+        'GBP'=>'£',
+        'USD'=>'$',
+        'AUD'=>'A$'
+    ];   
+    $amount = str_replace('.00','',$amount);
+    return $codes[$currency_code] . $amount;     
 }
 
 function full_date_format($date){  

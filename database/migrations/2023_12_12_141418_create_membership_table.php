@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name',150)->nullable();   
             $table->text('description')->nullable();  
             $table->text('specification')->nullable();  
+            $table->string('currency_code',10)->nullable();          
             $table->decimal('price'); 
             $table->integer('time_period');    
             $table->enum('time_period_sufix',['week','month','year']); 

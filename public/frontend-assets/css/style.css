@@ -7015,10 +7015,11 @@ header .navbar.mini-header .navbar-brand {
 header .navbar.mini-header .navbar-brand img {
   max-height: 22px;
 }
-header .navbar-brand {
+header .navbar-brand { 
   margin-right: 0;
   vertical-align: middle;
-  padding: 30px 0;
+  /* padding: 30px 0; */
+  padding: 22px 0;
   display: inline-block;
   font-size: 0;
 }

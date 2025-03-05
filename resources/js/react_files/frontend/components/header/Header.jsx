@@ -93,13 +93,14 @@ const Header = (props) => {
 
                         {/* <img src="/frontend-assets/images/demo-hosting-logo-white.png" data-at2x="/frontend-assets/images/demo-hosting-logo-white@2x.png" alt="" className="default-logo" /> */}
 
-                        <img src="/frontend-assets/images/demo-hosting-logo-black.png" data-at2x="/frontend-assets/images/demo-hosting-logo-black@2x.png" alt="" className="" />
+                        {/* <img src="/frontend-assets/images/demo-hosting-logo-black.png" data-at2x="/frontend-assets/images/demo-hosting-logo-black@2x.png" alt="" className="" /> */}
+                        <img src="/frontend-assets/images/logo.png" alt="" className="" />
 
                         {/* <img src="/frontend-assets/images/demo-hosting-logo-black.png" data-at2x="/frontend-assets/images/demo-hosting-logo-black@2x.png" alt="" className="mobile-logo" />  */}
 
                         </Link>
                     </div>
-                    <div className="col-auto col-lg-7 menu-order position-static">
+                    <div className="col-auto col-lg-6 menu-order position-static">
                         <button className="navbar-toggler float-start" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-label="Toggle navigation">  
                             <span className="navbar-toggler-line"></span>
                             <span className="navbar-toggler-line"></span>
@@ -147,7 +148,7 @@ const Header = (props) => {
                             </ul>
                         </div>
                     </div>
-                    <div className="col-auto col-lg-3 lg-pe-5px">
+                    <div className="col-auto col-lg-4 lg-pe-5px">
                         <div className="header-icon">
 
                             <div className="header-account-icon icon alt-font mx-2">
