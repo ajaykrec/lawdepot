@@ -48,10 +48,7 @@ const Footer = () => {
 
                     <div className="col-6 col-lg-3 last-paragraph-no-margin order-sm-1 md-mb-40px xs-mb-30px">
                         <Link href={ route('home') } className="footer-logo mb-15px d-inline-block">
-                            <img
-                            src="/frontend-assets/images/demo-hosting-logo-white.png"
-                            data-at2x="/frontend-assets/images/demo-hosting-logo-white@2x.png"
-                            alt="" />
+                        <img src="/frontend-assets/images/logo.png" alt="" className="logo" />
                         </Link>
                         <p className="w-90 lg-w-100">{parseWithLinks(''+settings.footer_about_us_text+'')}</p>
 

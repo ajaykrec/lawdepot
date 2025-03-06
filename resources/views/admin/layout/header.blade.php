@@ -3,6 +3,7 @@ $user_id     = Auth::id();
 $user        = Auth::user()->toArray();
 $user['short_name'] = first_letter($user['name']);
 $users_types = Auth::user()->users_types->toArray();
+
 /*
 p($user_id);
 p($user);

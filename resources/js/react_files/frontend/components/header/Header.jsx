@@ -70,7 +70,6 @@ const Header = (props) => {
                             </div>
                         </div>
                         <div className="col-5 text-end d-none d-md-flex">
-
                             { settings.contact_phone &&
                                 <a href={`tel:${settings.contact_phone}`} className="widget fs-13 me-20px text-white opacity-8 d-none d-lg-inline-block">
                                 <i className="feather icon-feather-phone"></i> {settings.contact_phone}
@@ -94,7 +93,7 @@ const Header = (props) => {
                         {/* <img src="/frontend-assets/images/demo-hosting-logo-white.png" data-at2x="/frontend-assets/images/demo-hosting-logo-white@2x.png" alt="" className="default-logo" /> */}
 
                         {/* <img src="/frontend-assets/images/demo-hosting-logo-black.png" data-at2x="/frontend-assets/images/demo-hosting-logo-black@2x.png" alt="" className="" /> */}
-                        <img src="/frontend-assets/images/logo.png" alt="" className="" />
+                        <img src="/frontend-assets/images/logo.png" alt="" className="logo" />
 
                         {/* <img src="/frontend-assets/images/demo-hosting-logo-black.png" data-at2x="/frontend-assets/images/demo-hosting-logo-black@2x.png" alt="" className="mobile-logo" />  */}
 
@@ -148,10 +147,10 @@ const Header = (props) => {
                             </ul>
                         </div>
                     </div>
-                    <div className="col-auto col-lg-4 lg-pe-5px">
+                    <div className="col-auto col-lg-4 text-end">
                         <div className="header-icon">
 
-                            <div className="header-account-icon icon alt-font mx-2">
+                            {/* <div className="header-account-icon icon alt-font mx-2">
                                 <a href="#" className="search-form-icon header-search-form">
                                 <i className="align-middle feather icon-feather-search fs-18 me-5px xl-me-0"></i>
                                 <br />
@@ -168,11 +167,11 @@ const Header = (props) => {
                                         </div>
                                     </form>
                                 </div>
-                            </div>       
+                            </div>        */}
 
                             { countries.length > 1 &&                   
                             
-                                <div className="header-account-icon icon alt-font mx-2">
+                                <div className="header-account-icon icon alt-font mx-2 text-start">
                                     <div className="header-account dropdown" id="country-menu-01" 
                                     onMouseEnter={()=>openMenu('country-menu-01',true)} 
                                     onMouseLeave={()=>openMenu('country-menu-01',false)}>                                     
@@ -204,7 +203,7 @@ const Header = (props) => {
 
                             {
                                 customer  ? 
-                                <div className="header-account-icon icon alt-font">
+                                <div className="header-account-icon icon alt-font text-start">
                                     <div className="header-account dropdown" id="account-menu-01" 
                                     onMouseEnter={()=>openMenu('account-menu-01',true)}                                 
                                     onMouseLeave={()=>openMenu('account-menu-01',false)}>                                     
@@ -222,7 +221,7 @@ const Header = (props) => {
                                     </div> 
                                 </div>
                                 :
-                                <div className="header-button ms-30px xxl-ms-10px xs-ms-0">
+                                <div className="header-button ms-30px xxl-ms-10px xs-ms-0 text-start">
                                     <Link 
                                     href={ route('customer.login') } 
                                     className="fw-500"
