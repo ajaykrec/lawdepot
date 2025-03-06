@@ -31,7 +31,7 @@ const Category_banner = () => {
     }
     else{
         banner_style = {
-            background:"#152bca"
+            background:"#191E44"
         }    
     }
     

@@ -31,7 +31,7 @@ const Home = ({ pageData }) => {
         <Header_carousel />     
            
         {/* <FreeText /> */}
-        {/* <Services /> */}
+         <Services /> 
 
         {/* <Simple /> */}
         {/* <Affordable_services /> */}

@@ -20,7 +20,7 @@ const Steps_header = () => {
  
     return (
       <>      
-        <section className="py-5" style={{background:"#152bca"}}> 
+        <section className="py-5" style={{background:"#191E44"}}> 
             <div className="container">
                 <div className="row text-center">
                     

@@ -1,24 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { useForm, usePage,  Link } from '@inertiajs/react'
+import React, { useState, useEffect, useRef } from 'react';
+import Layout from './../../layouts/GuestLayout'
+import {Head, useForm, usePage,  Link } from '@inertiajs/react'
 import Parser, { domToReact } from 'html-react-parser';
-
 import anime from 'animejs/lib/anime.es.js';
 
-const Services = () => {    
+import Header_banner from '../../components/banner/Header_banner';
+import Breadcrumb from '../../components/breadcrumb/Breadcrumb';
 
-    const { file_storage_url, common_data, pageData } = usePage().props
-    const documents = pageData.documents
+const Search_result = () => {
 
-    useEffect(()=> {      
-        anime({
-            targets: document.getElementById('anime-01-Services'),
-            "el": "childs", "translateY": [30, 0], "opacity": [0,1], "duration": 900, "delay": 0, "staggervalue": 300, "easing": "easeOutQuad"
-        })
-        anime({
-            targets: document.getElementById('anime-02-Services'),
-             "el": "childs",  "translateY": [0, 0], "perspective": [1200, 1200], "scale": [1.05, 1], "rotateX": [50, 0], "opacity": [0,1], "duration":600, "delay": 0, "staggervalue": 300, "easing": "easeOutQuad"
-        })
-    },[])   
+  const { file_storage_url, common_data, pageData } = usePage().props  
+
+  const documents = pageData.documents
+
+    useEffect(()=> {  
+          
+    },[])      
 
     const parseWithLinks = (html) =>{
         const options = {     
@@ -29,23 +26,31 @@ const Services = () => {
             }
         }     
         return Parser(html, options);
-    }   
-    
-    return (
+    }    
+ 
+  return (
     <>
-    <section className="cover-background pt-5 xs-pt-8" 
-        style={{backgroundImage:"url(frontend-assets/images/demo-hosting-home-06.jpg)"}} 
-        > 
-        <div className="container">  
-            <div className="row justify-content-center mb-3">
-                <div className="col-lg-8 text-center" id="anime-01-Services">
-                    <span className="text-base-color fw-600 mb-5px text-uppercase d-block">Our</span>
-                    <h2 className="text-dark-gray fw-700 ls-minus-2px">Documents </h2>
-                </div>
-            </div>
-            <div className="row row-cols-1 row-cols-lg-3 row-cols-sm-2 justify-content-center" id="anime-02-Services">
+    <Head>
+        <title>{pageData.meta.title}</title>
+        <meta name="description" content={pageData.meta.description} />
+    </Head>      
+    <Breadcrumb />
 
-            {
+    <section className="py-5">
+      <div className="container h-100">
+        <div className="row">
+            <div className="col-12"> 
+            {/* {parseWithLinks(''+pageData.page.content+'')} */}
+            </div>             
+        </div>
+        <div className="row row-cols-1 row-cols-lg-3 row-cols-sm-2 justify-content-center">  
+          
+        <div className="col-12 text-center w-100">
+          <h6>Search result for : <b>{pageData.s ?? ''}</b></h6>  
+          </div>
+          
+        {
+              documents && documents.length > 0 ?
                   documents.map( (val,i)=>{
                     return(
                     <div key={i} className="col icon-with-text-style-07 transition-inner-all mb-30px">
@@ -73,13 +78,16 @@ const Services = () => {
                     </div>
                     )
                   })
-
-            }
-              
-            </div>
-        </div>
-    </section>
+                :                
+                <div className="col-12 text-center w-100">
+                <p>No record found!.</p>
+                </div>
+          }                      
+          </div>
+      </div>
+    </section>      
     </>
   )
 }
-export default Services
+Search_result.layout = page => <Layout children={page} />
+export default Search_result

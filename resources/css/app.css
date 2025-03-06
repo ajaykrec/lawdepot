@@ -417,5 +417,9 @@ input[type='checkbox'] {
 }
 
 header .navbar [class*=col-] {
-    padding: 0 6px;
+    /* padding: 0 6px; */
+    padding: 0 0px;
+}
+.search-form-wrapper .search-form .search-button {    
+    right: 5px;    
 }

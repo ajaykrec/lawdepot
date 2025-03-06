@@ -11,7 +11,8 @@ const GuestLayout = ({ children }) =>{
 	let ccp2     		    = ccp.split('/')
 	let current_path    = (ccp2[1]) ? ccp2[1] : ''  
 
-  const document_menu = ['document','document-download']; 
+  //const document_menu = ['document','document-download']; 
+  const document_menu = []; 
   
   return (
     <> 

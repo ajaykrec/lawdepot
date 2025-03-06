@@ -5,6 +5,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PagesController;
 
+use App\Http\Controllers\SearchController;
+
 use App\Http\Controllers\DocumentCategoryController;
 use App\Http\Controllers\DocumentController; 
 
@@ -54,6 +56,8 @@ Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
     
     Route::get('/coming-soon', [PagesController::class,'coming_soon'])->name('comingsoon');
     Route::get('/', [HomeController::class,'index'])->name('home'); 
+    
+    Route::get('/search-result', [SearchController::class, 'index'])->name('search.post');
     
     //=== Auth ===
     Route::get('/register', [CustomerController::class, 'register'])->name('customer.register');

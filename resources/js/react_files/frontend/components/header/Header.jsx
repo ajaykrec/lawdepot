@@ -17,13 +17,17 @@ const Header = (props) => {
     const contact_menu  = ['contact']; 
     const pages_menu    = ['features','cars','teams','testimonial'];   
 
-    const { file_storage_url, customer, common_data } = usePage().props
+    const { file_storage_url, customer, common_data, pageData } = usePage().props
 
     const settings = common_data.settings
     const categories = common_data.categories  
 
     const country = common_data.country
-    const countries = common_data.countries       
+    const countries = common_data.countries    
+    
+    const { data, setData, post, get,  processing, errors } = useForm({
+        s: pageData.s ?? '',       
+    })  
     
     useEffect(()=> {
 		//spinner(0)
@@ -57,6 +61,11 @@ const Header = (props) => {
       }       
     }
 
+    function submit(e) {
+        e.preventDefault()
+        get(route('search.post')) 
+        $('.search-close').click()
+    }
 
     return (
         <>
@@ -150,24 +159,39 @@ const Header = (props) => {
                     <div className="col-auto col-lg-4 text-end">
                         <div className="header-icon">
 
-                            {/* <div className="header-account-icon icon alt-font mx-2">
+                            <div className="header-account-icon icon alt-font mx-2 text-start">
+                                
                                 <a href="#" className="search-form-icon header-search-form">
                                 <i className="align-middle feather icon-feather-search fs-18 me-5px xl-me-0"></i>
                                 <br />
-                                <span className="align-middle d-none d-xxl-inline-block">Search</span></a> 
+                                <span className="align-middle d-none d-xxl-inline-block">Search</span>
+                                </a> 
+
                                 <div className="search-form-wrapper">
                                     <button title="Close" type="button" className="search-close">×</button>
-                                    <form id="search-form" role="search" method="get" className="search-form text-left" action="search-result.html">
+                                    
+                                    <form id="search-form" className="search-form text-left" onSubmit={submit}>
                                         <div className="search-form-box">
                                             <h2 className="text-dark-gray fw-700 ls-minus-2px text-center mb-4 alt-font">What are you looking for?</h2>
-                                            <input className="search-input" id="search-form-input5e219ef164995" placeholder="Enter your keywords..." name="s"  type="text" autoComplete="off" />
+                                            <input className="search-input px-2" placeholder="Enter your keywords..." autoComplete="off" 
+                                            type="text" 
+                                            name="s"
+                                            value={data.s} 
+                                            onChange={ (e) => {
+                                              setData('s', e.target.value)                                              
+                                            }}
+                                            />
+                                            {errors.s && 
+                                              <div className="error-msg">{errors.s}</div>    
+                                            }  
                                             <button type="submit" className="search-button">
-                                                <i className="feather icon-feather-search" aria-hidden="true"></i> 
+                                            <i className="feather icon-feather-search" aria-hidden="true"></i> 
                                             </button>
                                         </div>
                                     </form>
+
                                 </div>
-                            </div>        */}
+                            </div> 
 
                             { countries.length > 1 &&                   
                             

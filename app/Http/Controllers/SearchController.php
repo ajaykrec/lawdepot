@@ -7,21 +7,14 @@ use App\Models\Pages;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia; 
 
-class HomeController extends Controller
+class SearchController extends Controller
 {
     use AllFunction; 
 
     public function index(Request $request){  
         
         //==== set country ===
-        $loc = $request['loc'] ?? '';  
-        if($loc){            
-            $resp = AllFunction::set_country($loc); 
-            if($resp){
-                return redirect()->route('home');
-            }
-        }
-        //=======
+        $s = $request['s'] ?? '';        
         $language_id = AllFunction::get_current_language();          
         $country     = AllFunction::get_current_country(); 
         $country_id  = $country['country_id'] ?? ''; 
@@ -39,28 +32,28 @@ class HomeController extends Controller
             'description'=>$page['meta_description'] ?? '',
         ];
 
-        $q = DB::table('banners');  
-        $q = $q->leftJoin('banners_language','banners_language.banner_id','=','banners.banner_id'); 
-        $q = $q->where('banners_language.language_id',$language_id);   
-        $q = $q->where('banners.bannercat_id','1'); 
-        $q = $q->where('banners.status','1'); 
-        $q = $q->orderBy("banners.sort_order", "asc"); 
-        $banners = $q->get()->toArray(); 
-        $banners = json_decode(json_encode($banners), true);   
-        $banners = $banners[0] ?? [];
+        $header_banner = [
+            'title'=>$page['name'],
+            'banner_image'=>$page['banner_image'],
+            'banner_text'=>$page['banner_text'],
+        ];
+        $breadcrumb = [
+            ['name'=>'Home', 'url'=>route('home')],
+            ['name'=>$page['name'], 'url'=>''],
+        ];
 
         $q = DB::table('documents');  
         $q = $q->select('documents.document_id','documents.category_id','documents.name','documents.slug','documents.short_description','documents.image');
         $q = $q->where('documents.status',1); 
         $q = $q->where('documents.country_id',$country_id);   
-        $q = $q->limit(10); 
+        $q = $q->where('documents.name','like','%'.$s.'%');       
         $q = $q->orderby('documents.sort_order','asc'); 
         $q = $q->orderby('documents.name','asc'); 
         $documents = $q->get()->toArray(); 
         $documents = json_decode(json_encode($documents), true);        
         
-        $pageData = compact('page','meta','banners','documents'); 
-        return Inertia::render('frontend/pages/home/Home', [            
+        $pageData = compact('page','meta','header_banner','breadcrumb','documents','s'); 
+        return Inertia::render('frontend/pages/search/Search_result', [            
             'pageData' => $pageData,            
         ]);
     }
