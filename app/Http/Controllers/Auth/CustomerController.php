@@ -284,7 +284,16 @@ class CustomerController extends Controller
                 $body    = str_replace('{site_name}',$common['settings']['site_name'],$body);
                 $body    = str_replace('{reset_password_link}',$reset_password_link,$body);   
 
-                AllFunction::mail_with_sendgrid([
+                // AllFunction::mail_with_sendgrid([
+                //     'name'=>'',
+                //     'email'=>$email,
+                //     'from_email_name'=>$common['settings']['from_email_name'],
+                //     'from_email'=>$common['settings']['from_email'],
+                //     'subject'=>$subject,
+                //     'content'=>$body,
+                // ]);
+
+                AllFunction::send_mail([
                     'name'=>'',
                     'email'=>$email,
                     'from_email_name'=>$common['settings']['from_email_name'],

@@ -255,6 +255,11 @@ class DocumentQuestionController extends Controller
                 $display_type = 0;
             }
 
+            $add_another_max = $request['add_another_max'] ?? 0;
+            if( $add_another_max =='' ){
+                $add_another_max = 0;
+            }
+
             // store
             $table = new Documents_question;
             $table->document_id     = $document_id;
@@ -268,7 +273,7 @@ class DocumentQuestionController extends Controller
             $table->label_group     = $request['label_group'] ?? 1;
             $table->blank_space     = $request['blank_space'] ?? 1;
             $table->is_add_another  = $request['is_add_another'] ?? 0; 
-            $table->add_another_max = $request['add_another_max'] ?? 0;           
+            $table->add_another_max = $add_another_max;           
             $table->add_another_text= $request['add_another_text'] ?? '';           
             $table->save();
 
@@ -387,6 +392,11 @@ class DocumentQuestionController extends Controller
                 $display_type = 0;
             }
 
+            $add_another_max = $request['add_another_max'] ?? 0;
+            if( $add_another_max =='' ){
+                $add_another_max = 0;
+            }
+
             $table = Documents_question::find($question_id);   
             $table->document_id     = $document_id;
             $table->step_id         = $step_id;
@@ -400,7 +410,7 @@ class DocumentQuestionController extends Controller
             $table->label_group     = $request['label_group'] ?? 1;
             $table->blank_space     = $request['blank_space'] ?? 1;
             $table->is_add_another  = $request['is_add_another'] ?? 0;
-            $table->add_another_max = $request['add_another_max'] ?? 0;           
+            $table->add_another_max = $add_another_max;           
             $table->add_another_text= $request['add_another_text'] ?? '';                       
             $table->save();           
             return redirect( $url )->with('message','Documents question updated successfully');

@@ -24,6 +24,9 @@ use App\Models\Documents_question;
 use App\Models\Documents_question_option;
 use App\Models\Orders;
 
+//==== Mail ====
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TestEmail;
 
 trait AllFunction {  
     
@@ -311,8 +314,25 @@ trait AllFunction {
             }          
         }
      }
-     static function send_mail($data){  
-        AllFunction::mail_with_sendgrid($data);	
+    static function send_mail($data){  
+        //AllFunction::mail_with_sendgrid($data);	
+        AllFunction::mail_with_smtp($data);	
+    }
+    static function mail_with_smtp($data){  
+
+        $email              = isset($data['email']) ? $data['email'] : '';  
+        $name               = isset($data['name']) ? $data['name'] : '';     
+        $from_email         = isset($data['from_email']) ? $data['from_email'] : '';     
+        $from_email_name    = isset($data['from_email_name']) ? $data['from_email_name'] : '';
+        $subject            = isset($data['subject']) ? $data['subject'] : '';        
+        $content            = isset($data['content']) ? $data['content'] : '';
+        
+        //Mail::to($email)->send($content);
+        Mail::to($email)->send(new TestEmail([
+            'subject'=>$subject,
+            'content'=>$content,
+        ]));
+
     }
     static function mail_with_sendgrid($data){  
         
