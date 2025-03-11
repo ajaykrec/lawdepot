@@ -48,8 +48,8 @@ Route::middleware(['auth.customer','front_view'])->group( function(){
     Route::post('/my-account-settings',[MySettingsController::class, 'account_post'])->name('customer.settings.post'); 
     Route::get('/change-password',[ChangePasswordController::class, 'index'])->name('customer.changepassword'); 
     Route::post('/change-password',[ChangePasswordController::class, 'password_post'])->name('customer.changepassword.post'); 
-    Route::get('/my-documents',[MyDocumentController::class, 'index'])->name('customer.documents');     
-    
+    Route::get('/my-documents',[MyDocumentController::class, 'index'])->name('customer.documents');   
+    Route::get('/my-documents/{cus_document_id}',[MyDocumentController::class, 'view'])->name('customer.documents.view');  
 });
 
 Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
@@ -78,13 +78,15 @@ Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
     Route::get('/document/{slug}', [DocumentController::class, 'index'])->name('doc.index');   
     Route::post('/document/{slug}', [DocumentController::class, 'doc_post'])->name('doc.post');   
     Route::get('/document-download/{slug}', [DocumentController::class, 'download'])->name('doc.download');   
+    Route::get('/save-document', [DocumentController::class, 'save_document'])->name('save.document'); 
+    
 
     //=== membership ==
     Route::get('/membership', [MembershipController::class, 'index'])->name('membership.index');
     Route::post('/select-membership', [MembershipController::class, 'select_membership'])->name('select.membership.post');   
     Route::get('/checkout', [MembershipController::class, 'checkout'])->name('membership.checkout');
-    Route::get('/checkout-success', [MembershipController::class, 'success'])->name('membership.checkout.success');
-    Route::get('/checkout-callback', [MembershipController::class, 'callback'])->name('membership.checkout.callback');
+    Route::any('/checkout-success', [MembershipController::class, 'success'])->name('membership.checkout.success');
+    Route::any('/checkout-callback', [MembershipController::class, 'callback'])->name('membership.checkout.callback');
     
 
     //=== pages ==
@@ -101,5 +103,6 @@ Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
     Route::any('{catchall}', [PagesController::class,'notfound'])->where('catchall', '.*');
 
 });
+
 
 

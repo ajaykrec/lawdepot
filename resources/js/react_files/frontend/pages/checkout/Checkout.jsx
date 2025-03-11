@@ -33,12 +33,20 @@ const Checkout = () => {
  
   return (
     <>
-    <Head>
+     {
+        customer ?  
+        <Head>
         <title>{pageData.meta.title}</title>
-        <meta name="description" content={pageData.meta.description} />
+        <meta name="description" content={pageData.meta.description} />            
         <script src="https://secure.nochex.com/exp/jquery.js"></script>        
-	      <script src="https://secure.nochex.com/exp/nochex_lib.js"></script>  
-    </Head> 
+        <script src="https://secure.nochex.com/exp/nochex_lib.js"></script> 
+        </Head>                
+        :
+        <Head>
+        <title>{pageData.meta.title}</title>
+        <meta name="description" content={pageData.meta.description} />  
+        </Head>                     
+    }
     <Header_banner />
     <Breadcrumb />    
 
@@ -51,7 +59,7 @@ const Checkout = () => {
               <div className="text-center pt-5">
               {
                 customer ?
-                <>
+                <>                
                 <h6>{ membership.name }</h6>
                 <h6><b>{ allFunction.currency(membership.price,membership.currency_code) }</b></h6>                  
 
@@ -68,8 +76,9 @@ const Checkout = () => {
                   ncxfield-order_id={pageData.order_id}
                   ncxfield-test_transaction="true"
                   ncxfield-use_apc="true"                      
-                  ncxfield-success_url ={ route('membership.checkout.success') }
-                  ncxfield-callback_url={ route('membership.checkout.callback') }
+                  ncxfield-success_url={ route('membership.checkout.success') }
+                  ncxfield-callback_url={ route('membership.checkout.callback') }                 
+                  ncxfield-optional_1="xcdfggg"                   
                   ></script>
                 </form>
 

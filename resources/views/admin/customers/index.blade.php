@@ -104,7 +104,7 @@
                                         <td class="text-end">                                           
 
                                             <a href="{{ route('customers.membership.index',$val['customer_id']) }}" class="btn btn-md" title="Membership">Membership ({{ count($val['membership']) }})</a> |
-                                            <a href="{{ route('customers.document.index',$val['customer_id']) }}" class="btn btn-md" title="Documents">Documents ({{ count($val['documents']) }})</a> |                                               
+                                            <a href="{{ route('customers.cusdocument.index',$val['customer_id']) }}" class="btn btn-md" title="Documents">Documents ({{ count($val['documents']) }})</a> |                                               
 
                                             @if(has_permision(['customers'=>'RW']))
                                             <a href="{{ route('customers.edit',$val['customer_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>

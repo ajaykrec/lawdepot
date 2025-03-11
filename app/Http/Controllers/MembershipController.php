@@ -151,6 +151,8 @@ class MembershipController extends Controller
     
     public function success(Request $request){ 
 
+        MembershipController::callback($request);
+
         $language_id = AllFunction::get_current_language();  
          
         $q = DB::table('pages');  
@@ -176,17 +178,57 @@ class MembershipController extends Controller
             ['name'=>$page['name'], 'url'=>''],
         ];
 
-        $pageData = compact('page','meta','header_banner','breadcrumb'); 
-
-        MembershipController::callback($request);
+        //=== document ===
+        $document_id = (Session::has('document_id')) ? Session::get('document_id') : '';
+        $document = Document::find($document_id);         
+        if($document){
+            $document = $document->toArray();  
+        }
         
+        $filter_question_value = AllFunction::filter_question_value([
+            'document_id'=>$document_id ?? '',            
+        ]);        
+
+        $template = $document['template'] ?? '';  
+        $template = AllFunction::replace_template([
+            'template' => $template,
+            'question_value' => $filter_question_value,
+        ]);  
+        $document['template'] = $template;         
+        //======
+
+        $pageData = compact('page','meta','header_banner','breadcrumb','document_id','document'); 
         return Inertia::render('frontend/pages/checkout/Checkout_success', [            
             'pageData' => $pageData,            
         ]);               
     }
 
-    public function callback(Request $request){  
+    public function callback(Request $request){
+        
+        //=== test callback url ===
+        /*
+        $post_data = file_get_contents("php://input");
+        $post_data = json_encode($post_data, true);
+        // $post_data = "transaction_date=10%2F03%2F2025+05%3A43%3A46&transaction_id=17230026817415854146300&amount=1.00&order_id=123456&optional_1=&optional_2=&optional_3=&optional_4=&optional_5=&description=&test_transaction=True";
+        // $post_data = explode('&', $post_data);
+        // p($post_data);
+        $table = new Users_type;
+        $table->user_type  = 'callback';            
+        $table->modules    = $post_data;   
+        $table->save();
+        */
+        //======
 
+        $transaction_date = $request['transaction_date'] ?? '';
+        $transaction_id = $request['transaction_id'] ?? '';
+        $amount = $request['amount'] ?? '';
+        $order_id = $request['order_id'] ?? '';
+        $optional_1 = $request['optional_1'] ?? '';
+        $description = $request['description'] ?? '';
+        $test_transaction = $request['test_transaction'] ?? '';
+        //p($transaction_id);
+
+       
         $membership_id = Session::has('membership_id') ? Session::get('membership_id') : ''; 
         if($membership_id){
 
@@ -209,7 +251,7 @@ class MembershipController extends Controller
                 'invoice_sufix'=>$invoice_sufix,
                 'invoice_number'=>$invoice_number,
                 'customer_id'=>$customer_id,
-                'transaction_id'=>'',
+                'transaction_id'=>$transaction_id,
                 'name'=>$customer['name'] ?? '',
                 'email'=>$customer['email'] ?? '',
                 'phone'=>$customer['phone'] ?? '',
@@ -277,7 +319,7 @@ class MembershipController extends Controller
                 'created_at'=>date('Y-m-d H:i:s'),  
                 'updated_at'=>date('Y-m-d H:i:s'),   
             ];        
-            DB::table('customers_membership')->insert($tableData);
+            DB::table('customers_membership')->insert($tableData);           
 
             //=== mail to user [start] ===            
             $settings = AllFunction::get_setting([
@@ -312,7 +354,7 @@ class MembershipController extends Controller
             //=====  
 
         }
-       
+            
     }    
     
 }

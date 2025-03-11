@@ -9,6 +9,7 @@ use App\Models\Document;
 use App\Models\Documents_step;
 use App\Models\Documents_question;
 use App\Models\Documents_question_option;
+use App\Models\Customers_document;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia; 
 
@@ -20,7 +21,7 @@ class DocumentController extends Controller
     use AllFunction; 
 
     public function index($slug, Request $request){  
-
+        
         //Session::forget('document_id');  
         //Session::forget('fields');  
        
@@ -239,11 +240,45 @@ class DocumentController extends Controller
             'template' => $template,
             'question_value' => $filter_question_value,
         ]);  
-        $document['template'] = $template;         
+        $document['template'] = $template; 
         
-        $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent'); 
+        $active_membership = AllFunction::get_active_membership();  
+        
+        $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent','active_membership'); 
         return Inertia::render('frontend/pages/document/Document_download', [            
             'pageData' => $pageData,            
         ]);
     }   
+
+    public function save_document(Request $request){  
+        
+
+        $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
+        $customer_id = $customer['customer_id'] ?? ''; 
+
+        $document_id = (Session::has('document_id')) ? Session::get('document_id') : '';
+        $document = Document::where('document_id',$document_id)->first()->toArray();         
+        
+        $session_fields = (Session::has('fields')) ? Session::get('fields') : '';   
+        
+        $filter_question_value = AllFunction::filter_question_value([
+            'document_id'=>$document_id ?? '',            
+        ]);     
+       
+        if($document_id){
+            $table = new Customers_document;
+            $table->customer_id     = $customer_id;
+            $table->document_id     = $document_id;            
+            $table->session_fields  = $session_fields;
+            $table->filter_values   = json_encode($filter_question_value);
+            $table->file_name       = $document['name'] ?? '';
+            $table->save();
+
+            //==== remove session ====
+            Session::forget('document_id'); 
+            Session::forget('fields'); 
+            //=====  
+        }  
+        return redirect( route('customer.documents') )->with(['success'=>'Document saved successfully']);
+    }
 }

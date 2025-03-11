@@ -57,6 +57,7 @@ $show_tag = $data['show_tag'] ?? '';
             <b>Invoice ID:</b> {{ $data['invoice_number'] }}<br>
             <b>Order Date:</b> {{ full_date_format($data['created_at']) }}<br>
             <b>Amount:</b> {{ currency($data['total'], $data['currency_code']) }}<br>
+            <b>Transaction ID:</b> {{ $data['transaction_id'] }}<br>
             <b>Payment Methods:</b> {{ $data['payment_method'] }}
             </div>            
         </div>

@@ -11,14 +11,14 @@ const My_account = () => {
   const { file_storage_url, customer, pageData, common_data } = usePage().props
   
   const parseWithLinks = (html) =>{
-        const options = {     
-            replace: ({ name, attribs, children }) => {
-                if (name === 'a' && attribs.href) {
-                    return <Link href={attribs.href} className={attribs.class}>{domToReact(children)}</Link>;
-                }
-            }
-        }     
-        return Parser(html, options);
+      const options = {     
+          replace: ({ name, attribs, children }) => {
+              if (name === 'a' && attribs.href) {
+                  return <Link href={attribs.href} className={attribs.class}>{domToReact(children)}</Link>;
+              }
+          }
+      }     
+      return Parser(html, options);
   }  
   
   console.log(customer) // 
@@ -34,10 +34,10 @@ const My_account = () => {
     <section className="section py-5">
       <div className="container">
           <div className="row">           
-            <div className="col-lg-3 col-md-6 col-12">   
+            <div className="col-lg-3 col-md-12 col-12">   
             <MyAccountNavBar />          
             </div>
-            <div className="col-lg-9 col-md-6 col-12">   
+            <div className="col-lg-9 col-md-12 col-12">   
             { pageData.page.content ? <>{parseWithLinks(''+pageData.page.content+'')}</> : '' }  
             
             <ul className="list-group list-group-flush">

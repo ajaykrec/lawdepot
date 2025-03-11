@@ -27,6 +27,11 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\PreventRequestsDuringMaintenance::class
         ]);
 
+        $middleware->validateCsrfTokens(except: [
+            'checkout-success',
+            'checkout-callback',
+        ]);
+
         $middleware->alias([            
             'auth' => \App\Http\Middleware\Authenticate::class,
             'auth.customer' => \App\Http\Middleware\Authenticate_customer::class,

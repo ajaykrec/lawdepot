@@ -213,7 +213,7 @@ class DocumentController extends Controller
     }
     
     public function edit(Request $request,string $id)
-    {
+    {        
         //=== check permision
         if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }
 

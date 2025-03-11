@@ -31,7 +31,7 @@ class CustomerDocumentController extends Controller
         $filterArr['file_name']    = $request['file_name'] ?? '';   
 
         //=== pagi_url
-        $pagi_url = route('customers.document.index',$customer_id).'?';
+        $pagi_url = route('customers.cusdocument.index',$customer_id).'?';
         if($filterArr){
             $count = 0;
             foreach($filterArr as $key=>$val){
@@ -94,15 +94,15 @@ class CustomerDocumentController extends Controller
 
             if( $apply_action == 'active' && $id_array){
                 Customers_document::whereIn('cus_document_id', $id_array)->update(array('status' => '1'));
-                return redirect( route('customers.document.index',$customer_id) )->with('message','Selected item Updated successfully');
+                return redirect( route('customers.cusdocument.index',$customer_id) )->with('message','Selected item Updated successfully');
             }
             else if( $apply_action == 'in_active' && $id_array){                
                 Customers_document::whereIn('cus_document_id', $id_array)->update(array('status' => '0'));
-                return redirect( route('customers.document.index',$customer_id) )->with('message','Selected item Updated successfully');
+                return redirect( route('customers.cusdocument.index',$customer_id) )->with('message','Selected item Updated successfully');
             }
             else if( $apply_action == 'delete' && $id_array){     
                 Customers_document::whereIn('cus_document_id', $id_array)->delete();
-                return redirect( route('customers.document.index',$customer_id) )->with('message','Selected item deleted successfully');
+                return redirect( route('customers.cusdocument.index',$customer_id) )->with('message','Selected item deleted successfully');
             }  
         }
 
@@ -110,7 +110,26 @@ class CustomerDocumentController extends Controller
     
     public function show($cus_document_id)
     {
-        //====
+        $meta = [
+            'title'=>'View Documents',
+            'keywords'=>'',
+            'description'=>'',
+        ];   
+
+        $document = Customers_document::find($cus_document_id)->with(['document'])->get()->toArray();         
+        $document = $document[0] ?? [];
+
+        $customer_id = $document['customer_id'] ?? '';
+        $filter_values = $document['filter_values'] ?? '';
+        $template = $document['document']['template'] ?? '';
+        $template = AllFunction::replace_template([
+            'template' => $template,
+            'question_value' => (array)json_decode($filter_values),
+        ]); 
+        $document['document']['template'] = $template;        
+
+        $data = compact('meta','document','customer_id','cus_document_id');        
+        return view('admin.customers_document.show')->with($data);
     }
     
     public function edit($cus_document_id)
@@ -134,7 +153,7 @@ class CustomerDocumentController extends Controller
 
         return json_encode(array(
             'status'=>'success',
-            'url'=>route('customers.document.index',$customer_id)
+            'url'=>route('customers.cusdocument.index',$customer_id)
         ));
         exit;
     }

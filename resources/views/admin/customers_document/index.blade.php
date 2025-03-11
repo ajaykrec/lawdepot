@@ -22,7 +22,7 @@
 
                         <div class="row my-3">
                             <div class="col-lg-10 col-md-12 col-12">
-                            <form id="filterForm" name="filterForm" method="get" action="{{ route('customers.document.index',$customer_id) }}"> 
+                            <form id="filterForm" name="filterForm" method="get" action="{{ route('customers.cusdocument.index',$customer_id) }}"> 
                             <div class="row">   
                                 
                                 <div class="col-lg-4 col-md-6 col-12">
@@ -43,7 +43,7 @@
                            
                         </div>                       
                         
-                        <form id="applyForm" name="applyForm" method="post" action="{{ route('customers.document.index',$customer_id) }}" >  
+                        <form id="applyForm" name="applyForm" method="post" action="{{ route('customers.cusdocument.index',$customer_id) }}" >  
                         @csrf
                         <div class="table-responsive">                          
                         <table class="table table-hover table-striped">                            
@@ -68,7 +68,12 @@
                                         <td class="text-center">
                                         {{ full_date_format($val['created_at']) }}
                                         </td> 
-                                        <td class="text-end px-5">  
+                                        <td class="text-end px-5"> 
+
+                                            <a href="{{ route('cusdocument.show',$val['cus_document_id']) }}" class="btn btn-md" title="View">
+                                                <i class="bi bi-columns-gap text-secondary"></i>
+                                            </a> 
+                                        
                                             @if(has_permision(['customers'=>'RW']))  
                                             <button type="button" class="btn btn-md delete"                                            
                                             onclick="delete_row({{ $val['cus_document_id'] }})"                      
@@ -133,7 +138,7 @@
             closeOnConfirm	: false	
         }).then(function () {
 
-            var url = "{{ route('document.destroy','id') }}"
+            var url = "{{ route('cusdocument.destroy','id') }}"
             url = url.replace('id',id);       
 
             $.ajax({

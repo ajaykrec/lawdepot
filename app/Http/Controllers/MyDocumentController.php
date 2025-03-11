@@ -97,5 +97,51 @@ class MyDocumentController extends Controller
             'pageData' => $pageData,            
         ]);
     }
+
+    public function view($cus_document_id, Request $request){   
+       
+        $language_id = AllFunction::get_current_language();       
+
+        $q = DB::table('pages');  
+        $q = $q->leftJoin('pages_language','pages_language.page_id','=','pages.page_id'); 
+        $q = $q->where('pages_language.language_id',$language_id);   
+        $q = $q->where('pages.slug','my-documents'); 
+        $page = $q->first(); 
+        $page = json_decode(json_encode($page), true); 
+       
+        $meta = [
+            'title'=>$page['meta_title'] ?? '',
+            'keywords'=>$page['meta_keyword'] ?? '',
+            'description'=>$page['meta_description'] ?? '',
+        ];   
+
+        $header_banner = [
+            'title'=>$page['name'],
+            'banner_image'=>$page['banner_image'],
+            'banner_text'=>$page['banner_text'],
+        ];
+        $breadcrumb = [
+            ['name'=>'Home', 'url'=>route('home')],
+            ['name'=>'My Account', 'url'=>route('customer.account')],
+            ['name'=>'My Documents', 'url'=>route('customer.documents')],
+            ['name'=>'View Document', 'url'=>''],
+        ];
+
+        $document = Customers_document::find($cus_document_id)->with(['document'])->get()->toArray();         
+        $document = $document[0] ?? [];
+
+        $filter_values = $document['filter_values'] ?? '';
+        $template = $document['document']['template'] ?? '';
+        $template = AllFunction::replace_template([
+            'template' => $template,
+            'question_value' => (array)json_decode($filter_values),
+        ]); 
+        $document['document']['template'] = $template;
+
+        $pageData = compact('page','meta','header_banner','breadcrumb','document'); 
+        return Inertia::render('frontend/pages/my_documents/View_document', [            
+            'pageData' => $pageData,            
+        ]);
+    }
     
 }

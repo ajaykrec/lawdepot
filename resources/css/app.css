@@ -222,6 +222,10 @@ header.sticky.sticky-active [data-header-hover=light] {
     .breadcrumbs ol li {
       display: inline-block;
     }
+
+    header .navbar-brand img {
+        max-height: 32px !important;
+    }
   }
   /******/
 .page-title-extra-small h2 {
@@ -353,7 +357,8 @@ input[type='checkbox'] {
     margin-left:inherit;
 }
 .contractPreview{
-    width: 970px;
+    /* width: 970px; */
+    width: 100%;
     margin: 0 auto;
     position: relative;
 }

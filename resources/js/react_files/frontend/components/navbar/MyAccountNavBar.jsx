@@ -22,7 +22,7 @@ const MyAccountNavBar = () => {
     
     return (
         <> 
-        <div className="my-account-navbar d-grid gap-1">            
+        <div className="my-account-navbar d-grid gap-1 pb-5">            
             <Link href={ route('customer.membership') }  className={`btn btn-very-small ${membership_menu.includes(current_path) ? 'present' : ''}`}>Subscription and license</Link>
             <Link href={ route('customer.settings') }  className={`btn btn-very-small ${settings_menu.includes(current_path) ? 'present' : ''}`}>Account Settings</Link>
             <Link href={ route('customer.changepassword') }  className={`btn btn-very-small ${change_password_menu.includes(current_path) ? 'present' : ''}`}>Change Password</Link>

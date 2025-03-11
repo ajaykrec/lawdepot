@@ -11,6 +11,7 @@ import allFunction from '../../helper/allFunction';
 const Checkout_success = () => {
 
   const { file_storage_url, common_data, customer, pageData } = usePage().props  
+  const document = pageData.document
   
   useEffect(()=> {  
             
@@ -36,7 +37,7 @@ const Checkout_success = () => {
     <Header_banner />
     <Breadcrumb />    
 
-    <section className="py-5">
+    <section className="pt-5 pb-0">
       <div className="container h-100">
         <div className="row">
             <div className="col-lg-12 col-md-12 col-12 text-center">  
@@ -45,7 +46,35 @@ const Checkout_success = () => {
             </div> 
         </div>
       </div>
-    </section>      
+    </section>   
+
+    {
+      pageData.document_id &&
+      <section className="pt-0 pb-5">
+        <div className="container">  
+            <div className="row"> 
+              <div className="col-lg-12 col-md-12 col-12 text-center"> 
+
+                <div className='p-2'>
+                <Link href={ route('save.document') } className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded">Save Document</Link> 
+                </div>
+
+                <div className="contractPreview">
+                  <div className="contract" style={{userSelect:"none"}}>
+                      <div className="outputVersion1">
+                        <div style={{background:"url(/frontend-assets/images/draft_bg.png) repeat-y center top/contain #fff"}}> 
+                        { parseWithLinks(''+document.template+'') }      
+                        </div>
+                      </div>
+                  </div>   
+                </div>   
+                            
+              </div>   
+            </div> 
+        </div>   
+      </section>   
+    }
+    
     </>
   )
 }

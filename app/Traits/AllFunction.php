@@ -28,6 +28,11 @@ use App\Models\Orders;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\TestEmail;
 
+//==== PHPMailer ====
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\Exception;
+
 trait AllFunction {  
     
       static function construct_value($index){
@@ -316,7 +321,59 @@ trait AllFunction {
      }
     static function send_mail($data){  
         //AllFunction::mail_with_sendgrid($data);	
-        AllFunction::mail_with_smtp($data);	
+        //AllFunction::mail_with_smtp($data);	
+        AllFunction::mail_with_PHPMailer($data);	
+    }
+    static function mail_with_PHPMailer($data){  
+
+        $email              = isset($data['email']) ? $data['email'] : '';  
+        $name               = isset($data['name']) ? $data['name'] : '';     
+        $from_email         = isset($data['from_email']) ? $data['from_email'] : '';     
+        $from_email_name    = isset($data['from_email_name']) ? $data['from_email_name'] : '';
+        $subject            = isset($data['subject']) ? $data['subject'] : '';        
+        $content            = isset($data['content']) ? $data['content'] : '';
+
+        $mail = new PHPMailer(true);
+        try {
+            //Server settings
+            $mail->SMTPDebug = 2; //SMTP::DEBUG_SERVER;                
+            $mail->isSMTP();                                      
+            $mail->Host       = env('MAIL_HOST');    
+            $mail->SMTPAuth   = true;                             
+            $mail->Username   = env('MAIL_USERNAME');            
+            $mail->Password   = env('MAIL_PASSWORD');            
+            $mail->SMTPSecure = 'tls'; //PHPMailer::ENCRYPTION_SMTPS;      
+            $mail->Port       = env('MAIL_PORT'); //465;  
+            $mail->SMTPOptions = array(
+                'ssl' => array(
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true
+                )
+            );
+            //Recipients
+            $mail->setFrom($from_email, $from_email_name);
+            $mail->addAddress($email, $name);     //Add a recipient
+            //$mail->addAddress('ellen@example.com'); //Name is optional
+            //$mail->addReplyTo('info@example.com', 'Information');
+            //$mail->addCC('cc@example.com');
+            //$mail->addBCC('bcc@example.com');
+        
+            //Attachments
+            //$mail->addAttachment('/var/tmp/file.tar.gz');         
+            //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');   
+        
+            //Content
+            $mail->isHTML(true);                                 
+            $mail->Subject = $subject;
+            $mail->Body    = $content;
+            $mail->AltBody = '';        
+            $mail->send();
+            //echo 'Message has been sent';
+        }
+        catch (Exception $e){
+            echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+        }
     }
     static function mail_with_smtp($data){  
 
@@ -326,8 +383,7 @@ trait AllFunction {
         $from_email_name    = isset($data['from_email_name']) ? $data['from_email_name'] : '';
         $subject            = isset($data['subject']) ? $data['subject'] : '';        
         $content            = isset($data['content']) ? $data['content'] : '';
-        
-        //Mail::to($email)->send($content);
+
         Mail::to($email)->send(new TestEmail([
             'subject'=>$subject,
             'content'=>$content,

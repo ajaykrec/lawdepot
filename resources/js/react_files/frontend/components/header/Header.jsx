@@ -141,7 +141,14 @@ const Header = (props) => {
                                                                 </li>   
                                                             )
                                                         })
-                                                    }                                                    
+                                                    }   
+
+                                                    <li>
+                                                    <Link href={ route('category.index', val.slug) }>Get More...                                                    
+                                                    </Link>
+                                                    </li>   
+
+                                                                                            
                                                 </ul>
                                             </li>
                                             )

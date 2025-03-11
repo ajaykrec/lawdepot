@@ -1384,6 +1384,28 @@ form span.err{
   display: inline-block;
   text-transform: uppercase;
 }
+
+.contractPreview {
+  /* width: 970px; */
+  width: 100%;
+  margin: 0 auto;
+  position: relative;
+}
+.contractPreview .contract {
+  border: 1px solid #808285;
+  height: 600px;
+  background: #fff;
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0px 0px 0px 1px #808285;
+  text-align: left;
+  color: #000;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-x: hidden;
+}
 /*!
 * ajay css [ends]
 */

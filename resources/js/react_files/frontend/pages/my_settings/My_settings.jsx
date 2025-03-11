@@ -130,10 +130,10 @@ const My_settings = ({ pageData }) => {
     <section className="section py-5">
           <div className="container">
               <div className="row">           
-                <div className="col-lg-3 col-md-6 col-12">   
+                <div className="col-lg-3 col-md-12 col-12">   
                 <MyAccountNavBar />          
                 </div>
-                <div className="col-lg-9 col-md-6 col-12">   
+                <div className="col-lg-9 col-md-12 col-12"> 
                 { pageData.page.content ? <>{parseWithLinks(''+pageData.page.content+'')}</> : '' }  
                 
                     <form onSubmit={submit}>

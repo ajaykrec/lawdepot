@@ -76,7 +76,7 @@ Route::middleware(['auth'])->group( function(){
     Route::resource('/zones',ZonesController::class);  
     
     Route::resource('/document-category',DocumentCategoryController::class);    
-    Route::resource('/document',DocumentController::class); 
+    Route::resource('/document',DocumentController::class);
     Route::get('/doc-categories/{country_id}', [DocumentController::class, 'get_categories'])->name('doc.categories');   
     Route::resource('/document.steps',DocumentStepController::class)->shallow();
     Route::resource('/document.faqs',DocumentFaqController::class)->shallow();    
@@ -100,7 +100,7 @@ Route::middleware(['auth'])->group( function(){
     Route::resource('/customers',CustomerController::class)->shallow();
     Route::resource('/customers.address',CustomerAddressController::class)->shallow(); 
     Route::resource('/customers.membership',CustomerMembershipController::class)->shallow(); 
-    Route::resource('/customers.document',CustomerDocumentController::class)->shallow(); 
+    Route::resource('/customers.cusdocument',CustomerDocumentController::class)->shallow(); 
     Route::resource('/membership-setting',MembershipController::class)->shallow();
     Route::resource('/orders',OrderController::class)->shallow();    
     
