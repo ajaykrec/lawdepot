@@ -8,6 +8,10 @@ import anime from 'animejs/lib/anime.es.js';
 
 //=====
 
+//=== Tooltip ==
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+
 import { useSelector, useDispatch } from 'react-redux'
 import { fieldAction } from '../../actions/fields'
 
@@ -25,9 +29,22 @@ const Dropdown = ({propsData, addMoreIndex}) => {
         setData(fields)
     },[fields])     
 
+    const parseWithLinks = (html) =>{
+        const options = {     
+            replace: ({ name, attribs, children }) => {
+                if (name === 'a' && attribs.href) {
+                    return <Link href={attribs.href} className={attribs.class}>{domToReact(children)}</Link>;
+                }
+            }
+        }     
+        return Parser(html, options);
+    }  
+
     const options = propsData.options    
     const label_text = propsData.label
     const question_text = propsData.question
+    const quick_info = propsData.quick_info  
+    const description = propsData.description              
 
     const addMoreIndexCount = (typeof addMoreIndex !== "undefined" && addMoreIndex !== '') ? addMoreIndex : ''
     const field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${addMoreIndexCount}` : propsData.field_name
@@ -42,7 +59,24 @@ const Dropdown = ({propsData, addMoreIndex}) => {
                 </>
             } 
             <div className={`question ${ label_text ? '' : 'q-margin' }`}>
-            { question_text }                                        
+            { question_text }       
+            { 
+                quick_info &&
+                <>
+                &nbsp; 
+                <OverlayTrigger
+                    key="top"
+                    placement="top"
+                    overlay={
+                    <Tooltip>
+                    {parseWithLinks(''+quick_info+'')}
+                    </Tooltip>
+                    }
+                >           
+                <i className="fa-solid fa-circle-question"></i>
+                </OverlayTrigger>
+                </>
+            }                                                                     
             </div>
             <select className="form-select" 
             name={field_name}  
@@ -62,6 +96,39 @@ const Dropdown = ({propsData, addMoreIndex}) => {
                 })
             }                          
             </select>  
+
+            { 
+                options.map((val,i)=>{                    
+                    let value = data[field_name] ?? ''
+                    return(
+                        <div key={i} className={` ${value == val.value ? 'd-flex justify-content-between border-0' : 'd-none' }`} >
+                        {
+                            val.image &&
+                            <div className="p-2">
+                            <img src={`${file_storage_url}/uploads/document_option/`+val.image} className="dropdown-img" />
+                            </div>
+                        } 
+                        {
+                            val.quick_info &&
+                            <div className="p-2" style={{lineHeight:"22px"}}>
+                            {parseWithLinks(''+val.quick_info+'')}
+                            </div>
+                        }                             
+                        </div>
+                    )
+                })
+            } 
+
+            { 
+                description && 
+                <>
+                <div className="card">
+                    <div className="card-body" style={{lineHeight:"22px"}}>
+                    {parseWithLinks(''+description+'')}
+                    </div>
+                </div>
+                </> 
+            } 
         </div>
         </> 
     )

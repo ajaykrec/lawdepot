@@ -55,5 +55,87 @@ class DocumentCategoryController extends Controller
             'pageData' => $pageData,            
         ]);
     }
+
+    public function all_documents(Request $request){          
+
+        $country = AllFunction::get_current_country(); 
+        $country_id = $country['country_id'] ?? '';  
+        $language_id = AllFunction::get_current_language();    
+
+        $q = DB::table('pages');  
+        $q = $q->leftJoin('pages_language','pages_language.page_id','=','pages.page_id'); 
+        $q = $q->where('pages_language.language_id',$language_id);   
+        $q = $q->where('pages.slug','all-documents'); 
+        $page = $q->first(); 
+        $page = json_decode(json_encode($page), true); 
+
+        $meta = [
+            'title'=>$page['meta_title'] ?? '',
+            'keywords'=>$page['meta_keyword'] ?? '',
+            'description'=>$page['meta_description'] ?? '',
+        ];   
+
+        $header_banner = [
+            'title'=>$page['name'],
+            'banner_image'=>$page['banner_image'],
+            'banner_text'=>$page['banner_text'],
+        ];
+        $breadcrumb = [
+            ['name'=>'Home', 'url'=>route('home')],
+            ['name'=>$page['name'], 'url'=>''],
+        ];
+        
+        //====
+        $filterArr          = [];
+        $filterArr['name']  = $name = $request['name'] ?? ''; 
+
+        $q = DB::table('documents');  
+        $q = $q->select('documents.document_id','documents.category_id','documents.name','documents.slug','documents.short_description','documents.image');   
+        $q = $q->where('documents.status',1); 
+        if($filterArr){
+            foreach($filterArr as $key=>$val){
+                if($val!=''){
+                    if($key == 'name'){
+                        $q->where('documents.name','like','%'.$val.'%');
+                    }                   
+                }
+            }
+        }            
+        $q = $q->orderby('documents.sort_order','asc'); 
+        $q = $q->orderby('documents.name','asc'); 
+        $count = $q->count();     
+        $results = $q->get()->toArray(); 
+        $document_results = json_decode(json_encode($results), true);     
+
+        $documents = [];
+        $azRange = range('A','Z');
+        foreach($azRange as $letter){
+
+            $docs = [];
+            foreach($document_results as $val){
+                $name = $val['name'] ?? '';  
+                $first_character = $name[0] ?? '';
+                if( ucfirst($first_character) == $letter){
+                    $docs[] = $val;
+                }                
+            }
+
+            if($docs){
+                $documents[] = [
+                    'letter'=>$letter,
+                    'docs'=>$docs,
+                ];           
+            }
+            
+        }
+        //p($documents);  
+
+        $pageData = compact('page','meta','header_banner','breadcrumb','azRange','name','documents'); 
+        return Inertia::render('frontend/pages/category/All_documents', [            
+            'pageData' => $pageData,            
+        ]);
+    }
+
+    
     
 }

@@ -58,7 +58,7 @@
                             $array = [
                                 'table'=>'documents_question_option',
                                 'table_id'=>'option_id',
-                                'table_id_value'=>$option_id ?? '',
+                                'table_id_value'=>$id ?? '',
                                 'table_field'=>'image',
                                 'file_name'=>old('image', $data['image'] ?? ''),
                                 'file_path'=>'uploads/document_option',
@@ -90,17 +90,28 @@
                 {{$message}}
                 @enderror 
                 </span>                 
-                </div>                
+                </div>     
+                
 
                 <div class="my-3">
-                <label class="form-label">Placeholder</label>
-                <input type="text" class="form-control" id="placeholder" name="placeholder" value="{{ old('placeholder', $data['placeholder'] ?? '') }}"> 
+                <label class="form-label">Placeholder</label>                
+                <textarea class="form-control" id="placeholder" name="placeholder" style="height:75px">{{ old('placeholder', $data['placeholder'] ?? '') }}</textarea>
                 <span class="err" id="error-placeholder">
                 @error('placeholder')
                 {{$message}}
                 @enderror 
                 </span>                 
-                </div>
+                </div>                
+
+                <div class="my-3">
+                <label class="form-label">Quick info (Hint)</label>                
+                <textarea class="form-control" id="quick_info" name="quick_info" style="height:75px">{{ old('quick_info', $data['quick_info'] ?? '') }}</textarea>
+                <span class="err" id="error-quick_info">
+                @error('quick_info')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div>                
 
                 @php 
                 $is_table_value = old('is_table_value', $data['is_table_value'] ?? '');
@@ -213,6 +224,8 @@
     $('.delete_image').on('click', (e)=>{
         let json_string = e.target.getAttribute('data-content')    
         let obj = JSON.parse(json_string)
+
+        console.log(obj)
 
         swal({		  
             title				: 'Are you sure?',

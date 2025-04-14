@@ -66,7 +66,7 @@ const Add_more = ({propsData}) => {
           let index = i + 1
 
           return(              
-              <div key={i} className="my-3 p-3" style={{border:"2px solid #ccc"}}>
+              <div key={i}  className="my-3 p-3" style={{border:"2px solid #ccc"}}>
 
                 <div className="d-flex justify-content-between mb-2">
                   <div>{firstWord} {i+1}</div>
@@ -79,7 +79,7 @@ const Add_more = ({propsData}) => {
                       style={{color:"#dc3545",borderBottom:"none"}}
                       onClick={() =>{ 
                         
-                        setCount( (count-1) > 0 ? count-1 : 1 )                        
+                        setCount( (count-1) > 0 ? count-1 : 1 )  
                         dispatch(fieldAction({
                           ...fields,
                           [selected_field_count]: (count-1) > 0 ? count - 1 : 1

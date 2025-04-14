@@ -72,14 +72,24 @@
                 </div>  
 
                 <div class="my-3">
-                <label class="form-label">Placeholder</label>
-                <input type="text" class="form-control" id="placeholder" name="placeholder" value="{{ old('placeholder') }}"> 
+                <label class="form-label">Placeholder</label>                
+                <textarea class="form-control" id="placeholder" name="placeholder" style="height:75px">{{ old('placeholder') }}</textarea>
                 <span class="err" id="error-placeholder">
                 @error('placeholder')
                 {{$message}}
                 @enderror 
                 </span>                 
-                </div>
+                </div>                
+
+                <div class="my-3">
+                <label class="form-label">Quick info (Hint)</label>                
+                <textarea class="form-control" id="quick_info" name="quick_info" style="height:75px">{{ old('quick_info') }}</textarea>
+                <span class="err" id="error-quick_info">
+                @error('quick_info')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div>                
 
                 @php 
                 $is_table_value = old('is_table_value') ?? 0;

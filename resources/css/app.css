@@ -428,3 +428,10 @@ header .navbar [class*=col-] {
 .search-form-wrapper .search-form .search-button {    
     right: 5px;    
 }
+.alphabet{ font-size: 25px; font-weight: bold; margin: 10px; cursor: pointer;}
+.alphabet.dark{ color: #000;}
+.alphabet-ul{
+    padding-left: 10px;
+}
+.radio-img{ height: 100px !important; width:auto !important;}
+.dropdown-img{ height: auto !important; width:100px !important;}

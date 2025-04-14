@@ -13,6 +13,10 @@ import Textarea from './Textarea';
 import Date from './Date';
 //=====
 
+//=== Tooltip ==
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+
 import { useSelector, useDispatch } from 'react-redux'
 import { fieldAction } from '../../actions/fields'
 
@@ -30,6 +34,7 @@ const Radio_group = ({propsData, index}) => {
     const options = propsData.options
     const label_text = propsData.label
     const question_text = propsData.question
+    const quick_info = propsData.quick_info       
     const field_name = propsData.field_name
 
     const width1 = 40
@@ -38,6 +43,17 @@ const Radio_group = ({propsData, index}) => {
     useEffect(()=> {  
       setData(fields)
     },[fields]) 
+
+    const parseWithLinks = (html) =>{
+        const options = {     
+            replace: ({ name, attribs, children }) => {
+                if (name === 'a' && attribs.href) {
+                    return <Link href={attribs.href} className={attribs.class}>{domToReact(children)}</Link>;
+                }
+            }
+        }     
+        return Parser(html, options);
+    }  
  
     return (
       <> 
@@ -64,7 +80,24 @@ const Radio_group = ({propsData, index}) => {
         
         <div className="d-flex justify-content-between align-items-center radio-group-row">
           <div className="text-start" style={{width:width1+"%"}}>
-          { question_text }                                        
+          { question_text }     
+          { 
+              quick_info &&
+              <>
+              &nbsp; 
+              <OverlayTrigger
+                  key="top"
+                  placement="top"
+                  overlay={
+                  <Tooltip>
+                  {parseWithLinks(''+quick_info+'')}
+                  </Tooltip>
+                  }
+              >           
+              <i className="fa-solid fa-circle-question"></i>
+              </OverlayTrigger>
+              </>
+          }                                                                              
           </div>
           { 
               options.map((val,i)=>{                                  

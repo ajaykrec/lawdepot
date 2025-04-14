@@ -56,17 +56,49 @@
                 {{$message}}
                 @enderror 
                 </span>                 
-                </div>                
+                </div>            
+                
+                <div class="my-3">
+                <label class="form-label">Short Question (for api)</label>
+                <input type="text" class="form-control" id="short_question" name="short_question" value="{{ old('short_question') }}"> 
+                <span class="err" id="error-short_question">
+                @error('short_question')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div>
 
                 <div class="my-3">
-                <label class="form-label">Question</label>
-                <input type="text" class="form-control" id="question" name="question" value="{{ old('question') }}"> 
+                <label class="form-label">Question</label>                
+                <textarea class="form-control" id="question" name="question" style="height:75px">{{ old('question') }}</textarea>
                 <span class="err" id="error-question">
                 @error('question')
                 {{$message}}
                 @enderror 
                 </span>                 
                 </div>
+
+
+                <div class="my-3">
+                <label class="form-label">Quick info (Hint)</label>                
+                <textarea class="form-control" id="quick_info" name="quick_info" style="height:75px">{{ old('quick_info') }}</textarea>
+                <span class="err" id="error-quick_info">
+                @error('quick_info')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div>    
+                
+                <div class="my-3">
+                <label class="form-label">Description</label>                
+                <textarea class="form-control" id="description" name="description" style="height:100px">{{ old('description') }}</textarea>
+                <span class="err" id="error-description">
+                @error('description')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div>                
+
 
                 {{--
                 <div class="my-3">
@@ -79,16 +111,16 @@
                 </span>                 
                 </div>
                 --}}
-
+                
                 <div class="my-3">
-                <label class="form-label">Placeholder</label>
-                <input type="text" class="form-control" id="placeholder" name="placeholder" value="{{ old('placeholder') }}"> 
+                <label class="form-label">Placeholder</label>                
+                <textarea class="form-control" id="placeholder" name="placeholder" style="height:75px">{{ old('placeholder') }}</textarea>
                 <span class="err" id="error-placeholder">
                 @error('placeholder')
                 {{$message}}
                 @enderror 
                 </span>                 
-                </div>
+                </div>                
 
 
                 @php 
@@ -99,12 +131,12 @@
                 else{
                     $div_2_style = 'style="display:none"';                   
                 }    
-                $addAnotherArr = ['radio','dropdown','text','textarea','date'];            
+                $addAnotherArr = ['label','radio','checkbox','dropdown','text','textarea','date'];            
                 @endphp
 
-                @if($show_add_another)
+                {{-- @if($show_add_another)  --}}
                     @include('admin.document_questions.add_another')
-                @endif    
+                {{-- @endif --}}
 
                 @php 
                 $answer_type = old('answer_type') ?? '';
@@ -116,27 +148,47 @@
                     $div_1_style = 'style="display:none"';                   
                 }                
                 @endphp
-                <div class="my-3">
-                <label class="form-label">Answer Type</label>
-                <select class="form-select" id="answer_type" name="answer_type" onchange="get_value(this.value)"> 
-                <option value=""></option>   
-                @foreach($answer_types as $val)
-                    
-                    @if($is_add_another == 1 || (!$show_add_another && $add_another_max > 0) )
-                        @if(in_array($val, $addAnotherArr))
-                        <option value="{{ $val }}" {{ ($answer_type==$val) ? 'selected' : '' }}>{{ $val }}</option> 
-                        @endif 
-                    @else
-                    <option value="{{ $val }}" {{ ($answer_type==$val) ? 'selected' : '' }}>{{ $val }}</option>   
-                    @endif
-                
-                @endforeach
-                </select>
-                <span class="err" id="error-answer_type">
-                @error('answer_type')
-                {{$message}}
-                @enderror 
-                </span>      
+
+                <div class="row">
+                    <div class="col-md-6 col-12"> 
+                        <div class="my-3">
+                        <label class="form-label">Answer Type</label>
+                        <select class="form-select" id="answer_type" name="answer_type" onchange="get_value(this.value)"> 
+                        <option value=""></option>   
+                        @foreach($answer_types as $val)
+                            
+                            @if($is_add_another == 1 || (!$show_add_another && $add_another_max > 0) )
+                                @if(in_array($val, $addAnotherArr))
+                                <option value="{{ $val }}" {{ ($answer_type==$val) ? 'selected' : '' }}>{{ $val }}</option> 
+                                @endif 
+                            @else
+                            <option value="{{ $val }}" {{ ($answer_type==$val) ? 'selected' : '' }}>{{ $val }}</option>   
+                            @endif
+                        
+                        @endforeach
+                        </select>
+                        <span class="err" id="error-answer_type">
+                        @error('answer_type')
+                        {{$message}}
+                        @enderror 
+                        </span>      
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-12">     
+                        <div class="my-3">
+                        <label class="form-label">Group</label>
+                        <select class="form-select" name="label_group">                     
+                        @for( $i=1; $i<=$group_count; $i++ ) 
+                        <option value="{{ $i }}" {{ (old('label_group')==$i) ? 'selected' : '' }}>{{ $i }}</option> 
+                        @endfor
+                        </select>
+                        <span class="err" id="error-label_group">
+                        @error('label_group')
+                        {{$message}}
+                        @enderror 
+                        </span>                      
+                        </div>    
+                    </div>   
                 </div>
 
                 <div class="my-3" id="value_div_1" {!! $div_1_style !!}>
@@ -160,46 +212,8 @@
                     {{$message}}
                     @enderror 
                     </span>      
-                </div>
-               
-                <div class="row">
-
-                    <div class="col-md-6 col-12">     
-                    <div class="my-3">
-                    <label class="form-label">Group</label>
-                    <select class="form-select" name="label_group">                     
-                    @for( $i=1; $i<=$group_count; $i++ ) 
-                    <option value="{{ $i }}" {{ (old('label_group')==$i) ? 'selected' : '' }}>{{ $i }}</option> 
-                    @endfor
-                    </select>
-                    <span class="err" id="error-label_group">
-                    @error('label_group')
-                    {{$message}}
-                    @enderror 
-                    </span>                      
-                    </div>    
-                    </div>   
-                    
-                    <div class="col-md-6 col-12">     
-                    <div class="my-3">
-                    <label class="form-label">Blank space 
-                    <small class="text-muted small">(if answer is not given)</small>
-                    </label>
-                    <select class="form-select" name="blank_space">                     
-                    @for( $i=1; $i<=100; $i++ ) 
-                    <option value="{{ $i }}" {{ (old('blank_space')==$i) ? 'selected' : '' }}>{{ $i }}</option> 
-                    @endfor
-                    </select>
-                    <span class="err" id="error-blank_space">
-                    @error('blank_space')
-                    {{$message}}
-                    @enderror 
-                    </span>                      
-                    </div>    
-                    </div>                     
-                    
-                </div>              
-
+                </div>               
+                
                 <div class="mb-3">  
                 <button type="submit" class="btn btn-primary">Submit</button>
                 </div>

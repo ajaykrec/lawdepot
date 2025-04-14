@@ -17,7 +17,7 @@ class DocumentQuestionController extends Controller
     use AllFunction; 
 
     public function __construct(){
-        $this->answer_types = ['radio','radio_group','checkbox','dropdown','text','textarea','date']; 
+        $this->answer_types  = ['label','radio','radio_group','checkbox','dropdown','text','textarea','date']; 
     }
     
     public function index(Request $request)
@@ -190,7 +190,7 @@ class DocumentQuestionController extends Controller
             'description'=>'',
         ];    
 
-        $answer_types = $this->answer_types;
+        $answer_types  = $this->answer_types;        
         
         $data = compact('meta','document_id','step_id','option_id','question_id','answer_types','url_1','url_2','breadcrumb','group_count','show_add_another','add_another_max'); 
         return view('admin.document_questions.create')->with($data);
@@ -222,6 +222,7 @@ class DocumentQuestionController extends Controller
 
         //==== Add new data =====        
         $rules = [
+            'short_question'=> 'required',
             'question'      => 'required',   
             'answer_type'   => 'required',            
             'display_type'  => 'required',  
@@ -265,8 +266,11 @@ class DocumentQuestionController extends Controller
             $table->document_id     = $document_id;
             $table->step_id         = $request['step_id'] ?? 0;
             $table->option_id       = $request['option_id'] ?? 0;
-            $table->label           = $request['label'] ?? '';
+            $table->label           = $request['label'] ?? ''; 
+            $table->short_question  = $request['short_question'] ?? '';
             $table->question        = $request['question'] ?? '';
+            $table->quick_info      = $request['quick_info'] ?? '';          
+            $table->description     = $request['description'] ?? '';   
             $table->placeholder     = $request['placeholder'] ?? '';
             $table->answer_type     = $request['answer_type'] ?? '';
             $table->display_type    = $display_type;
@@ -274,7 +278,8 @@ class DocumentQuestionController extends Controller
             $table->blank_space     = $request['blank_space'] ?? 1;
             $table->is_add_another  = $request['is_add_another'] ?? 0; 
             $table->add_another_max = $add_another_max;           
-            $table->add_another_text= $request['add_another_text'] ?? '';           
+            $table->add_another_text= $request['add_another_text'] ?? '';         
+            $table->add_another_button_text= $request['add_another_button_text'] ?? '';  
             $table->save();
 
             $question_id = $table->question_id;
@@ -311,7 +316,7 @@ class DocumentQuestionController extends Controller
         $document_id = $data['document_id'] ?? '';
 
         $show_add_another = AllFunction::show_add_another($step_id); 
-        $add_another_max = AllFunction::get_add_another_max($question_id);         
+        $add_another_max  = AllFunction::get_add_another_max($question_id);         
 
         $breadcrumb = AllFunction::get_questions_breadcrumb([
             'step_id'=>$step_id,
@@ -344,7 +349,8 @@ class DocumentQuestionController extends Controller
         $url= $URL[0] ?? '';        
         //=== url ends====           
 
-        $answer_types = $this->answer_types;
+        $answer_types = $this->answer_types;       
+
         $data = compact('meta','data','document_id','step_id','option_id','question_id','answer_types','url','breadcrumb','group_count','show_add_another','add_another_max');         
         return view('admin.document_questions.edit')->with($data);
     }
@@ -354,7 +360,8 @@ class DocumentQuestionController extends Controller
         //=== check permision
         if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }        
 
-        $rules = [
+        $rules = [ 
+            'short_question'=> 'required',   
             'question'      => 'required',   
             'answer_type'   => 'required',            
             'display_type'  => 'required', 
@@ -401,8 +408,11 @@ class DocumentQuestionController extends Controller
             $table->document_id     = $document_id;
             $table->step_id         = $step_id;
             $table->option_id       = $option_id;
-            $table->label           = $request['label'] ?? '';
+            $table->label           = $request['label'] ?? ''; 
+            $table->short_question  = $request['short_question'] ?? '';
             $table->question        = $request['question'] ?? '';
+            $table->quick_info      = $request['quick_info'] ?? ''; 
+            $table->description     = $request['description'] ?? '';              
             $table->placeholder     = $request['placeholder'] ?? '';
             $table->answer_type     = $request['answer_type'] ?? '';
             $table->display_type    = $display_type;
@@ -411,7 +421,8 @@ class DocumentQuestionController extends Controller
             $table->blank_space     = $request['blank_space'] ?? 1;
             $table->is_add_another  = $request['is_add_another'] ?? 0;
             $table->add_another_max = $add_another_max;           
-            $table->add_another_text= $request['add_another_text'] ?? '';                       
+            $table->add_another_text= $request['add_another_text'] ?? '';     
+            $table->add_another_button_text= $request['add_another_button_text'] ?? '';                    
             $table->save();           
             return redirect( $url )->with('message','Documents question updated successfully');
         }

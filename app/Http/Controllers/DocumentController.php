@@ -142,7 +142,7 @@ class DocumentController extends Controller
             $group  = $request['group'] ?? ''; 
             $inputs = $request['fields'] ?? [];  
             $inputs = (array)json_decode($inputs); 
-            //p($inputs);           
+            
             
             $returnfields = [];
             foreach($inputs as $key=>$val){                 
@@ -158,7 +158,7 @@ class DocumentController extends Controller
                 $returnfields[$key] = $val;
             }
             $fields = $returnfields;  
-            //p($fields);
+            
            
             $step_row = DB::table('documents_step')->select('*')->where('step_id',$step_id)->first(); 
             $step_row = json_decode(json_encode($step_row), true); 
@@ -180,7 +180,7 @@ class DocumentController extends Controller
                     $returnArr[$key] = $fields[$key] ?? $val;
                 }
                 $fields = array_merge($returnArr, $fields);                 
-            }           
+            }  
 
             Session::put('document_id', $document_id);          
             Session::put('fields', json_encode($fields));
@@ -231,9 +231,19 @@ class DocumentController extends Controller
         $steps = json_decode(json_encode($steps), true);        
         $percent = 100;
 
+        $session_fields = (Session::has('fields')) ? Session::get('fields') : ''; 
+
+        //=== templateApiJsonData =====
+        $templateApiJsonData = AllFunction::get_templateApiJsonData([
+            'document_id'=>$document_id,
+            'session_fields'=>$session_fields,
+        ]);   
+        $templateApiJsonData = json_encode($templateApiJsonData);  
+        //========= 
+
         $filter_question_value = AllFunction::filter_question_value([
             'document_id'=>$document_id ?? '',            
-        ]);        
+        ]);    
 
         $template = $document['template'] ?? '';  
         $template = AllFunction::replace_template([

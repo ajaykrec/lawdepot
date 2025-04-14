@@ -160,6 +160,7 @@ class DocumentController extends Controller
             'slug'              => 'required',  
             'short_description' => 'required',
             'template'          => 'required',  
+            'image'             => 'mimes:png,jpeg,gif,webp,svg|image|max:2048', // size : 1024*2 = 2048 = 2MB 
         ];
         $messages = [];
         $validation = Validator::make( 
@@ -250,8 +251,11 @@ class DocumentController extends Controller
             'name'              => 'required',
             'slug'              => 'required',  
             'short_description' => 'required',
-            'template'          => 'required',  
+            'template'          => 'required', 
         ];
+        if($request->file('image')){
+            $rules['image'] = 'mimes:png,jpeg,gif,webp,svg|image|max:2048'; // size : 1024*2 = 2048 = 2MB 
+        }
         $messages = [];
         $validation = Validator::make( 
             $request->toArray(), 

@@ -13,6 +13,10 @@ import Textarea from './Textarea';
 import Date from './Date';
 //=====
 
+//=== Tooltip ==
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+
 import { useSelector, useDispatch } from 'react-redux'
 import { fieldAction } from '../../actions/fields'
 
@@ -31,6 +35,8 @@ const Checkbox = ({propsData}) => {
     const display_type = propsData.display_type
     const label_text = propsData.label
     const question_text = propsData.question
+    const quick_info = propsData.quick_info    
+    const description = propsData.description            
     const field_name = propsData.field_name  
 
     let table_selected_value = []
@@ -43,7 +49,18 @@ const Checkbox = ({propsData}) => {
     
     useEffect(()=> { 
       setData(fields) 
-    },[fields])      
+    },[fields]) 
+    
+    const parseWithLinks = (html) =>{
+        const options = {     
+            replace: ({ name, attribs, children }) => {
+                if (name === 'a' && attribs.href) {
+                    return <Link href={attribs.href} className={attribs.class}>{domToReact(children)}</Link>;
+                }
+            }
+        }     
+        return Parser(html, options);
+    }  
     
     return (
       <> 
@@ -54,7 +71,24 @@ const Checkbox = ({propsData}) => {
           </>
         } 
         <div className={`question ${ label_text ? '' : 'q-margin' }`}>
-        { question_text }                                        
+        { question_text }    
+        { 
+            quick_info &&
+            <>
+            &nbsp; 
+            <OverlayTrigger
+                key="top"
+                placement="top"
+                overlay={
+                <Tooltip>
+                {parseWithLinks(''+quick_info+'')}
+                </Tooltip>
+                }
+            >           
+            <i className="fa-solid fa-circle-question"></i>
+            </OverlayTrigger>
+            </>
+        }                                                                           
         </div>
         { 
             options.map((val,i)=>{                  
@@ -97,7 +131,24 @@ const Checkbox = ({propsData}) => {
                     <img src={`${file_storage_url}/uploads/document_option/`+val.image} /><br />
                     </>
                   }                                  
-                  { val.title }
+                  { val.title } 
+                  { 
+                      val.quick_info &&
+                      <>
+                      &nbsp; 
+                      <OverlayTrigger
+                          key="top"
+                          placement="top"
+                          overlay={
+                          <Tooltip>
+                          {parseWithLinks(''+val.quick_info+'')}
+                          </Tooltip>
+                          }
+                      >           
+                      <i className="fa-solid fa-circle-question"></i>
+                      </OverlayTrigger>
+                      </>
+                  }                               
                   </label>
                 </div>                                                             
                 )
@@ -145,7 +196,18 @@ const Checkbox = ({propsData}) => {
                     )
                 })                              
             })                                
-        }                            
+        } 
+
+        { 
+          description && 
+          <>
+          <div className="card">
+            <div className="card-body" style={{lineHeight:"22px"}}>
+            {parseWithLinks(''+description+'')}
+            </div>
+          </div>
+          </> 
+        }                          
       </> 
     )
 }

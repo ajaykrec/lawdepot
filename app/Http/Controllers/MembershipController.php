@@ -151,7 +151,7 @@ class MembershipController extends Controller
     
     public function success(Request $request){ 
 
-        MembershipController::callback($request);
+        //MembershipController::callback($request);
 
         $language_id = AllFunction::get_current_language();  
          
@@ -205,8 +205,7 @@ class MembershipController extends Controller
 
     public function callback(Request $request){
         
-        //=== test callback url ===
-        /*
+        //=== test callback url ===       
         $post_data = file_get_contents("php://input");
         $post_data = json_encode($post_data, true);
         // $post_data = "transaction_date=10%2F03%2F2025+05%3A43%3A46&transaction_id=17230026817415854146300&amount=1.00&order_id=123456&optional_1=&optional_2=&optional_3=&optional_4=&optional_5=&description=&test_transaction=True";
@@ -215,8 +214,7 @@ class MembershipController extends Controller
         $table = new Users_type;
         $table->user_type  = 'callback';            
         $table->modules    = $post_data;   
-        $table->save();
-        */
+        $table->save();       
         //======
 
         $transaction_date = $request['transaction_date'] ?? '';

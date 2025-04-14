@@ -40,10 +40,22 @@
     </span>                      
     </div>    
     </div>   
-    
+
     <div class="col-md-6 col-12">     
     <div class="my-3">
-    <label class="form-label">Add another text</label>
+    <label class="form-label">Add another button text</label>
+    <input type="text" class="form-control" id="add_another_button_text" name="add_another_button_text" value="{{ old('add_another_button_text', $data['add_another_button_text'] ?? '') }}">
+    <span class="err" id="error-add_another_button_text">
+    @error('add_another_button_text')
+    {{$message}}
+    @enderror 
+    </span>                      
+    </div>    
+    </div>                
+    
+    <div class="col-md-12 col-12">     
+    <div class="my-3">
+    <label class="form-label">Box text</label>
     <input type="text" class="form-control" id="add_another_text" name="add_another_text" value="{{ old('add_another_text', $data['add_another_text'] ?? '') }}">
     <span class="err" id="error-add_another_text">
     @error('add_another_text')
@@ -51,9 +63,11 @@
     @enderror 
     </span>                      
     </div>    
-    </div>                     
+    </div>  
     
 </div> 
+
+
 <script>    
     const get_add_another_div = (count)=>{   
         var html = '<option value=""></option>'    

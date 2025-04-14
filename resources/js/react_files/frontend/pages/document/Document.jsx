@@ -45,7 +45,7 @@ const Document = ({ pageData }) => {
   const [error, setError] = useState(errors) 
 
   useEffect(() => {
-    dispatch(fieldAction(data))
+    dispatch(fieldAction(data))    
   }, []);
 
   const dispatch     = useDispatch()

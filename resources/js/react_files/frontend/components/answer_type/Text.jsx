@@ -8,6 +8,10 @@ import anime from 'animejs/lib/anime.es.js';
 
 //=====
 
+//=== Tooltip ==
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+
 import { useSelector, useDispatch } from 'react-redux'
 import { fieldAction } from '../../actions/fields'
 
@@ -23,11 +27,24 @@ const Text = ({propsData, addMoreIndex}) => {
    
     useEffect(()=> {  
         setData(fields)
-    },[fields])     
+    },[fields])    
+    
+    const parseWithLinks = (html) =>{
+        const options = {     
+            replace: ({ name, attribs, children }) => {
+                if (name === 'a' && attribs.href) {
+                    return <Link href={attribs.href} className={attribs.class}>{domToReact(children)}</Link>;
+                }
+            }
+        }     
+        return Parser(html, options);
+    }  
 
     const label_text = propsData.label
     const question_text = propsData.question
-
+    const quick_info = propsData.quick_info       
+    const description = propsData.description         
+    
     const addMoreIndexCount = (typeof addMoreIndex !== "undefined" && addMoreIndex !== '') ? addMoreIndex : ''
     const field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${addMoreIndexCount}` : propsData.field_name
 
@@ -41,7 +58,24 @@ const Text = ({propsData, addMoreIndex}) => {
                 </>
             } 
             <div className={`question ${ label_text ? '' : 'q-margin' }`}>
-            { question_text }                                        
+            { question_text }  
+            { 
+                quick_info &&
+                <>
+                &nbsp; 
+                <OverlayTrigger
+                    key="top"
+                    placement="top"
+                    overlay={
+                    <Tooltip>
+                    {parseWithLinks(''+quick_info+'')}
+                    </Tooltip>
+                    }
+                >           
+                <i className="fa-solid fa-circle-question"></i>
+                </OverlayTrigger>
+                </>
+            }                                                                                                
             </div>
             <input type="text" className="form-control" placeholder={ propsData.placeholder } autoComplete='off'
             name={field_name}  
@@ -55,6 +89,16 @@ const Text = ({propsData, addMoreIndex}) => {
 
             }}
             /> 
+            { 
+                description && 
+                <>
+                <div className="card">
+                    <div className="card-body" style={{lineHeight:"22px"}}>
+                    {parseWithLinks(''+description+'')}
+                    </div>
+                </div>
+                </> 
+            } 
         </div>         
     </> 
   )

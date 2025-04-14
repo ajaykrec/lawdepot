@@ -96,7 +96,7 @@ const Header = (props) => {
             </div>   
             <nav className="navbar navbar-expand-lg navBg header-reverse sticky-header" data-header-hover="light">
                 <div className="container-fluid">
-                    <div className="col-auto col-lg-2 me-lg-0 me-auto">
+                    <div className="col-auto col-lg-2 me-lg-0 ">
                         <Link className="navbar-brand" href={ route('home') }>
 
                         {/* <img src="/frontend-assets/images/demo-hosting-logo-white.png" data-at2x="/frontend-assets/images/demo-hosting-logo-white@2x.png" alt="" className="default-logo" /> */}
@@ -108,7 +108,7 @@ const Header = (props) => {
 
                         </Link>
                     </div>
-                    <div className="col-auto col-lg-6 menu-order position-static">
+                    <div className="col-auto col-lg-6 menu-order position-static me-3">
                         <button className="navbar-toggler float-start" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-label="Toggle navigation">  
                             <span className="navbar-toggler-line"></span>
                             <span className="navbar-toggler-line"></span>
@@ -160,13 +160,14 @@ const Header = (props) => {
                                         }
                                     })
                                 }
+                                <li className="nav-item"><Link href={ route('all.documents') } className="nav-link">All</Link></li>
                             </ul>
                         </div>
                     </div>
                     <div className="col-auto col-lg-4 text-end">
                         <div className="header-icon">
 
-                            <div className="header-account-icon icon alt-font mx-2 text-start">
+                            <div className="header-account-icon icon alt-font mx-1 text-start">
                                 
                                 <a href="#" className="search-form-icon header-search-form">
                                 <i className="align-middle feather icon-feather-search fs-18 me-5px xl-me-0"></i>
@@ -202,7 +203,7 @@ const Header = (props) => {
 
                             { countries.length > 1 &&                   
                             
-                                <div className="header-account-icon icon alt-font mx-2 text-start">
+                                <div className="header-account-icon icon alt-font mx-3 text-start">
                                     <div className="header-account dropdown" id="country-menu-01" 
                                     onMouseEnter={()=>openMenu('country-menu-01',true)} 
                                     onMouseLeave={()=>openMenu('country-menu-01',false)}>                                     

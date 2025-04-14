@@ -41,12 +41,12 @@ const Footer = () => {
 
     return (
         <>
-       <footer className="footer-dark bg-dark-blue pb-0 cover-background background-position-left-top" 
+       <footer className="footer-dark bg-dark-blue pb-0 cover-background background-position-left-top pt-4" 
        style={{backgroundImage:"url('/frontend-assets/images/demo-hosting-footer-bg.jpg')"}} >
             <div className="container">
                 <div className="row justify-content-center mb-5 md-mb-8 sm-mb-40px">
 
-                    <div className="col-6 col-lg-3 last-paragraph-no-margin order-sm-1 md-mb-40px xs-mb-30px">
+                    <div className="col-12 col-lg-6 last-paragraph-no-margin order-sm-1 md-mb-40px xs-mb-30px">
                         <Link href={ route('home') } className="footer-logo mb-15px d-inline-block">
                         <img src="/frontend-assets/images/logo.png" alt="" className="logo" />
                         </Link>
@@ -106,10 +106,7 @@ const Footer = () => {
                             </li>
                             <li>
                                 <Link href={ route('contact') }>Contact</Link>
-                            </li>
-                            <li>
-                                <Link href={ route('help') }>Help Center</Link>
-                            </li>
+                            </li>                            
                         </ul>
                     </div>
 
@@ -122,51 +119,47 @@ const Footer = () => {
                             <li>
                                 <Link href={ route('terms') }>Terms of Use</Link>
                             </li>  
+                            <li>
+                                <Link href={ route('help') }>Help Center</Link>
+                            </li>
                         </ul>
                     </div>
 
                     <div className="col-6 col-lg-2 col-sm-4 xs-mb-30px order-sm-5 order-lg-4">
-                        <span className="fs-17 fw-500 d-block text-white mb-5px">Say hello</span>
+                        <span className="fs-17 fw-500 d-block text-white mb-5px">Need support?</span>
                         { settings.contact_email &&
                                 <>
-                                <span className="d-inline-flex w-100">Need support?</span>
+                                {/* <i className="feather icon-feather-mail text-white"></i> :  */}
                                 <a
                                 href={`mailto:${settings.contact_email}`}
-                                className="text-white lh-22 text-decoration-line-bottom d-inline-block mb-20px">{settings.contact_email}</a>
+                                className="mb-20px">{settings.contact_email}</a>
+                                
                                 </>                               
                         }        
                         
                         { settings.contact_phone &&
                             <>
-                            <span className="d-inline-flex w-100">Customer care</span>
-                            <a href={`tel:${settings.contact_phone}`} className="text-white lh-22 d-inline-flex">{settings.contact_phone}</a>
+                            <br />
+                            {/* <i className="feather icon-feather-phone text-white"></i> :  */}
+                            <a href={`tel:${settings.contact_phone}`} className="lh-22 d-inline-flex">{settings.contact_phone}</a>
+                            
                             </>                               
                         }  
                     </div>
 
-                    <div className="col-lg-3 col-sm-6 ps-30px sm-ps-15px md-mb-40px xs-mb-0 order-sm-2 order-lg-5">
-                        
-                        <Newsletter />
-                        
-                        <div className="footer-card">
-                            <a style={{cursor:"pointer"}} className="d-inline-block me-5px xxl-me-0 align-middle">
-                            <img src="/frontend-assets/images/demo-decor-store-payment-icon-01.webp" alt="" /></a>
-                            <a style={{cursor:"pointer"}} className="d-inline-block me-5px xxl-me-0 align-middle">
-                            <img src="/frontend-assets/images/demo-decor-store-payment-icon-02.webp" alt="" /></a>
-                            <a style={{cursor:"pointer"}} className="d-inline-block me-5px xxl-me-0 align-middle">
-                            <img src="/frontend-assets/images/demo-decor-store-payment-icon-03.webp" alt="" /></a>
-                            <a style={{cursor:"pointer"}} className="d-inline-block me-5px xxl-me-0 align-middle">
-                            <img src="/frontend-assets/images/demo-decor-store-payment-icon-04.webp" alt="" /></a>
-                        </div>
-
-                    </div>
-
+                    
                 </div>
-                <div
-                    className="border-top border-color-transparent-white-light pt-35px pb-35px text-center">
-                    <span className="fs-13 w-60 lg-w-70 md-w-100 d-block mx-auto lh-22">
+                
+            </div>
+            <div className="container-fluid">
+                <div className="row justify-content-center" style={{background:"#ccc"}}>   
+                <div className="col-12">
+                <div className="border-top py-3 text-center">
+                    <span className=" lg-w-70 md-w-100 d-block mx-auto lh-22" style={{color:"#333"}}>
                     {parseWithLinks(''+settings.copyrights+'')}
                     </span>
+                </div>
+                </div>
                 </div>
             </div>
         </footer>

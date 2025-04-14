@@ -51,7 +51,7 @@ const Document_faq = () => {
                                 </div>
                                 <div id={`accordion-${i}`} className={ i == 0 ? 'accordion-collapse collapse show' : 'accordion-collapse collapse' } data-bs-parent="#accordion-style-02">
                                     <div className="accordion-body last-paragraph-no-margin border-bottom border-color-light-medium-gray answer">
-                                        <p>{parseWithLinks(''+item.answer+'')}</p>
+                                        {parseWithLinks(''+item.answer+'')}
                                     </div>
                                 </div>
                             </div>

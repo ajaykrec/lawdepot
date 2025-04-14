@@ -16,9 +16,10 @@ return new class extends Migration
             $table->integer('document_id');      
             $table->integer('question_id');  
             $table->string('image',150)->nullable();   
-            $table->string('placeholder',150)->nullable();   
+            $table->string('placeholder',255)->nullable();   
             $table->string('title',200)->nullable();   
-            $table->string('value',200)->nullable();   
+            $table->string('value',200)->nullable(); 
+            $table->text('quick_info')->nullable();              
             $table->tinyInteger('is_table_value')->comment('0:No, 1:Yes');  
             $table->tinyInteger('is_sub_question')->comment('0:No, 1:Yes');                      
             $table->timestamps();

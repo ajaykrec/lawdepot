@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 //=== for image resize : composer require intervention/image
 // use "intervention/image": "^2.7" in composer.json "require"
 // run comand : composer update
+// use Intervention\Image\Facades\Image as ResizeImage;
 use Intervention\Image\Facades\Image as ResizeImage;
 
 use App\Models\Settings;
@@ -32,6 +33,8 @@ use App\Mail\TestEmail;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
+
+
 
 trait AllFunction {  
     
@@ -231,33 +234,37 @@ trait AllFunction {
         return $social_media;
         
     }
-    static function upload_image($data) {
-        
+ 
+    static function upload_image($data){        
         $file               = $data['file'] ?? '';
-        $destination_path   = $data['destination_path'] ?? '';
+        $destination_path   = $data['destination_path'] ?? '';        
         $width              = $data['width'] ?? '';
         $height             = $data['height'] ?? '';
-     
+
         //Display File Name
-        $file_name = str_replace(' ', '-', microtime()) . '-vs-' . $file->getClientOriginalName();       
-     
+        $file_name = str_replace(' ', '-', microtime()) . '-vs-' . $file->getClientOriginalName();  
         //Display File Extension
-        $file_extension = $file->getClientOriginalExtension();        
-     
+        $file_extension = $file->getClientOriginalExtension();   
+        
         //Display File Real Path       
         $file_real_path = $file->getRealPath();
-     
         //Display File Size
-        $file_size = $file->getSize();       
-     
+        $file_size = $file->getSize();   
         //Display File Mime Type
-        $file_mime_type = $file->getMimeType();  
-        
-        if($width && $height){
-            
-            $destination_path = 'storage/'.$destination_path;            
-            !is_dir($destination_path) &&
-            mkdir($destination_path, 0777, true);
+        $file_mime_type = $file->getMimeType(); 
+
+        if( $file_mime_type == 'image/svg+xml' ){
+            $file->storeAs($destination_path,$file_name);
+        }        
+        else if($width && $height){
+
+            $destination_path   = storage_path('app/public/'.$destination_path);
+            if( !is_dir($destination_path) ){
+                mkdir($destination_path, 0777, true);
+            }    
+            else{
+                chmod($destination_path,0777);
+            }                  
 
             ResizeImage::make($file)
             ->resize($width,$height, function ($constraint) {
@@ -271,11 +278,11 @@ trait AllFunction {
         }
         return $file_name;
        
-     }
+     }    
+    
      static function upload_file($data) {        
         $file               = $data['file'] ?? '';
-        $destination_path   = $data['destination_path'] ?? '';        
-     
+        $destination_path   = $data['destination_path'] ?? '';   
         //Display File Name
         $file_name = microtime(). '-' .$file->getClientOriginalName();       
      
@@ -326,6 +333,11 @@ trait AllFunction {
     }
     static function mail_with_PHPMailer($data){  
 
+        require public_path('phpmailer/phpmailer/src/Exception.php');
+        require public_path('phpmailer/phpmailer/src/PHPMailer.php');
+        require public_path('phpmailer/phpmailer/src/SMTP.php');
+       
+
         $email              = isset($data['email']) ? $data['email'] : '';  
         $name               = isset($data['name']) ? $data['name'] : '';     
         $from_email         = isset($data['from_email']) ? $data['from_email'] : '';     
@@ -334,15 +346,14 @@ trait AllFunction {
         $content            = isset($data['content']) ? $data['content'] : '';
 
         $mail = new PHPMailer(true);
-        try {
-            //Server settings
+        try {           
             $mail->SMTPDebug = 2; //SMTP::DEBUG_SERVER;                
             $mail->isSMTP();                                      
             $mail->Host       = env('MAIL_HOST');    
-            $mail->SMTPAuth   = true;                             
+            $mail->SMTPAuth   = true;   
             $mail->Username   = env('MAIL_USERNAME');            
             $mail->Password   = env('MAIL_PASSWORD');            
-            $mail->SMTPSecure = 'tls'; //PHPMailer::ENCRYPTION_SMTPS;      
+            $mail->SMTPSecure = env('MAIL_ENCRYPTION');    
             $mail->Port       = env('MAIL_PORT'); //465;  
             $mail->SMTPOptions = array(
                 'ssl' => array(
@@ -518,14 +529,20 @@ trait AllFunction {
             $categories = Document_category::select('category_id','name','slug')
             ->where('country_id',$country_id)
             ->where('status',1)
-            ->with(['document'])
-            ->orderBy('sort_order','asc')
+            //->with(['document'])
+            ->with([
+                'document' => function($q){
+                    $q->where('status', '=', 1);
+                    $q->limit(5);
+                }
+            ])
+            ->orderBy('sort_order','asc')           
             ->get()->toArray();   
 
             $data  = compact('settings','country','countries','categories'); 
 
             //== put data into cache
-            Cache::put('data', $data, now()->addMinutes(60)); 
+            Cache::put('data', $data, now()->addMinutes(15)); 
 
             //== get data from cache
             //Cache::get('data');
@@ -1134,9 +1151,12 @@ trait AllFunction {
         return $return_value;
     }
     //====
-    static function replace_template($data){       
+    static function replace_template($data){         
+        
         $question_value = $data['question_value'] ?? []; 
+        //p($question_value);
         $template = $data['template'] ?? '';   
+        $template = str_replace( '{{current_date}}', AllFunction::format_date(date('Y-m-d')), $template);
         foreach($question_value as $key=>$val){   
 
            
@@ -1173,6 +1193,33 @@ trait AllFunction {
         return $template;
     }
     //===
+    static function get_templateApiJsonData($data){         
+        $document_id = $data['document_id'] ?? ''; 
+        $session_fields = $data['session_fields'] ?? '';
+        $session_fields = (array)json_decode($session_fields);
+        $document = Document::find($document_id)->toArray(); 
+        $country_id = $document['country_id'] ?? '';
+        $country = Country::find($country_id)->toArray();         
+
+        $return_question = [];
+        if($session_fields){
+            foreach($session_fields as $key=>$val){
+                $question_id = str_replace('q','',$key);
+                $question = Documents_question::find($question_id)->toArray(); 
+                $short_question = $question['short_question'] ? $question['short_question'] : $question['question'];
+                $return_question[$short_question] = $val;
+            }
+        }
+
+        $return_array = [
+            'document_name'=>$document['name'] ?? '',
+            'country'=>$country['name'] ?? '',
+            'question'=>$return_question ?? '',
+        ];
+        return $return_array;
+
+    }
+    
 
     
 }

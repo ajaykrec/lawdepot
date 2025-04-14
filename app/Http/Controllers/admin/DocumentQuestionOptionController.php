@@ -179,7 +179,7 @@ class DocumentQuestionOptionController extends Controller
         $messages = [];   
         $rules = [
             'title'   => 'required',   
-            'image'   => 'mimes:png,jpeg,gif,webp|image|max:2048', // size : 1024*2 = 2048 = 2MB 
+            'image'   => 'mimes:png,jpeg,gif,webp,svg|image|max:2048', // size : 1024*2 = 2048 = 2MB 
         ];
 
         if($is_table_value == 0){
@@ -237,6 +237,7 @@ class DocumentQuestionOptionController extends Controller
             $table->placeholder     = $request['placeholder'] ?? '';
             $table->title           = $request['title'] ?? '';
             $table->value           = $value ?? '';
+            $table->quick_info      = $request['quick_info'] ?? '';            
             $table->is_table_value  = $request['is_table_value'] ?? 0;
             $table->is_sub_question = $request['is_sub_question'] ?? 0;           
             $table->save();
@@ -263,7 +264,7 @@ class DocumentQuestionOptionController extends Controller
         $question = Documents_question::query()->where('question_id',$question_id)->with(['step'])->first()->toArray();  
         $step_id  = $question['step_id'] ?? '';   
         $option_id  = $question['option_id'] ?? '';   
-        $document_id = $question['document_id'] ?? '';  
+        $document_id = $question['document_id'] ?? '';         
 
         $breadcrumb = AllFunction::get_questions_breadcrumb([
             'step_id'=>$step_id,
@@ -301,12 +302,12 @@ class DocumentQuestionOptionController extends Controller
         $messages = [];
 
         $rules = [
-            'title'   => 'required', 
-        ];  
-        
-        if(!$image){
-            $rules['image'] = 'mimes:png,jpeg,gif,webp|image|max:2048';
+            'title'   => 'required',            
+        ]; 
+        if($request->file('image')){
+            $rules['image'] = 'mimes:png,jpeg,gif,webp,svg|image|max:2048'; // size : 1024*2 = 2048 = 2MB 
         }
+       
         if($is_table_value == 0){
             $rules['value1'] = 'required';
             $messages['value1.required'] = 'value is required';  
@@ -320,8 +321,7 @@ class DocumentQuestionOptionController extends Controller
             $rules, 
             $messages
         );        
-        if($validation->fails()) {   
-            p($validation->messages());        
+        if($validation->fails()) {  
             return back()->withInput()->withErrors($validation->messages());            
         }
         else{   
@@ -362,6 +362,7 @@ class DocumentQuestionOptionController extends Controller
             $table->placeholder     = $request['placeholder'] ?? '';
             $table->title           = $request['title'] ?? '';
             $table->value           = $value;
+            $table->quick_info      = $request['quick_info'] ?? '';            
             $table->is_table_value  = $request['is_table_value'] ?? 0;
             $table->is_sub_question = $request['is_sub_question'] ?? 0;           
             $table->save();           
