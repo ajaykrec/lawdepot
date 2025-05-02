@@ -42,7 +42,8 @@ class HandleInertiaRequests extends Middleware
                 'success_message' => fn () => $request->session()->get('success'),
                 'error_message' => fn () => $request->session()->get('error')
             ],
-            'file_storage_url'=>env('FILE_STORAGE_URL'),    
+            'file_storage_url'=>env('FILE_STORAGE_URL'),  
+            'open_api_key'=>env('OPENAI_API_KEY'),  
             'customer'=>AllFunction::get_customer_data(),       
             'common_data'=>AllFunction::get_common_data(),
         ]);

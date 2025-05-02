@@ -14,7 +14,7 @@ import process from 'process'
 
 const Document_download = () => {
 
-  const { file_storage_url, common_data, pageData } = usePage().props
+  const { file_storage_url, open_api_key, common_data, pageData } = usePage().props
 
   const document = pageData.document
   const steps = pageData.steps
@@ -28,7 +28,7 @@ const Document_download = () => {
   const get_openai_data = async () =>{
 
     const client = new OpenAI({
-      apiKey: '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', 
+      apiKey:open_api_key, 
       dangerouslyAllowBrowser: true
     });
 
@@ -76,7 +76,7 @@ const Document_download = () => {
       return Parser(html, options);
   }   
 
-  //console.log(templateApiJsonData.question)
+  console.log(templateApiJsonData)
  
   return (
     <>
