@@ -84,7 +84,7 @@
                         <option value="">--</option>   
                         <option value="week" {{ ($time_period_sufix=='week') ? 'selected' : '' }}>Week</option>   
                         <option value="month" {{ ($time_period_sufix=='month') ? 'selected' : '' }}>Month</option>  
-                        <option value="month" {{ ($time_period_sufix=='year') ? 'selected' : '' }}>Year</option>  
+                        <option value="year" {{ ($time_period_sufix=='year') ? 'selected' : '' }}>Year</option>  
                         </select>
                     </div>
                 </div>
@@ -101,6 +101,24 @@
                 </span>                  
                 </div>
 
+
+                @php
+                $is_per_document = old('is_per_document', $data['is_per_document'] ?? '');
+                @endphp
+                <div class="my-3">
+                <label class="form-label">Is per document?</label>
+                <select class="form-select" name="is_per_document"> 
+                <option value="0" {{ ($is_per_document=='0') ? 'selected' : '' }}>No</option>  
+                <option value="1" {{ ($is_per_document=='1') ? 'selected' : '' }}>Yes</option>   
+                </select>
+                <span class="err" id="error-is_per_document">
+                @error('is_per_document')
+                {{$message}}
+                @enderror 
+                </span>      
+                </div>
+
+               
                 <div class="my-3">
                 <label class="form-label">Btton Color</label>
                 <input type="color" class="form-control form-control-color" id="button_color" name="button_color" value="{{ old('button_color', $data['button_color'] ?? '') }}"> 

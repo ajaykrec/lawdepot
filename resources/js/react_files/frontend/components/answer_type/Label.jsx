@@ -57,10 +57,8 @@ const Label = ({propsData, addMoreIndex}) => {
     const field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${addMoreIndexCount}` : propsData.field_name
     const radio_id_prefix = (addMoreIndexCount !=='') ? `o-${addMoreIndexCount}-` : 'o-'
     const option_id_prefix = (addMoreIndexCount !=='') ? `oq-${addMoreIndexCount}-` : 'oq-'
-    const option_class_prefix = (addMoreIndexCount !=='') ? `oqall-${addMoreIndexCount}-` : 'oqall-'    
-
-    console.log(questions)
-    
+    const option_class_prefix = (addMoreIndexCount !=='') ? `oqall-${addMoreIndexCount}-` : 'oqall-'   
+        
     return (
       <>          
 

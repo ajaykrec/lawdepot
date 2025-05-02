@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('customers_membership', function (Blueprint $table) {
             $table->id('cus_membership_id');   
-            $table->integer('customer_id');  
+            $table->integer('customer_id');   
             $table->integer('membership_id');  
+            $table->integer('document_id');  
             $table->date('start_date')->nullable();       
             $table->date('end_date')->nullable();       
             $table->integer('status');

@@ -9,6 +9,9 @@ import Breadcrumb from '../../components/breadcrumb/Breadcrumb';
 
 import anime from 'animejs/lib/anime.es.js';
 
+import OpenAI from 'openai';
+import process from 'process'
+
 const Document_download = () => {
 
   const { file_storage_url, common_data, pageData } = usePage().props
@@ -16,10 +19,51 @@ const Document_download = () => {
   const document = pageData.document
   const steps = pageData.steps
   const percent = pageData.percent
+  const templateApiJsonData = pageData.templateApiJsonData  
 
-  useEffect(()=>{  
-         
+  useEffect( ()=>{  
+    get_openai_data()             
   },[])  
+
+  const get_openai_data = async () =>{
+
+    const client = new OpenAI({
+      apiKey: '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', 
+      dangerouslyAllowBrowser: true
+    });
+
+    // const response = await client.responses.create({
+    //   model: 'gpt-4o',
+    //   instructions: 'You are a coding assistant that talks like a pirate',
+    //   input: 'Are semicolons optional in JavaScript?',
+    // });
+
+    // const response = await client.chat.completions.create({
+    //   model: 'gpt-4o',
+    //   messages: [
+    //     { role: 'developer', content: 'Talk like a pirate.' },
+    //     { role: 'user', content: 'Are semicolons optional in JavaScript?' },
+    //   ],
+    // });
+
+    //  const response = await client.responses.create({
+    //   model: 'gpt-4o',      
+    //   instructions: templateApiJsonData.document_name,
+    //   input: templateApiJsonData.question,
+    // });
+
+     const response = await client.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: `You are a  ${templateApiJsonData.country} based legal document professional.` },
+          { role: 'user', content: `Generate a ${templateApiJsonData.document_name} for the following details:
+          ${templateApiJsonData.question}
+          ` },
+        ],
+    });
+    console.log(response)
+
+  }
 
   const parseWithLinks = (html) =>{
       const options = {     
@@ -31,6 +75,8 @@ const Document_download = () => {
       }     
       return Parser(html, options);
   }   
+
+  //console.log(templateApiJsonData.question)
  
   return (
     <>

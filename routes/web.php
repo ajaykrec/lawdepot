@@ -69,7 +69,7 @@ Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
     Route::get('/forgot-password', [CustomerController::class, 'forgot_password'])->name('customer.forgot.password');  
     Route::post('/forgot-password', [CustomerController::class, 'forgot_password_post'])->name('customer.forgot.password.post');
 
-    Route::get('/reset-password/{token}', [CustomerController::class, 'reset_password'])->name('customer.password.reset');
+    Route::any('/reset-password/{token}', [CustomerController::class, 'reset_password'])->name('customer.password.reset');
     Route::post('/reset-password', [CustomerController::class, 'reset_password_post'])->name('customer.reset.password.post');      
     Route::get('/logout', [CustomerController::class, 'logout'])->name('customer.logout');
 

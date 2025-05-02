@@ -21,6 +21,7 @@ return new class extends Migration
             $table->decimal('price'); 
             $table->integer('time_period');    
             $table->enum('time_period_sufix',['week','month','year']); 
+            $table->integer('is_per_document');
             $table->string('button_color',50)->nullable();  
             $table->integer('sort_order');       
             $table->integer('status');

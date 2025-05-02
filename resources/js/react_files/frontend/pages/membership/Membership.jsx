@@ -76,13 +76,14 @@ const Membership = () => {
                         let specification = item.specification.description ?? []                       
 
                         return(
-                        <div key={i} className="col-lg-4 col-md-8 pricing-table-style-08">
-                            <div className="pricing-table text-center box-shadow-quadruple-large border-radius-6px">
+                        <div key={i} className="col-lg-4 col-md-8 pricing-table-style-08 ">
+                            <div className="pricing-table text-center box-shadow-quadruple-large border-radius-6px h-100">
                                 <div className="pricing-header ps-18 pe-18 md-ps-12 md-pe-12">
                                     
-                                    <div className="d-inline-block fs-12 text-uppercase bg-white ps-20px pe-20px fw-600 text-dark-gray mb-30px border-radius-100px box-shadow-large border border-1 border-color-extra-medium-gray">
+                                    <h6 className="text-dark-gray">
                                     { item.name }
-                                    </div>
+                                    </h6>
+                                   
 
                                     <h2 className="text-dark-gray fw-600 mb-10px ls-minus-3px">
                                     { 
@@ -107,13 +108,16 @@ const Membership = () => {
                                         </span>
                                     </button>                                    
                                 </div>
-                                <div className="pricing-body pt-15px pb-25px">
+                                <div className="pricing-body pt-25px pb-25px text-start">
                                     <ul className="list-style-01 ps-0 mb-0">
                                         {
                                             specification.map((v,j)=>{
                                                 return(
-                                                <li key={j} className="border-color-transparent-dark-very-light pt-10px pb-10px">
-                                                {parseWithLinks(''+v+'')}
+                                                <li key={j} 
+                                                className="border-color-transparent-dark-very-light pt-10px pb-10px"
+                                                style={{lineHeight:"22px"}}
+                                                >
+                                                <i className="bi bi-check2-circle"></i> {parseWithLinks(''+v+'')}
                                                 </li>    
                                                 )
                                             })

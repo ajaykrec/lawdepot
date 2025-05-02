@@ -159,7 +159,7 @@ class LoginController extends Controller
             $body    = str_replace('{site_name}',$settings['site_name'],$body);
             $body    = str_replace('{reset_password_link}',$reset_password_link,$body);   
 
-            AllFunction::mail_with_sendgrid([
+            AllFunction::send_mail([
                 'name'=>'',
                 'email'=>$email,
                 'from_email_name'=>$settings['from_email_name'],

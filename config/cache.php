@@ -31,7 +31,7 @@ return [
     |
     */
 
-    'stores' => [
+    'stores' => [        
 
         'array' => [
             'driver' => 'array',

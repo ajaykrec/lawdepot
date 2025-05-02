@@ -155,6 +155,7 @@ class MembershipController extends Controller
             $table->currency_code       = $country->currency_code ?? '';
             $table->time_period         = $request['time_period'] ?? 0;
             $table->time_period_sufix   = $request['time_period_sufix'] ?? '';
+            $table->is_per_document     = $request['is_per_document'] ?? 0;
             $table->button_color        = $request['button_color'] ?? '';            
             $table->sort_order          = ( $request['sort_order'] == '' ) ? 0 : $request['sort_order'];
             $table->status              = $request['status'] ?? 1;
@@ -227,6 +228,7 @@ class MembershipController extends Controller
             $table->currency_code       = $country->currency_code ?? '';
             $table->time_period         = $request['time_period'] ?? 0;
             $table->time_period_sufix   = $request['time_period_sufix'] ?? '';
+            $table->is_per_document     = $request['is_per_document'] ?? 0;
             $table->button_color        = $request['button_color'] ?? '';            
             $table->sort_order          = ( $request['sort_order'] == '' ) ? 0 : $request['sort_order'];
             $table->status              = $request['status'] ?? 1;

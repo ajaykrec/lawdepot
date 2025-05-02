@@ -5,6 +5,7 @@ import Parser, { domToReact } from 'html-react-parser';
 import anime from 'animejs/lib/anime.es.js';
 
 //=== answer_type ==
+import Add_more from './Add_more';
 import Radio from './Radio';
 import Radio_group from './Radio_group';
 import Dropdown from './Dropdown';
@@ -20,7 +21,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector, useDispatch } from 'react-redux'
 import { fieldAction } from '../../actions/fields'
 
-const Checkbox = ({propsData}) => { 
+const Checkbox = ({propsData, addMoreIndex}) => { 
 
     const { file_storage_url, pageData } = usePage().props     
     
@@ -36,8 +37,10 @@ const Checkbox = ({propsData}) => {
     const label_text = propsData.label
     const question_text = propsData.question
     const quick_info = propsData.quick_info    
-    const description = propsData.description            
-    const field_name = propsData.field_name  
+    const description = propsData.description   
+
+    const addMoreIndexCount = (typeof addMoreIndex !== "undefined" && addMoreIndex !== '') ? addMoreIndex : ''
+    const field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${addMoreIndexCount}` : propsData.field_name
 
     let table_selected_value = []
     if( fields[field_name] ){
@@ -165,10 +168,14 @@ const Checkbox = ({propsData}) => {
 
                 return questions.map((val2,j)=>{  
                   const answer_type = val2.answer_type
+                  const is_add_another = val2.is_add_another
                   return(                                         
                     
                       <div key={j} className={`my-3 oqall-${val.question_id}`} id={`oq-${val.option_id}`} style={style}>                        
                         {
+                          is_add_another == 1 ?  
+                          <Add_more propsData={val2} />                                             
+                          :
                           answer_type == 'radio' ?  
                           <Radio  propsData={val2} />  
                           :   
@@ -182,10 +189,10 @@ const Checkbox = ({propsData}) => {
                           <Dropdown  propsData={val2} />  
                           :                          
                           answer_type == 'text' ?  
-                          <Text  propsData={val2} />                                             
+                          <Text propsData={val2} addMoreIndex={addMoreIndexCount} />                                             
                           :
                           answer_type == 'textarea' ?  
-                          <Textarea  propsData={val2} /> 
+                          <Textarea  propsData={val2} addMoreIndex={addMoreIndexCount} /> 
                           :  
                           answer_type == 'date' ?  
                           <Date  propsData={val2} />  

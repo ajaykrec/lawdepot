@@ -309,11 +309,12 @@ class CustomerController extends Controller
             }       
         }         
     }
-    public function reset_password(string $token){        
+    public function reset_password(string $token){    
+
         $data   = [];
-        $email  = $_GET['email'] ?? '';   
-        
-        $customer = Customers::where('email',$email)->where('remember_token',$token)->get()->first();
+        $email  = $_GET['email'] ?? '';         
+        $customer = Customers::where('email',$email)->where('remember_token',$token)->get()->first();  
+       
         if(!$customer){
             return redirect()->route('home');
         }        

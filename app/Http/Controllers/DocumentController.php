@@ -141,8 +141,7 @@ class DocumentController extends Controller
             $step_id = $request['step_id'] ?? '';        
             $group  = $request['group'] ?? ''; 
             $inputs = $request['fields'] ?? [];  
-            $inputs = (array)json_decode($inputs); 
-            
+            $inputs = (array)json_decode($inputs);             
             
             $returnfields = [];
             foreach($inputs as $key=>$val){                 
@@ -238,7 +237,8 @@ class DocumentController extends Controller
             'document_id'=>$document_id,
             'session_fields'=>$session_fields,
         ]);   
-        $templateApiJsonData = json_encode($templateApiJsonData);  
+        //$templateApiJsonData = json_encode($templateApiJsonData);  
+        $templateApiJsonData = $templateApiJsonData;  
         //========= 
 
         $filter_question_value = AllFunction::filter_question_value([
@@ -254,7 +254,7 @@ class DocumentController extends Controller
         
         $active_membership = AllFunction::get_active_membership();  
         
-        $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent','active_membership'); 
+        $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent','active_membership','templateApiJsonData'); 
         return Inertia::render('frontend/pages/document/Document_download', [            
             'pageData' => $pageData,            
         ]);

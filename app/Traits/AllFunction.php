@@ -345,26 +345,30 @@ trait AllFunction {
         $subject            = isset($data['subject']) ? $data['subject'] : '';        
         $content            = isset($data['content']) ? $data['content'] : '';
 
-        $mail = new PHPMailer(true);
+        $mail = new PHPMailer;
         try {           
-            $mail->SMTPDebug = 2; //SMTP::DEBUG_SERVER;                
-            $mail->isSMTP();                                      
+            //$mail->SMTPDebug = 2; //SMTP::DEBUG_SERVER;                
+            //$mail->isSMTP();                                      
             $mail->Host       = env('MAIL_HOST');    
             $mail->SMTPAuth   = true;   
             $mail->Username   = env('MAIL_USERNAME');            
             $mail->Password   = env('MAIL_PASSWORD');            
             $mail->SMTPSecure = env('MAIL_ENCRYPTION');    
-            $mail->Port       = env('MAIL_PORT'); //465;  
-            $mail->SMTPOptions = array(
-                'ssl' => array(
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                )
-            );
-            //Recipients
-            $mail->setFrom($from_email, $from_email_name);
-            $mail->addAddress($email, $name);     //Add a recipient
+            $mail->Port       = env('MAIL_PORT'); // 465, 587;  
+
+            // $mail->SMTPOptions = array(
+            //     'ssl' => array(
+            //         'verify_peer' => false,
+            //         'verify_peer_name' => false,
+            //         'allow_self_signed' => true
+            //     )
+            // );
+           
+            //$mail->setFrom($from_email, $from_email_name);
+            $mail->From = 'info@instantly.legal';
+            $mail->FromName = 'instantly.legal';
+
+            $mail->addAddress($email, $name);   
             //$mail->addAddress('ellen@example.com'); //Name is optional
             //$mail->addReplyTo('info@example.com', 'Information');
             //$mail->addCC('cc@example.com');
@@ -375,14 +379,20 @@ trait AllFunction {
             //$mail->addAttachment('/tmp/image.jpg', 'new.jpg');   
         
             //Content
+            $mail->WordWrap = 50;    
+            $mail->CharSet = 'UTF-8';                  
             $mail->isHTML(true);                                 
             $mail->Subject = $subject;
             $mail->Body    = $content;
-            $mail->AltBody = '';        
-            $mail->send();
-            //echo 'Message has been sent';
+            $mail->AltBody = '';     
+            
+            if(!$mail->send()){
+                //echo 'Message could not be sent';   
+            }else{
+                //echo "Mail has been sent to your e-mail address";
+            }           
         }
-        catch (Exception $e){
+        catch(Exception $e){
             echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
         }
     }
@@ -1210,13 +1220,12 @@ trait AllFunction {
                 $return_question[$short_question] = $val;
             }
         }
-
         $return_array = [
             'document_name'=>$document['name'] ?? '',
             'country'=>$country['name'] ?? '',
             'question'=>$return_question ?? '',
         ];
-        return $return_array;
+        return $return_array;        
 
     }
     
