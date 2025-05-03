@@ -10,7 +10,6 @@ import Breadcrumb from '../../components/breadcrumb/Breadcrumb';
 import anime from 'animejs/lib/anime.es.js';
 
 import OpenAI from 'openai';
-import process from 'process'
 
 const Document_download = () => {
 
@@ -22,47 +21,28 @@ const Document_download = () => {
   const templateApiJsonData = pageData.templateApiJsonData  
 
   useEffect( ()=>{  
-    get_openai_data()             
+    
   },[])  
 
   const get_openai_data = async () =>{
-
+    /*
     const client = new OpenAI({
       apiKey:open_api_key, 
       dangerouslyAllowBrowser: true
     });
 
-    // const response = await client.responses.create({
-    //   model: 'gpt-4o',
-    //   instructions: 'You are a coding assistant that talks like a pirate',
-    //   input: 'Are semicolons optional in JavaScript?',
-    // });
+    const messagesArr = [
+        { role: 'system', content: `You are a  ${templateApiJsonData.country} based legal document professional.` },
+        { role: 'user', content: `Generate a elaborated and well formatted legal  ${templateApiJsonData.document_name} for the following details: ${JSON.stringify(templateApiJsonData.question)}`},
+    ]
+    console.log(messagesArr)       
 
-    // const response = await client.chat.completions.create({
-    //   model: 'gpt-4o',
-    //   messages: [
-    //     { role: 'developer', content: 'Talk like a pirate.' },
-    //     { role: 'user', content: 'Are semicolons optional in JavaScript?' },
-    //   ],
-    // });
-
-    //  const response = await client.responses.create({
-    //   model: 'gpt-4o',      
-    //   instructions: templateApiJsonData.document_name,
-    //   input: templateApiJsonData.question,
-    // });
-
-     const response = await client.chat.completions.create({
+    const response = await client.chat.completions.create({
         model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: `You are a  ${templateApiJsonData.country} based legal document professional.` },
-          { role: 'user', content: `Generate a ${templateApiJsonData.document_name} for the following details:
-          ${templateApiJsonData.question}
-          ` },
-        ],
+        messages: messagesArr,
     });
     console.log(response)
-
+    */
   }
 
   const parseWithLinks = (html) =>{
@@ -76,7 +56,7 @@ const Document_download = () => {
       return Parser(html, options);
   }   
 
-  console.log(templateApiJsonData)
+  //console.log(templateApiJsonData)
  
   return (
     <>
@@ -116,12 +96,11 @@ const Document_download = () => {
                 <div className="contract" style={{userSelect:"none"}}>
                     <div className="outputVersion1">
                       <div style={{background:"url(/frontend-assets/images/draft_bg.png) repeat-y center top/contain #fff"}}> 
-                      { parseWithLinks(''+document.template+'') }      
+                      { parseWithLinks(''+document.template+'') }  
                       </div>
                     </div>
                 </div>   
               </div> 
-
               
             </div>   
           </div> 

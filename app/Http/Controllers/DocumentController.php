@@ -16,6 +16,8 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
+use OpenAI\Laravel\Facades\OpenAI;
+
 class DocumentController extends Controller
 {
     use AllFunction; 
@@ -231,25 +233,42 @@ class DocumentController extends Controller
         $percent = 100;
 
         $session_fields = (Session::has('fields')) ? Session::get('fields') : ''; 
-
-        //=== templateApiJsonData =====
+       
         $templateApiJsonData = AllFunction::get_templateApiJsonData([
             'document_id'=>$document_id,
             'session_fields'=>$session_fields,
-        ]);   
-        //$templateApiJsonData = json_encode($templateApiJsonData);  
+        ]); 
         $templateApiJsonData = $templateApiJsonData;  
-        //========= 
+        
+        //=== call OpenAI [start] ====== 
+        $messagesArr = [
+            [
+                'role'=>'system', 
+                'content'=> $document['openai_system_content']
+            ],
+            [
+                'role'=>'user', 
+                'content'=> $document['openai_user_content'] . json_encode($templateApiJsonData['question'])
+            ],
+        ];
+        $result = OpenAI::chat()->create([
+            'model' => 'gpt-4o',
+            'messages' =>  $messagesArr,
+        ]);
+        $openai_document = $result->choices[0]->message->content; 
+        $openai_document = AllFunction::text_to_html($openai_document);        
+        Session::put('openai_document', $openai_document);   
+        $template = $openai_document;               
+        //=== call OpenAI [ends] ====== 
 
-        $filter_question_value = AllFunction::filter_question_value([
-            'document_id'=>$document_id ?? '',            
-        ]);    
-
-        $template = $document['template'] ?? '';  
-        $template = AllFunction::replace_template([
-            'template' => $template,
-            'question_value' => $filter_question_value,
-        ]);  
+        // $filter_question_value = AllFunction::filter_question_value([
+        //     'document_id'=>$document_id ?? '',            
+        // ]);  
+        // $template = $document['template'] ?? '';  
+        // $template = AllFunction::replace_template([
+        //     'template' => $template,
+        //     'question_value' => $filter_question_value,
+        // ]);  
         $document['template'] = $template; 
         
         $active_membership = AllFunction::get_active_membership();  
@@ -260,8 +279,7 @@ class DocumentController extends Controller
         ]);
     }   
 
-    public function save_document(Request $request){  
-        
+    public function save_document(Request $request){          
 
         $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
         $customer_id = $customer['customer_id'] ?? ''; 
@@ -273,7 +291,9 @@ class DocumentController extends Controller
         
         $filter_question_value = AllFunction::filter_question_value([
             'document_id'=>$document_id ?? '',            
-        ]);     
+        ]);   
+        
+        $openai_document = (Session::has('openai_document')) ? Session::get('openai_document') : '';   
        
         if($document_id){
             $table = new Customers_document;
@@ -282,11 +302,14 @@ class DocumentController extends Controller
             $table->session_fields  = $session_fields;
             $table->filter_values   = json_encode($filter_question_value);
             $table->file_name       = $document['name'] ?? '';
+            $table->ip_address      = $_SERVER['REMOTE_ADDR'] ;
+            $table->openai_document = $openai_document;
             $table->save();
 
             //==== remove session ====
             Session::forget('document_id'); 
             Session::forget('fields'); 
+            Session::forget('openai_document'); 
             //=====  
         }  
         return redirect( route('customer.documents') )->with(['success'=>'Document saved successfully']);

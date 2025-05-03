@@ -222,7 +222,7 @@ class DocumentQuestionController extends Controller
 
         //==== Add new data =====        
         $rules = [
-            'short_question'=> 'required',
+            //'short_question'=> 'required',
             'question'      => 'required',   
             'answer_type'   => 'required',            
             'display_type'  => 'required',  

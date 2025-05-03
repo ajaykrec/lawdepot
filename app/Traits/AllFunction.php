@@ -1228,7 +1228,25 @@ trait AllFunction {
         return $return_array;        
 
     }
-    
+
+    static function text_to_html($text){   
+        $text = str_replace( ':**','</b>', $text);
+        $text = AllFunction::replace_all_text_between($text, '---', '---', '');
+        $text = AllFunction::replace_all_text_between($text, '**', '**', '');
+        $text = str_replace( '**','<b>', $text);
+        $text = str_replace( ':*','</b>', $text);
+        $text = str_replace( '*','<b>', $text);
+        $text = str_replace( '<b><b>','', $text);
+        $text = nl2br($text);
+        return $text;
+    }
+    static function replace_all_text_between($str, $start, $end, $replacement){
+        $replacement = $start . $replacement . $end;
+        $start = preg_quote($start, '/');
+        $end = preg_quote($end, '/');
+        $regex = "/({$start})(.*?)({$end})/";
+        return preg_replace($regex,$replacement,$str);
+    }   
 
     
 }

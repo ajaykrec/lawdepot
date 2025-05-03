@@ -181,6 +181,27 @@
 
 
                 <div class="mb-3">
+                <label class="form-label">OpenAI System Content</label>
+                <textarea class="form-control" name="openai_system_content" style="height: 150px">{{ old('openai_system_content') }}</textarea>
+                <span class="err" id="error-openai_system_content">
+                @error('openai_system_content')
+                {{$message}}
+                @enderror 
+                </span>        
+                </div> 
+
+                <div class="mb-3">
+                <label class="form-label">OpenAI User Content</label>
+                <textarea class="form-control" name="openai_user_content" style="height: 150px">{{ old('openai_user_content') }}</textarea>
+                <span class="err" id="error-openai_user_content">
+                @error('openai_user_content')
+                {{$message}}
+                @enderror 
+                </span>        
+                </div> 
+
+
+                <div class="mb-3">
                 <label class="form-label">Template</label>
                 <textarea class="form-control tinymce-editor" name="template" style="height: 100px">{{ old('template') }}</textarea>
                 <span class="err" id="error-template">

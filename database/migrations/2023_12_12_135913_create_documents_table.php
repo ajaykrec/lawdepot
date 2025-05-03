@@ -18,6 +18,8 @@ return new class extends Migration
             $table->string('name',200)->nullable();
             $table->string('slug',200)->nullable();
             $table->text('short_description')->nullable();
+            $table->text('openai_system_content')->nullable();
+            $table->text('openai_user_content')->nullable();
             $table->text('description')->nullable(); 
             $table->text('template')->nullable(); 
             $table->string('image',200)->nullable();  
