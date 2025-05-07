@@ -50,6 +50,8 @@ Route::middleware(['auth.customer','front_view'])->group( function(){
     Route::post('/change-password',[ChangePasswordController::class, 'password_post'])->name('customer.changepassword.post'); 
     Route::get('/my-documents',[MyDocumentController::class, 'index'])->name('customer.documents');   
     Route::get('/my-documents/{cus_document_id}',[MyDocumentController::class, 'view'])->name('customer.documents.view');  
+    Route::get('/edit-my-documents/{cus_document_id}',[MyDocumentController::class, 'edit'])->name('customer.documents.edit');  
+    Route::post('/update-my-documents/{cus_document_id}',[MyDocumentController::class, 'update'])->name('customer.documents.update');  
 });
 
 Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'

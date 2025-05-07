@@ -16,4 +16,5 @@ createInertiaApp({
       </Provider> 
     )
   },
+  
 })

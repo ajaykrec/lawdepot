@@ -18,7 +18,7 @@ const MyAccountNavBar = () => {
     const membership_menu       = ['my-membership']; 
     const settings_menu         = ['my-account-settings']; 
     const change_password_menu  = ['change-password']; 
-    const documents_menu        = ['my-documents']; 
+    const documents_menu        = ['my-documents','edit-my-documents']; 
     
     return (
         <> 

@@ -13,10 +13,13 @@ const Steps_header = () => {
     const step_id = pageData.step_id ?? ''
     const group = pageData.group ?? ''
     const percent = pageData.percent 
+    const is_download = pageData.is_download ?? ''    
 
     useEffect(()=> {  
          
     },[])  
+
+    let download_class = (step_id) ? 'btn btn-very-small bg-info' : 'btn btn-very-small bg-info bg-light'
  
     return (
       <>      
@@ -45,8 +48,10 @@ const Steps_header = () => {
                               })
       
                           }                    
-                          <Link href={ route('doc.download',document.slug) } 
-                          className={ (step_id) ? 'btn btn-very-small bg-info' : 'btn btn-very-small bg-info bg-light' }
+                          <Link href={ (is_download) ? route('doc.download', document.slug) : '' } 
+                          className={                             
+                            (is_download) ? download_class : download_class + ' disabled' 
+                          }                          
                           >
                           <i className="fa-solid fa-file-arrow-down" style={{fontSize:"18px"}}></i> &nbsp;
                           Print/Download

@@ -67,9 +67,10 @@ const My_documents = () => {
                               <tr key={i}>
                                 <th scope="row">{start_count}</th>
                                 <td>{ (val.file_name) ? val.file_name : document.name }</td>
-                                <td>{ allFunction.dateFormat(val.created_at) }</td>  
+                                <td>{ allFunction.dateTimeFormat(val.created_at) }</td>  
                                 <td className='text-center'>
                                  <Link type='button' href={ route('customer.documents.view', val.cus_document_id) } className="btn1">View</Link>
+                                 <Link type='button' href={ route('customer.documents.edit', val.cus_document_id) } className="btn1">Edit</Link>
                                 </td>
                               </tr>
                             )

@@ -21,7 +21,8 @@ use App\Models\Country;
 use App\Models\Document_category;
 use App\Models\Document;
 use App\Models\Documents_step;
-use App\Models\Documents_question;
+use App\Models\Documents_question; 
+use App\Models\Customers_document;
 use App\Models\Documents_question_option;
 use App\Models\Orders;
 
@@ -495,7 +496,7 @@ trait AllFunction {
         }        
     }
     static function get_common_data(){ 
-        Cache::pull('data');
+        //Cache::pull('data');
         if(Cache::has('data')){
             $data = Cache::get('data');
         }
@@ -543,6 +544,7 @@ trait AllFunction {
             ->with([
                 'document' => function($q){
                     $q->where('status', '=', 1);
+                    $q->orderBy('sort_order','asc');
                     $q->limit(5);
                 }
             ])
@@ -1227,6 +1229,63 @@ trait AllFunction {
         ];
         return $return_array;        
 
+    }    
+
+    static function percentage_of_answer($document_id, $session_fields){   
+        $total_question = DB::table('documents_question')->where('document_id',$document_id)->count();        
+        $session_fields = (array)json_decode($session_fields); 
+        $answer = [];
+        foreach($session_fields as $key=>$val){
+            if($val){
+                $answer[] = $val;
+            }
+        }
+        $total_answer = count($answer);
+        $percent = ($total_answer/$total_question)*100;
+        if( $percent >= 75 ){
+            return true;
+        }
+        else{
+            return false;
+        }        
+    }
+
+    static function guest_document_count($document_id){   
+        $date_before = date('Y-m-d H:i:s',strtotime('-6 hour')); // 2025-05-05 08:18:46 
+        
+        $count = DB::table('customers_document')
+        ->where('document_id',$document_id) 
+        ->where('ip_address',$_SERVER['REMOTE_ADDR'])
+        ->where('created_at','>=',$date_before)        
+        ->count();        
+        return $count;         
+    }
+    
+    static function save_document(){   
+        $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
+        $customer_id = $customer['customer_id'] ?? 0; 
+
+        $document_id = (Session::has('document_id')) ? Session::get('document_id') : 0;
+        $document = Document::where('document_id',$document_id)->first()->toArray();         
+        
+        $session_fields = (Session::has('fields')) ? Session::get('fields') : '';   
+        
+        $filter_question_value = AllFunction::filter_question_value([
+            'document_id'=>$document_id ?? '',            
+        ]);   
+        
+        $openai_document = (Session::has('openai_document')) ? Session::get('openai_document') : '';   
+       
+        //===save ==
+        $table = new Customers_document;
+        $table->customer_id     = $customer_id;
+        $table->document_id     = $document_id;            
+        $table->session_fields  = $session_fields;
+        $table->filter_values   = json_encode($filter_question_value);
+        $table->file_name       = $document['name'] ?? '';
+        $table->ip_address      = $_SERVER['REMOTE_ADDR'] ;
+        $table->openai_document = $openai_document;
+        $table->save();         
     }
 
     static function text_to_html($text){   
@@ -1246,7 +1305,6 @@ trait AllFunction {
         $end = preg_quote($end, '/');
         $regex = "/({$start})(.*?)({$end})/";
         return preg_replace($regex,$replacement,$str);
-    }   
-
+    }  
     
 }

@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Cache;
 
+use Illuminate\Support\Facades\Validator;
+
 class MyDocumentController extends Controller
 {
     use AllFunction; 
@@ -143,5 +145,79 @@ class MyDocumentController extends Controller
             'pageData' => $pageData,            
         ]);
     }
+
+    public function edit($cus_document_id, Request $request){   
+       
+        $language_id = AllFunction::get_current_language();       
+
+        $q = DB::table('pages');  
+        $q = $q->leftJoin('pages_language','pages_language.page_id','=','pages.page_id'); 
+        $q = $q->where('pages_language.language_id',$language_id);   
+        $q = $q->where('pages.slug','my-documents'); 
+        $page = $q->first(); 
+        $page = json_decode(json_encode($page), true); 
+       
+        $meta = [
+            'title'=>$page['meta_title'] ?? '',
+            'keywords'=>$page['meta_keyword'] ?? '',
+            'description'=>$page['meta_description'] ?? '',
+        ];   
+
+        $header_banner = [
+            'title'=>$page['name'],
+            'banner_image'=>$page['banner_image'],
+            'banner_text'=>$page['banner_text'],
+        ];
+        $breadcrumb = [
+            ['name'=>'Home', 'url'=>route('home')],
+            ['name'=>'My Account', 'url'=>route('customer.account')],
+            ['name'=>'My Documents', 'url'=>route('customer.documents')],
+            ['name'=>'Edit Document', 'url'=>''],
+        ];
+
+        $document = Customers_document::find($cus_document_id)->with(['document'])->get()->toArray();         
+        $document = $document[0] ?? [];
+
+        $filter_values = $document['filter_values'] ?? '';
+        $template = $document['document']['template'] ?? '';
+        $template = AllFunction::replace_template([
+            'template' => $template,
+            'question_value' => (array)json_decode($filter_values),
+        ]); 
+        $document['document']['template'] = $template;
+
+        $pageData = compact('page','meta','header_banner','breadcrumb','document'); 
+        return Inertia::render('frontend/pages/my_documents/Edit_document', [            
+            'pageData' => $pageData,            
+        ]);
+    }
+
+    public function update($cus_document_id, Request $request){
+       
+        $rules = [
+            'file_name' => 'required',   
+            'openai_document' => 'required',                     
+        ];
+        $messages = [];
+        $validation = Validator::make( 
+            $request->toArray(), 
+            $rules, 
+            $messages
+        );
+        if($validation->fails()) {            
+            return back()->withInput()->withErrors($validation->messages());            
+        }
+        else{  
+
+            $table = Customers_document::find($cus_document_id);
+            $table->file_name = $request['file_name'] ?? '';   
+            $table->openai_document = $request['openai_document'] ?? '';             
+            $table->save(); 
+            
+            return redirect()->route('customer.documents')->with('success','Document updated successfully');
+            
+        }         
+    }
+    
     
 }

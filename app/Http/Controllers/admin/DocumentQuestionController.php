@@ -361,7 +361,7 @@ class DocumentQuestionController extends Controller
         if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }        
 
         $rules = [ 
-            'short_question'=> 'required',   
+            //'short_question'=> 'required',   
             'question'      => 'required',   
             'answer_type'   => 'required',            
             'display_type'  => 'required', 

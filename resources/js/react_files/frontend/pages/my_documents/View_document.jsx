@@ -95,7 +95,7 @@ const View_document = () => {
                     <div className="outputVersion1">
                       <div style={{background:"url(/frontend-assets/images/draft_bg.png) repeat-y center top/contain #fff"}}> 
                       <div className='p-3' id='pdf-id' ref={targetRef}>                        
-                        { parseWithLinks(''+document.document.template+'') }                         
+                        { parseWithLinks(''+document.openai_document+'') }                         
                       </div>   
                       </div>
                     </div>

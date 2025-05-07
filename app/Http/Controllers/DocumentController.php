@@ -98,11 +98,14 @@ class DocumentController extends Controller
         }  
         $questions = array_values($questions);  
         
-        $fields = AllFunction::get_document_fields($questions,'field_name');        
-        if( Session::has('fields') ){             
-            $session_fields = (array)json_decode(Session::get('fields')); 
+        $fields = AllFunction::get_document_fields($questions,'field_name'); 
+        $session_fields = (Session::has('fields')) ? Session::get('fields') : '';   
+        $is_download = AllFunction::percentage_of_answer( $document_id, $session_fields );               
+        if( $session_fields ){             
+            $session_fields = (array)json_decode($session_fields); 
             $fields = array_merge($fields, $session_fields); 
         }  
+        
        
         $q = DB::table('documents_faq')->select('*')
         ->where('step_id',$step_id)
@@ -117,7 +120,7 @@ class DocumentController extends Controller
         p($filter_question_value);
         */
 
-        $pageData = compact('document','meta','header_banner','breadcrumb','steps','step_id','group','percent','questions','fields','previous_url','next_url','faqs'); 
+        $pageData = compact('document','meta','header_banner','breadcrumb','steps','step_id','group','percent','questions','fields','previous_url','next_url','faqs','is_download'); 
         return Inertia::render('frontend/pages/document/Document', [            
             'pageData' => $pageData,            
         ]);
@@ -233,33 +236,40 @@ class DocumentController extends Controller
         $percent = 100;
 
         $session_fields = (Session::has('fields')) ? Session::get('fields') : ''; 
+        
+        $is_download = AllFunction::percentage_of_answer( $document_id, $session_fields );          
        
         $templateApiJsonData = AllFunction::get_templateApiJsonData([
             'document_id'=>$document_id,
             'session_fields'=>$session_fields,
         ]); 
         $templateApiJsonData = $templateApiJsonData;  
-        
-        //=== call OpenAI [start] ====== 
-        $messagesArr = [
-            [
-                'role'=>'system', 
-                'content'=> $document['openai_system_content']
-            ],
-            [
-                'role'=>'user', 
-                'content'=> $document['openai_user_content'] . json_encode($templateApiJsonData['question'])
-            ],
-        ];
-        $result = OpenAI::chat()->create([
-            'model' => 'gpt-4o',
-            'messages' =>  $messagesArr,
-        ]);
-        $openai_document = $result->choices[0]->message->content; 
-        $openai_document = AllFunction::text_to_html($openai_document);        
-        Session::put('openai_document', $openai_document);   
-        $template = $openai_document;               
-        //=== call OpenAI [ends] ====== 
+
+        $guest_document_count = AllFunction::guest_document_count($document_id);  
+       
+        //=== call OpenAI [start] ======         
+        if($guest_document_count < 1){           
+            $messagesArr = [
+                [
+                    'role'=>'system', 
+                    'content'=> $document['openai_system_content']
+                ],
+                [
+                    'role'=>'user', 
+                    'content'=> $document['openai_user_content'] . json_encode($templateApiJsonData['question'])
+                ],
+            ];
+            $result = OpenAI::chat()->create([
+                'model' => 'gpt-4o',
+                'messages' =>  $messagesArr,
+            ]);
+            $openai_document = $result->choices[0]->message->content; 
+            $openai_document = AllFunction::text_to_html($openai_document);        
+            Session::put('openai_document', $openai_document);              
+            AllFunction::save_document();         
+        }
+        //=== call OpenAI [ends] ======        
+        $template = (Session::has('openai_document')) ? Session::get('openai_document') : '';        
 
         // $filter_question_value = AllFunction::filter_question_value([
         //     'document_id'=>$document_id ?? '',            
@@ -273,45 +283,21 @@ class DocumentController extends Controller
         
         $active_membership = AllFunction::get_active_membership();  
         
-        $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent','active_membership','templateApiJsonData'); 
+        $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent','active_membership','templateApiJsonData','is_download'); 
         return Inertia::render('frontend/pages/document/Document_download', [            
             'pageData' => $pageData,            
         ]);
     }   
 
-    public function save_document(Request $request){          
+    public function save_document(Request $request){  
 
-        $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
-        $customer_id = $customer['customer_id'] ?? ''; 
+        AllFunction::save_document();
+        //==== remove session ====
+        Session::forget('document_id'); 
+        Session::forget('fields'); 
+        Session::forget('openai_document'); 
+        //=====  
 
-        $document_id = (Session::has('document_id')) ? Session::get('document_id') : '';
-        $document = Document::where('document_id',$document_id)->first()->toArray();         
-        
-        $session_fields = (Session::has('fields')) ? Session::get('fields') : '';   
-        
-        $filter_question_value = AllFunction::filter_question_value([
-            'document_id'=>$document_id ?? '',            
-        ]);   
-        
-        $openai_document = (Session::has('openai_document')) ? Session::get('openai_document') : '';   
-       
-        if($document_id){
-            $table = new Customers_document;
-            $table->customer_id     = $customer_id;
-            $table->document_id     = $document_id;            
-            $table->session_fields  = $session_fields;
-            $table->filter_values   = json_encode($filter_question_value);
-            $table->file_name       = $document['name'] ?? '';
-            $table->ip_address      = $_SERVER['REMOTE_ADDR'] ;
-            $table->openai_document = $openai_document;
-            $table->save();
-
-            //==== remove session ====
-            Session::forget('document_id'); 
-            Session::forget('fields'); 
-            Session::forget('openai_document'); 
-            //=====  
-        }  
         return redirect( route('customer.documents') )->with(['success'=>'Document saved successfully']);
     }
 }
