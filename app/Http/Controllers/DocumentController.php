@@ -59,8 +59,8 @@ class DocumentController extends Controller
         $steps = DB::table('documents_step')->select('*')->where('document_id',$document_id)->where('status',1)->orderBy('sort_order','asc')->get()->toArray(); 
         $steps = json_decode(json_encode($steps), true);       
         
-        $step_id  = $request['step_id'] ?? $steps[0]['step_id'] ?? '';        
-        $group  = $request['group'] ?? 1;   
+        $step_id = $request['step_id'] ?? $steps[0]['step_id'] ?? '';        
+        $group = $request['group'] ?? 1;   
         
         $urlArry = AllFunction::get_next_previous_url([
             'document_id'=>$document_id,  
@@ -233,13 +233,17 @@ class DocumentController extends Controller
             ['name'=>$document['name'], 'url'=>''],
         ];
 
+        $session_fields = (Session::has('fields')) ? Session::get('fields') : '';         
+        $is_download = AllFunction::percentage_of_answer( $document_id, $session_fields ); 
+        
+        //=== check download permision ===
+        if(!$is_download){
+            return redirect( route('doc.index',$slug) );
+        }
+        //=====
         $steps = DB::table('documents_step')->select('*')->where('document_id',$document_id)->where('status',1)->orderBy('sort_order','asc')->get()->toArray(); 
         $steps = json_decode(json_encode($steps), true);        
         $percent = 100;
-
-        $session_fields = (Session::has('fields')) ? Session::get('fields') : ''; 
-        
-        $is_download = AllFunction::percentage_of_answer( $document_id, $session_fields );          
        
         $templateApiJsonData = AllFunction::get_templateApiJsonData([
             'document_id'=>$document_id,
@@ -247,10 +251,9 @@ class DocumentController extends Controller
         ]); 
         $templateApiJsonData = $templateApiJsonData;  
 
-        $guest_document_count = AllFunction::guest_document_count($document_id);  
-       
+        $guest_document_count = AllFunction::guest_document_count($document_id);         
         //=== call OpenAI [start] ======         
-        if( $guest_document_count < 1 && $document['openai_system_content'] && $document['openai_user_content']){           
+        if( $guest_document_count < 2 && $document['openai_system_content'] && $document['openai_user_content']){           
             $messagesArr = [
                 [
                     'role'=>'system', 
@@ -268,9 +271,10 @@ class DocumentController extends Controller
             $openai_document = $result->choices[0]->message->content; 
             $openai_document = AllFunction::text_to_html($openai_document);        
             Session::put('openai_document', $openai_document);              
-            AllFunction::save_document();         
+            AllFunction::save_document();                     
         }
-        //=== call OpenAI [ends] ======        
+        //=== call OpenAI [ends] ======   
+        $guest_document_count = AllFunction::guest_document_count($document_id);              
         $template = (Session::has('openai_document')) ? Session::get('openai_document') : '';        
 
         // $filter_question_value = AllFunction::filter_question_value([
@@ -285,7 +289,7 @@ class DocumentController extends Controller
         
         $active_membership = AllFunction::get_active_membership();  
         
-        $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent','active_membership','templateApiJsonData','is_download'); 
+        $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent','active_membership','templateApiJsonData','is_download','guest_document_count'); 
         return Inertia::render('frontend/pages/document/Document_download', [            
             'pageData' => $pageData,            
         ]);

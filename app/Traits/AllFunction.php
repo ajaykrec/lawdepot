@@ -786,6 +786,7 @@ trait AllFunction {
                 $val['questions'] = AllFunction::get_questions([
                     'option_id'=>$val['option_id'],  
                 ]);
+                $val['quick_info'] = trim($val['quick_info']);
                 $options[$val['option_id']] = $val;
             }
             
@@ -1236,7 +1237,8 @@ trait AllFunction {
     }    
 
     static function percentage_of_answer($document_id, $session_fields){   
-        $total_question = DB::table('documents_question')->where('document_id',$document_id)->count();        
+        $total_question = DB::table('documents_question')->where('document_id',$document_id)->count();   
+        $total_question = ( $total_question > 0 ) ? $total_question : 1;
         $session_fields = (array)json_decode($session_fields); 
         $answer = [];
         foreach($session_fields as $key=>$val){
@@ -1246,7 +1248,9 @@ trait AllFunction {
         }
         $total_answer = count($answer);
         $percent = ($total_answer/$total_question)*100;
-        if( $percent >= 75 ){
+        //p([$total_question,$total_answer,$percent]);
+
+        if( $percent >= 50 ){
             return true;
         }
         else{

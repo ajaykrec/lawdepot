@@ -21,7 +21,8 @@ class DocumentCategoryController extends Controller
         $q = $q->where('documents_category.country_id',$country_id);   
         $q = $q->where('documents_category.slug',$slug); 
         $category = $q->first(); 
-        $category = json_decode(json_encode($category), true); 
+        //dd($category);
+        $category = json_decode(json_encode($category), true);         
 
         $category_id = $category['category_id'] ?? ''; 
         
@@ -32,7 +33,7 @@ class DocumentCategoryController extends Controller
         $q = $q->orderby('documents.sort_order','asc'); 
         $q = $q->orderby('documents.name','asc'); 
         $documents = $q->get()->toArray(); 
-        $documents = json_decode(json_encode($documents), true); 
+        $documents = json_decode(json_encode($documents), true);         
               
         $meta = [
             'title'=>$category['meta_title'] ?? '',
