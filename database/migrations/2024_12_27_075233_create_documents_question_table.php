@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('step_id');      
             $table->integer('option_id');   
             $table->string('label',150)->nullable();  
+            $table->integer('sort_order');   
             $table->string('short_question',255)->nullable();           
             $table->text('question')->nullable();
             $table->text('quick_info')->nullable();  
@@ -30,7 +31,7 @@ return new class extends Migration
             $table->tinyInteger('is_add_another')->comment('0:No, 1:Yes');  
             $table->integer('add_another_max');   
             $table->string('add_another_text',150)->nullable(); 
-            $table->string('add_another_button_text',150)->nullable();                   
+            $table->string('add_another_button_text',150)->nullable(); 
             $table->timestamps();
         });
     }

@@ -11,6 +11,7 @@ use App\Models\Document;
 use App\Models\Documents_step;
 use App\Models\Documents_question;
 use App\Models\Documents_question_option;
+use Illuminate\Support\Facades\DB;
 
 class DocumentQuestionController extends Controller
 {
@@ -265,8 +266,9 @@ class DocumentQuestionController extends Controller
             $table = new Documents_question;
             $table->document_id     = $document_id;
             $table->step_id         = $request['step_id'] ?? 0;
-            $table->option_id       = $request['option_id'] ?? 0;
+            $table->option_id       = $request['option_id'] ?? 0; 
             $table->label           = $request['label'] ?? ''; 
+            $table->sort_order      = ($request['sort_order']) ? $request['sort_order'] : 0; 
             $table->short_question  = $request['short_question'] ?? '';
             $table->question        = $request['question'] ?? '';
             $table->quick_info      = $request['quick_info'] ?? '';          
@@ -349,9 +351,12 @@ class DocumentQuestionController extends Controller
         $url= $URL[0] ?? '';        
         //=== url ends====           
 
-        $answer_types = $this->answer_types;       
+        $answer_types = $this->answer_types;    
+        
+        $steps = DB::table('documents_step')->select('*')->where('document_id',$document_id)->where('status',1)->orderBy('sort_order','asc')->get()->toArray(); 
+        $steps = json_decode(json_encode($steps), true);  
 
-        $data = compact('meta','data','document_id','step_id','option_id','question_id','answer_types','url','breadcrumb','group_count','show_add_another','add_another_max');         
+        $data = compact('meta','data','document_id','step_id','option_id','question_id','answer_types','url','breadcrumb','group_count','show_add_another','add_another_max','steps');         
         return view('admin.document_questions.edit')->with($data);
     }
     
@@ -409,6 +414,7 @@ class DocumentQuestionController extends Controller
             $table->step_id         = $step_id;
             $table->option_id       = $option_id;
             $table->label           = $request['label'] ?? ''; 
+            $table->sort_order      = ($request['sort_order']) ? $request['sort_order'] : 0; 
             $table->short_question  = $request['short_question'] ?? '';
             $table->question        = $request['question'] ?? '';
             $table->quick_info      = $request['quick_info'] ?? ''; 
@@ -449,7 +455,61 @@ class DocumentQuestionController extends Controller
             'url'=>$url
         ));
         exit;
+    }   
+
+    public function shift_step_group(Request $request){
+        $step_id = $request['step_id'] ?? '';   
+        $group_count = ''; 
+        if( $step_id ){
+            $row_data = Documents_step::find($step_id)->toArray();         
+            $group_count = $row_data['group_count'] ?? 1;
+        }          
+        echo json_encode(array(
+            'status'  => 'success',
+            'message' => view('admin.document_questions.shift_step_group')->with('group_count',$group_count)->render()
+        ));
+        exit;        
     }
+    
+    public function shift_question(Request $request)
+    {
+       
+        //=== check permision
+        if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }     
+        
+        $question_id = $request['question_id'] ?? '';  
+
+        $rules = [            
+            'step_id'      => 'required',   
+            'label_group'  => 'required',  
+        ];
+        $messages = [];
+        $validation = Validator::make( 
+            $request->toArray(), 
+            $rules, 
+            $messages
+        );        
+        if($validation->fails()) {       
+           
+            return back()->withInput()->withErrors($validation->messages());            
+        }
+        else{             
+
+            $table = Documents_question::find($question_id); 
+            $table->step_id     = $request['step_id'] ?? '';             
+            $table->label_group = $request['label_group'] ?? 1;
+            $table->save();  
+
+            $question_row = Documents_question::query()            
+            ->where('question_id',$question_id)
+            ->first()->toArray(); 
+            $document_id = $question_row['document_id'] ?? '';  
+           
+            return redirect( route('document.steps.index',$document_id) )->with('message','Question sifted successfully');
+        }
+    }    
+
+    
 
     public function get_url($step_id,$option_id){
         $urlArr                 = [];

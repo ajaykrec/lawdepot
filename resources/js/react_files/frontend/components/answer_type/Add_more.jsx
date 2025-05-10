@@ -77,6 +77,8 @@ const Add_more = ({propsData}) => {
           <div className="label_text">{ label_text }</div> 
           </>
       } 
+      
+     {/*
       <div className={`question ${ label_text ? '' : 'q-margin' }`}>
         { question_text } 
         { 
@@ -97,6 +99,7 @@ const Add_more = ({propsData}) => {
           </>
         }                                                                
       </div>
+      */}
       
       {
         listItems.map((item,i)=>{    

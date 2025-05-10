@@ -83,7 +83,9 @@ Route::middleware(['auth'])->group( function(){
     
     //Route::resource('/document.questions',DocumentQuestionController::class)->shallow();
     Route::resource('/questions',DocumentQuestionController::class)->shallow();
-    Route::resource('/document.options',DocumentQuestionOptionController::class)->shallow();
+    Route::resource('/document.options',DocumentQuestionOptionController::class)->shallow();    
+    Route::post('/shift-question', [DocumentQuestionController::class, 'shift_question'])->name('shift.question');   
+    Route::get('/shift-step-group', [DocumentQuestionController::class, 'shift_step_group'])->name('shift.step.group');   
 
     /*
     Route::resource('/document-steps/{document_id}',DocumentStepController::class)->names([

@@ -70,7 +70,7 @@ const Radio = ({propsData, addMoreIndex}) => {
         } 
 
         {
-          label_text && addMoreIndexCount ==='' &&
+          question_text  &&
           <>  
           <div className={`question ${ label_text ? '' : 'q-margin' }`}>
           { question_text } 

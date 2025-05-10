@@ -86,7 +86,9 @@ class DocumentController extends Controller
         ->where('document_id',$document_id)
         ->where('step_id',$step_id)
         ->where('label_group',$group)
-        ->orderBy('label','desc')->get()->toArray(); 
+        ->orderBy('sort_order','asc')
+        ->orderBy('label','desc')
+        ->get()->toArray(); 
         $result = json_decode(json_encode($result), true);        
         if($result){
             foreach($result as $val){
@@ -248,7 +250,7 @@ class DocumentController extends Controller
         $guest_document_count = AllFunction::guest_document_count($document_id);  
        
         //=== call OpenAI [start] ======         
-        if($guest_document_count < 1){           
+        if( $guest_document_count < 1 && $document['openai_system_content'] && $document['openai_user_content']){           
             $messagesArr = [
                 [
                     'role'=>'system', 

@@ -150,7 +150,7 @@
                 @endphp
 
                 <div class="row">
-                    <div class="col-md-6 col-12"> 
+                    <div class="col-md-4 col-12"> 
                         <div class="my-3">
                         <label class="form-label">Answer Type</label>
                         <select class="form-select" id="answer_type" name="answer_type" onchange="get_value(this.value)"> 
@@ -174,7 +174,7 @@
                         </span>      
                         </div>
                     </div>
-                    <div class="col-md-6 col-12">     
+                    <div class="col-md-4 col-12">     
                         <div class="my-3">
                         <label class="form-label">Group</label>
                         <select class="form-select" name="label_group">                     
@@ -188,6 +188,18 @@
                         @enderror 
                         </span>                      
                         </div>    
+                    </div> 
+                    
+                    <div class="col-md-4 col-12">     
+                        <div class="my-3">
+                        <label class="form-label">Sort order</label>
+                        <input type="number" class="form-control" id="sort_order" name="sort_order" value="{{ old('sort_order') }}"> 
+                        <span class="err" id="error-sort_order">
+                        @error('sort_order')
+                        {{$message}}
+                        @enderror 
+                        </span>                 
+                        </div>
                     </div>   
                 </div>
 

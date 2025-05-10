@@ -748,7 +748,11 @@ trait AllFunction {
         $questions = [];
         $option_id = $data['option_id'] ?? ''; 
 
-        $result = DB::table('documents_question')->select('*')->where('option_id',$option_id)->orderBy('label_group','asc')->get()->toArray(); 
+        $result = DB::table('documents_question')->select('*')
+        ->where('option_id',$option_id)
+        ->orderBy('sort_order','asc')
+        ->orderBy('label','desc')
+        ->get()->toArray(); 
         $result = json_decode(json_encode($result), true);
         foreach($result as $val){
             $val['options'] = AllFunction::get_options([

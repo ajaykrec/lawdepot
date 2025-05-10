@@ -41,7 +41,7 @@
 
     <section class="section dashboard">
         <div class="row">
-            <div class="col-lg-8">               
+            <div class="col-lg-8 col-12">               
                 <div class="card">
                 <div class="card-body mb-3">
 
@@ -167,7 +167,7 @@
                 @endphp
 
                 <div class="row">
-                    <div class="col-md-6 col-12">     
+                    <div class="col-md-4 col-12">     
                         <div class="my-3">
                         <label class="form-label">Answer Type</label>                
                         <select class="form-select" id="answer_type" name="answer_type" onchange="get_value(this.value)"> 
@@ -189,7 +189,7 @@
                         </span>      
                         </div>
                     </div>
-                    <div class="col-md-6 col-12">     
+                    <div class="col-md-4 col-12">     
                         <div class="my-3">
                         <label class="form-label">Group</label>
                         <select class="form-select" name="label_group">                     
@@ -204,6 +204,17 @@
                         </span>                      
                         </div>    
                     </div> 
+                    <div class="col-md-4 col-12">     
+                        <div class="my-3">
+                        <label class="form-label">Sort order</label>
+                        <input type="number" class="form-control" id="sort_order" name="sort_order" value="{{ old('sort_order', $data['sort_order'] ?? 0) }}"> 
+                        <span class="err" id="error-sort_order">
+                        @error('sort_order')
+                        {{$message}}
+                        @enderror 
+                        </span>                 
+                        </div>
+                    </div>   
                 </div>
                
                 <div class="my-3" id="value_div_1" {!! $div_1_style !!}>
@@ -243,8 +254,52 @@
                 </div>
 
             </div>
+            <div class="col-lg-4 col-12">               
+                <div class="card">
+                <div class="card-body mb-3">
+
+                    <form id="shiftForm" name="shiftForm" method="post" action="{{ route('shift.question') }}" enctype="multipart/form-data" onsubmit="return validate_form()">                   
+                    @csrf  
+                    <input type="hidden" name="question_id" value="{{ $question_id }}">
+
+                    <h3>Sift this question to <i class="bi bi-arrow-right"></i></h3>
+                    <div class="my-3">
+                        <label class="form-label">Step</label>
+                        <select class="form-select sift-step-id" name="step_id">  
+                        <option value=""></option> 
+                        @foreach($steps as $key=>$val)
+                        <option value="{{ $val['step_id'] }}" {{ (old('step_id')==$val['step_id']) ? 'selected' : '' }}>{{ $val['name'] }}</option> 
+                        @endforeach
+                        </select>
+                        <span class="err" id="error-step_id">
+                        @error('step_id')
+                        {{$message}}
+                        @enderror 
+                        </span>                      
+                    </div>                      
+                    
+                    <div class="my-3">
+                        <label class="form-label">Group</label>
+                        <select class="form-select" name="label_group" id="sift_label_group"></select>
+                        <span class="err" id="error-1-label_group">
+                        @error('label_group')
+                        {{$message}}
+                        @enderror 
+                        </span>                      
+                    </div>    
+                    
+
+                    <div class="mb-3">  
+                    <button type="submit" class="btn btn-primary">Sift question</button>
+                    </div>
+
+                    </form>            
+                </div>
+                </div>
+            </div>
         </div>
     </section>    
+
     <script>
     const get_value = (text)=>{
         const arrType = ['radio','radio_group'];
@@ -256,5 +311,72 @@
         }        
     }       
     </script>  
+
+    <script>  
+    const form = document.getElementById('shiftForm');
+
+    form.querySelector('[name="step_id"]')
+    .addEventListener('change',(e)=>{
+        validate_step_id('step_id')
+    })  
+    form.querySelector('[name="label_group"]')
+    .addEventListener('change',(e)=>{
+        validate_label_group('label_group')
+    }) 
+
+    const validate_step_id = (field_name)=>{	
+        let input = form.elements[field_name]
+
+        if (input.value.trim() === "") {
+            input.classList.add("error")
+            document.getElementById('error-'+field_name).innerHTML = 'This is required'
+            return 1
+        }    
+        else{
+            input.classList.remove("error")
+            document.getElementById('error-'+field_name).innerHTML = ''
+            return 0
+        }
+    } 
+    const validate_label_group = (field_name)=>{	
+        let input = form.elements[field_name]
+
+        if (input.value.trim() === "") {
+            input.classList.add("error")
+            document.getElementById('error-1-'+field_name).innerHTML = 'This is required'
+            return 1
+        }    
+        else{
+            input.classList.remove("error")
+            document.getElementById('error-1-'+field_name).innerHTML = ''
+            return 0
+        }
+    } 
+
+    const validate_form = ()=>{
+        var total_error = 0;
+        total_error = total_error + validate_step_id('step_id')  
+        total_error = total_error + validate_label_group('label_group')
+        if( total_error == 0 ){ 
+            return true;
+        }
+        else{
+            return false;
+        }
+    }    
+    $('.sift-step-id').on('change', (e)=>{
+        let step_id = e.target.value ?? ''       
+        $.ajax({
+            type: "get",
+            headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            dataType: "json",
+            url: "{{ route('shift.step.group') }}",   
+            data: {step_id:step_id}, 
+            success: function(response){          
+                $('#sift_label_group').html(response.message)                      
+            }
+        });  
+    })
+    </script>
     
 @endsection
