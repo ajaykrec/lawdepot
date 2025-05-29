@@ -6,7 +6,9 @@ use App\Traits\AllFunction;
 use App\Models\Pages;
 use App\Models\Document;
 use App\Models\Membership;
+use App\Models\Customers;
 use App\Models\Orders;
+use App\Models\Country;
 use App\Models\Users_type;
 use Illuminate\Support\Facades\DB;
 
@@ -59,7 +61,7 @@ class MembershipController extends Controller
         foreach( $results as $val ){
             $val['specification'] = (array)json_decode($val['specification']);
             $membership[] = $val;
-        }        
+        }             
 
         $pageData = compact('page','meta','header_banner','breadcrumb','membership'); 
         return Inertia::render('frontend/pages/membership/Membership', [            
@@ -304,40 +306,39 @@ class MembershipController extends Controller
         ]);     
 
         if($checkout_session->payment_status != 'unpaid'){
-            $table = new Users_type;
-            $table->user_type  = 'callback';            
-            $table->modules    = $checkout_session;   
-            $table->save();  
-            //MembershipController::save_order_data($checkout_session);
+            // $table = new Users_type;
+            // $table->user_type  = 'callback';            
+            // $table->modules    = $checkout_session;   
+            // $table->save();  
+
+            MembershipController::save_order_data($checkout_session);
         }
     }
     public function save_order_data($data){  
 
-        $transaction_id = $data->metadata->id ?? '';
+        $transaction_id = $data->id ?? '';
+        $invoice = $data->invoice ?? '';
         $country_id = $data->metadata->country_id ?? '';
         $customer_id = $data->metadata->customer_id ?? '';
         $membership_id = $data->metadata->membership_id ?? '';       
         
-        if($membership_id){
+        if($membership_id){            
 
-            $membership = Membership::find($membership_id)->toArray(); 
-            $membership['specification'] = (array)json_decode($membership['specification']);
-
-            $invoice_sufix  = AllFunction::get_invoice_sufix();
+            $invoice_sufix = AllFunction::get_invoice_sufix();
             $invoice_number = AllFunction::get_invoice_number();
-
-            $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
-            $customer_id = $customer['customer_id'] ?? ''; 
-            
             $ip = AllFunction::get_client_ip();
 
-            $country = AllFunction::get_current_country();         
-            $country_id = $country['country_id'] ?? '';
+            $customer = Customers::find($customer_id)->toArray();    
+            $country = Country::find($country_id)->toArray();   
+            
+            $membership = Membership::find($membership_id)->toArray(); 
+            $trial_period_days = $membership['trial_period_days'] ?? 0;       
+            $membership['specification'] = (array)json_decode($membership['specification']);        
             
             //=== update order table =====
             $tableData = [
                 'invoice_sufix'=>$invoice_sufix,
-                'invoice_number'=>$invoice_number,
+                'invoice_number'=>$invoice,
                 'customer_id'=>$customer_id,
                 'transaction_id'=>$transaction_id,
                 'name'=>$customer['name'] ?? '',
@@ -361,7 +362,7 @@ class MembershipController extends Controller
                 'shipping_city'=>'',
                 'shipping_postcode'=>'',                      
                 'comment'=>'',             
-                'payment_method'=>'Nochex',
+                'payment_method'=>'Stripe',
                 'shipping_method'=>'',
                 'ip'=>$ip,
                 'currency_code'=>$country['currency_code'] ?? '',
@@ -397,12 +398,16 @@ class MembershipController extends Controller
             DB::table('orders_items')->insert($tableData);
 
             //=== update customers_membership table =====
-            $end_date = date('Y-m-d',strtotime('+' . $membership['time_period'] .' '. $membership['time_period_sufix']));        
+            $end_date = date('Y-m-d',strtotime('+ ' . $membership['time_period'] .' '. $membership['time_period_sufix']));   
+            if($trial_period_days > 0){
+                $end_date = date('Y-m-d', strtotime('+ ' . $trial_period_days .' day', strtotime($end_date))  );   
+            }     
             $tableData = [
                 'customer_id'=>$customer_id,
                 'membership_id'=>$membership_id,
                 'start_date'=>date('Y-m-d'),  
                 'end_date'=>$end_date,
+                'document_id'=>0,
                 'status'=>1,
                 'created_at'=>date('Y-m-d H:i:s'),  
                 'updated_at'=>date('Y-m-d H:i:s'),   
@@ -428,13 +433,13 @@ class MembershipController extends Controller
             $data             = compact('data');
             $body             = view('mail.order')->with($data)->render(); 
             AllFunction::send_mail([
-                'to_name'=>$customer['name'],
-                'to_email'=>$customer['email'],
+                'name'=>$customer['name'],
+                'email'=>$customer['email'],
                 'from_email_name'=>$settings['from_email_name'],
                 'from_email'=>$settings['from_email'],
                 'subject'=>$subject,
                 'content'=>$body,
-            ]);
+            ]);           
             //=== mail to user [ends] ===    
             
             //==== remove session ====
