@@ -82,6 +82,7 @@
                     <div class="input-group-append">
                         <select class="form-select" name="time_period_sufix"> 
                         <option value="">--</option>   
+                        <option value="day" {{ ($time_period_sufix=='day') ? 'selected' : '' }}>Day</option>   
                         <option value="week" {{ ($time_period_sufix=='week') ? 'selected' : '' }}>Week</option>   
                         <option value="month" {{ ($time_period_sufix=='month') ? 'selected' : '' }}>Month</option>  
                         <option value="year" {{ ($time_period_sufix=='year') ? 'selected' : '' }}>Year</option>  
@@ -100,6 +101,17 @@
                 @enderror 
                 </span>                  
                 </div>
+
+
+                <div class="my-3">
+                <label class="form-label">Free Trial period days</label>
+                <input type="number" class="form-control" id="trial_period_days" name="trial_period_days" value="{{ old('trial_period_days') }}"> 
+                <span class="err" id="error-trial_period_days">
+                @error('trial_period_days')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div>                
 
                 <div class="my-3">
                 <label class="form-label">Is per document?</label>
@@ -160,13 +172,16 @@
 
             </div>
 
-            <div class="col-lg-6 col-md-12 col-12">               
+            <div class="col-lg-6 col-md-12 col-12">    
+
                 <div class="card">
-                <div class="card-body mb-3"> 
-                @include('admin.membership.specification')
-                </div>
+                    <div class="card-body"> 
+                    @include('admin.membership.specification')
+                    </div>
                 </div>
             </div>
+
+           
         </div>
         </form>
     </section>  

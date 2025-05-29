@@ -24,8 +24,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
 
         $middleware->use([
-            \App\Http\Middleware\PreventRequestsDuringMaintenance::class
+            \App\Http\Middleware\PreventRequestsDuringMaintenance::class,           
         ]);
+
+        $middleware->append('\App\Http\Middleware\CorsMiddleware::class');
 
         $middleware->validateCsrfTokens(except: [
             'checkout-success',
@@ -38,7 +40,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'lang' => \App\Http\Middleware\SetLang::class,
             'front_view' => \App\Http\Middleware\HandleInertiaRequests::class,
             //'admin_view' => \App\Http\Middleware\HandleInertiaAdminRequests::class,
-            //'sanctum' => \App\Http\Middleware\Sanctum::class, 
+            //'sanctum' => \App\Http\Middleware\Sanctum::class,             
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

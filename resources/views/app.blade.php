@@ -24,7 +24,7 @@
           'resources/css/app.css', 
           'resources/js/app.jsx'
         ])
-        @inertiaHead
+        @inertiaHead       
     </head>
     <body>    
     @routes

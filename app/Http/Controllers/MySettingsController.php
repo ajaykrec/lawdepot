@@ -83,6 +83,20 @@ class MySettingsController extends Controller
             $table->phone   = $request['phone'] ?? '';            
             $table->dob     = $dob;  
             $table->save();
+
+            $customer = $table->toArray();
+
+            //==== update customer into Stripe ====
+            $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+            $customer = $stripe->customers->update(
+                $customer['stripe_customer_id'],
+                [
+                    'name' => $customer['name'],
+                    'email' => $customer['email'],
+                    'phone' => $customer['phone'],
+                ]
+            );           
+            //=====            
            
             Session::put('customer_data', $table->toArray());  
             return redirect()->route('customer.settings')->with('success','Account Updated successfully!');

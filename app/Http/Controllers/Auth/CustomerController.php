@@ -82,8 +82,19 @@ class CustomerController extends Controller
         if($validation->fails()) {            
             return back()->withInput()->withErrors($validation->messages());            
         }
-        else{            
-            $table = new Customers;            
+        else{ 
+            
+            //==== add customer into Stripe ====
+            $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+            $stripe_response = $stripe->customers->create([
+            'name' => $request['name'],
+            'email' => $request['email'],
+            'phone'=> $request['phone'],
+            ]);
+            //=====
+
+            $table = new Customers;   
+            $table->stripe_customer_id = $stripe_response->id ?? '';                     
             $table->name        = $request['name'];            
             $table->email       = $request['email'];
             $table->phone       = $request['phone'];

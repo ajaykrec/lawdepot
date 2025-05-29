@@ -496,7 +496,7 @@ trait AllFunction {
         }        
     }
     static function get_common_data(){ 
-        //Cache::pull('data');
+        Cache::pull('data');
         if(Cache::has('data')){
             $data = Cache::get('data');
         }
@@ -1237,20 +1237,21 @@ trait AllFunction {
     }    
 
     static function percentage_of_answer($document_id, $session_fields){   
-        $total_question = DB::table('documents_question')->where('document_id',$document_id)->count();   
+        $total_question = DB::table('documents_question')->where('document_id',$document_id)->where('option_id','0')->count(); 
         $total_question = ( $total_question > 0 ) ? $total_question : 1;
         $session_fields = (array)json_decode($session_fields); 
+        
         $answer = [];
         foreach($session_fields as $key=>$val){
             if($val){
                 $answer[] = $val;
             }
         }
-        $total_answer = count($answer);
-        $percent = ($total_answer/$total_question)*100;
-        //p([$total_question,$total_answer,$percent]);
+        $total_answer = count($answer);       
+        $percent = ($total_answer/$total_question)*100;        
 
-        if( $percent >= 50 ){
+        //if( $percent >= 50 ){
+        if( $total_answer >= $total_question ){
             return true;
         }
         else{
@@ -1314,5 +1315,13 @@ trait AllFunction {
         $regex = "/({$start})(.*?)({$end})/";
         return preg_replace($regex,$replacement,$str);
     }  
+    static function reset_session_document_id($document_id){        
+        if( Session::has('document_id') ){  
+            if($document_id!=Session::get('document_id')){
+                Session::forget('document_id');  
+                Session::forget('fields');  
+            }                
+        }        
+    }      
     
 }

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Inertia\Inertia; 
 use Illuminate\Support\Facades\Storage;
-use Redirect;
+
 
 
 class MembershipController extends Controller
@@ -65,84 +65,17 @@ class MembershipController extends Controller
         return Inertia::render('frontend/pages/membership/Membership', [            
             'pageData' => $pageData,            
         ]);               
-    }  
-    
-    // public function select_membership(Request $request){  
-    //     $membership_id = $request['membership_id'] ?? '';
-    //     Session::put('membership_id', $membership_id);  
-    //     return redirect( route('membership.checkout') )->with(['success'=>'']);          
-    // }    
+    }    
 
     public function select_membership(Request $request){  
-
         $membership_id = $request['membership_id'] ?? '';
         Session::put('membership_id', $membership_id);  
-        
-        $membership = Membership::find($membership_id)->toArray(); 
-        $membership_name = $membership['name'] ?? '';
-        $membership_description = $membership['description'] ?? '';
-        $membership_price = $membership['price'] ?? 0;
-        $time_period = $membership['time_period'] ?? 0;
-        $time_period_sufix = $membership['time_period_sufix'] ?? '';
-        $trial_period_days = $membership['trial_period_days'] ?? 0;
-
-        $subscription_data = [];
-        if($trial_period_days > 0){
-            $subscription_data = [
-                'trial_period_days' => $trial_period_days,
-                'trial_settings' => ['end_behavior' => ['missing_payment_method' => 'cancel']],
-            ];
-        }
-
-        $currency = AllFunction::get_setting(['currency_code'])['currency_code'] ?? '';
-
-        $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
-        $customer_id = $customer['customer_id'] ?? ''; 
-        $email = $customer['email'] ?? ''; 
-        $stripe_customer_id = $customer['stripe_customer_id'] ?? ''; 
-
-        $country = AllFunction::get_current_country();         
-        $country_id = $country['country_id'] ?? '';
-
-        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
-        $response = $stripe->checkout->sessions->create([           
-            'success_url' => route('membership.checkout.success'),
-            'line_items' => [
-                [
-                    'price_data' => [
-                        'currency'=>'GBP',
-                        'product_data'=>[
-                            'name'=>$membership_name,
-                            //'description'=>$membership_description
-                        ],
-                        'currency'=>$currency,
-                        'unit_amount'=> $membership_price*100,
-                        'recurring'=>[
-                            'interval'=>$time_period_sufix,
-                            'interval_count'=>$time_period,                            
-                        ]
-                    ],
-                    'quantity' => 1,
-                ],
-            ],
-            'mode' => 'subscription',
-            'subscription_data' => $subscription_data,
-            'customer'=>$stripe_customer_id,
-            //'customer_email'=>$email,
-            'metadata'=> [
-                'membership_id' => $membership_id,
-                'customer_id' => $customer_id,
-                'country_id'=> $country_id,
-            ]
-        ]);        
-        
-        return Inertia::location($response->url);
-        
+        return redirect( route('membership.checkout') )->with(['success'=>'']);   
     }    
 
     public function checkout(Request $request){  
 
-        $membership_id = Session::has('membership_id') ? Session::get('membership_id') : ''; 
+        $membership_id =  Session::has('membership_id') ? Session::get('membership_id') : ''; 
         if(!$membership_id){
             return redirect( route('membership.index') );   
         }
@@ -193,37 +126,41 @@ class MembershipController extends Controller
         } 
         
         $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
-        $customer_id = $customer['customer_id'] ?? '';  
+        $customer_id = $customer['customer_id'] ?? '';          
+        
 
         $order_id = Session::has('order_id') ? Session::get('order_id') : '123456'; 
         if(!$order_id){
+
             // $table = new Orders;                  
             // $table->identity   = $request['identity'];                          
             // $table->status     = $request['status'];
             // $table->save();
             // $order_id = $table->order_id;  
-            // Session::put('order_id', $order_id);  
-        }      
+            // Session::put('order_id', $order_id);             
+            
+        }
         
-        $stripe_publishable_key = env('STRIPE_Publishable_key');
 
-        $pageData = compact('page','meta','header_banner','breadcrumb','membership','all_membership','order_id','stripe_publishable_key'); 
+        $pageData = compact('page','meta','header_banner','breadcrumb','membership','all_membership','order_id'); 
         
         return Inertia::render('frontend/pages/checkout/Checkout', [            
             'pageData' => $pageData,            
         ]);               
     } 
     
-    public function success(Request $request){
+    public function success(Request $request){ 
 
-        $language_id = AllFunction::get_current_language();         
+        //MembershipController::callback($request);
+
+        $language_id = AllFunction::get_current_language();  
          
         $q = DB::table('pages');  
         $q = $q->leftJoin('pages_language','pages_language.page_id','=','pages.page_id'); 
         $q = $q->where('pages_language.language_id',$language_id);   
         $q = $q->where('pages.slug','checkout-success'); 
         $page = $q->first(); 
-        $page = json_decode(json_encode($page), true);         
+        $page = json_decode(json_encode($page), true); 
 
         $meta = [
             'title'=>$page['meta_title'] ?? '',
@@ -239,85 +176,58 @@ class MembershipController extends Controller
         $breadcrumb = [
             ['name'=>'Home', 'url'=>route('home')],            
             ['name'=>$page['name'], 'url'=>''],
-        ];        
+        ];
 
         //=== document ===
         $document_id = (Session::has('document_id')) ? Session::get('document_id') : '';
-        $document = [];
-        if($document_id){
-            $document = Document::find($document_id);         
-            if($document){
-                $document = $document->toArray();  
-            }       
-            
-            $filter_question_value = AllFunction::filter_question_value([
-                'document_id'=>$document_id ?? '',            
-            ]);  
-            $template = $document['template'] ?? '';  
-            $template = AllFunction::replace_template([
-                'template' => $template,
-                'question_value' => $filter_question_value,
-            ]);  
-            $document['template'] = $template;         
-        }        
+        $document = Document::find($document_id);         
+        if($document){
+            $document = $document->toArray();  
+        }
+        
+        $filter_question_value = AllFunction::filter_question_value([
+            'document_id'=>$document_id ?? '',            
+        ]);        
+
+        $template = $document['template'] ?? '';  
+        $template = AllFunction::replace_template([
+            'template' => $template,
+            'question_value' => $filter_question_value,
+        ]);  
+        $document['template'] = $template;         
         //======
 
         $pageData = compact('page','meta','header_banner','breadcrumb','document_id','document'); 
         return Inertia::render('frontend/pages/checkout/Checkout_success', [            
             'pageData' => $pageData,            
         ]);               
-    }  
-       
+    }
 
     public function callback(Request $request){
-        //\Stripe\Stripe::setApiKey(env('STRIPE_Secret_key'));
-        $endpoint_secret = env('STRIPE_Endpoint_Secret_key');
-        $payload = @file_get_contents('php://input');
-        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-        $event = null;
-
-        try{
-            $event = \Stripe\Webhook::constructEvent(
-                $payload, $sig_header, $endpoint_secret
-            );
-        }catch(\UnexpectedValueException $e) {
-            // Invalid payload
-            http_response_code(400);
-            exit();
-        }catch(\Stripe\Exception\SignatureVerificationException $e) {
-            // Invalid signature
-            http_response_code(400);
-            exit();
-        }
-
-        if( $event->type == 'checkout.session.completed' || $event->type == 'checkout.session.async_payment_succeeded' ){
-            $session_id = $event->data->object->id;
-            MembershipController::fulfill_checkout($session_id);
-        }
-        http_response_code(200);        
-    }
-    public function fulfill_checkout($session_id){
         
-        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
-        $checkout_session = $stripe->checkout->sessions->retrieve($session_id, [
-            'expand' => ['line_items'],
-        ]);     
+        //=== test callback url ===       
+        $post_data = file_get_contents("php://input");
+        $post_data = json_encode($post_data, true);
+        // $post_data = "transaction_date=10%2F03%2F2025+05%3A43%3A46&transaction_id=17230026817415854146300&amount=1.00&order_id=123456&optional_1=&optional_2=&optional_3=&optional_4=&optional_5=&description=&test_transaction=True";
+        // $post_data = explode('&', $post_data);
+        // p($post_data);
+        $table = new Users_type;
+        $table->user_type  = 'callback';            
+        $table->modules    = $post_data;   
+        $table->save();       
+        //======
 
-        if($checkout_session->payment_status != 'unpaid'){
-            $table = new Users_type;
-            $table->user_type  = 'callback';            
-            $table->modules    = $checkout_session;   
-            $table->save();  
-            //MembershipController::save_order_data($checkout_session);
-        }
-    }
-    public function save_order_data($data){  
+        $transaction_date = $request['transaction_date'] ?? '';
+        $transaction_id = $request['transaction_id'] ?? '';
+        $amount = $request['amount'] ?? '';
+        $order_id = $request['order_id'] ?? '';
+        $optional_1 = $request['optional_1'] ?? '';
+        $description = $request['description'] ?? '';
+        $test_transaction = $request['test_transaction'] ?? '';
+        //p($transaction_id);
 
-        $transaction_id = $data->metadata->id ?? '';
-        $country_id = $data->metadata->country_id ?? '';
-        $customer_id = $data->metadata->customer_id ?? '';
-        $membership_id = $data->metadata->membership_id ?? '';       
-        
+       
+        $membership_id = Session::has('membership_id') ? Session::get('membership_id') : ''; 
         if($membership_id){
 
             $membership = Membership::find($membership_id)->toArray(); 
@@ -440,7 +350,9 @@ class MembershipController extends Controller
             //==== remove session ====
             Session::forget('membership_id'); 
             //=====  
-        }            
-    }  
+
+        }
+            
+    }    
     
 }

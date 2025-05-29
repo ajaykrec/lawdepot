@@ -182,9 +182,20 @@ class CustomerController extends Controller
             }
 
             $dob = $request['dob'] ?? '';   
+
+
+            //==== add customer into Stripe ====
+            $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+            $stripe_response = $stripe->customers->create([
+            'name' => $request['name'],
+            'email' => $request['email'],
+            'phone'=> $request['phone'],
+            ]);
+            //=====
             
             $table = new Customers;
             $table->profile_photo       = $profile_photo;
+            $table->stripe_customer_id  = $stripe_response->id ?? '';                
             $table->name                = $request['name'];            
             $table->email               = $request['email'];
             $table->phone               = $request['phone'];
@@ -305,7 +316,21 @@ class CustomerController extends Controller
                 $table->dob = date('Y-m-d',strtotime($dob));  
             }               
             $table->status              = $request['status'];
-            $table->save();             
+            $table->save();   
+            
+            $customer = $table->toArray();
+            //==== update customer into Stripe ====
+            $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+            $customer = $stripe->customers->update(
+                $customer['stripe_customer_id'],
+                [
+                    'name' => $customer['name'],
+                    'email' => $customer['email'],
+                    'phone' => $customer['phone'],
+                ]
+            );           
+            //=====            
+
             return redirect( route('customers.index') )->with('message','Customer updated successfully');
         }
     }
@@ -316,14 +341,20 @@ class CustomerController extends Controller
         if(!has_permision(['customers'=>'RW'])){ return redirect( route('dashboard') ); }
 
         $table = Customers::find($id); 
-        //== unlink file
         $tableData = $table->toArray();
+        //== unlink file        
         $delArr    = array(
             'file_path'=>'uploads/customers',
             'file_name'=>$tableData['profile_photo']
         );
         AllFunction::delete_file($delArr);
         //======
+
+        //==== delete customer from Stripe ====
+        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+        $deleted = $stripe->customers->delete($tableData['stripe_customer_id'], []);
+        //=====   
+
         $table->delete();        
         Customers_address::where('customer_id', $id)->delete();
 

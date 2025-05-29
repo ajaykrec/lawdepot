@@ -8,44 +8,21 @@ import Steps_header from './Steps_header';
 import Breadcrumb from '../../components/breadcrumb/Breadcrumb';
 
 import anime from 'animejs/lib/anime.es.js';
-
 import OpenAI from 'openai';
 
 const Document_download = () => {
 
-  const { file_storage_url, open_api_key, common_data, pageData } = usePage().props
+  const { file_storage_url, common_data, pageData } = usePage().props
 
   const document = pageData.document
   const steps = pageData.steps
   const percent = pageData.percent
   const templateApiJsonData = pageData.templateApiJsonData  
-  const guest_document_count = pageData.guest_document_count  
-  
+  const guest_document_count = pageData.guest_document_count    
 
   useEffect( ()=>{  
     
   },[])  
-
-  const get_openai_data = async () =>{
-    /*
-    const client = new OpenAI({
-      apiKey:open_api_key, 
-      dangerouslyAllowBrowser: true
-    });
-
-    const messagesArr = [
-        { role: 'system', content: `You are a  ${templateApiJsonData.country} based legal document professional.` },
-        { role: 'user', content: `Generate a elaborated and well formatted legal  ${templateApiJsonData.document_name} for the following details: ${JSON.stringify(templateApiJsonData.question)}`},
-    ]
-    console.log(messagesArr)       
-
-    const response = await client.chat.completions.create({
-        model: 'gpt-4o',
-        messages: messagesArr,
-    });
-    console.log(response)
-    */
-  }
 
   const parseWithLinks = (html) =>{
       const options = {     
@@ -56,9 +33,7 @@ const Document_download = () => {
           }
       }     
       return Parser(html, options);
-  }   
-
-  //console.log(templateApiJsonData)
+  }  
  
   return (
     <>

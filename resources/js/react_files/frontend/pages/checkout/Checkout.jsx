@@ -13,6 +13,8 @@ const Checkout = () => {
   const { file_storage_url, common_data, customer, pageData } = usePage().props  
   const country = common_data.country
   const membership = pageData.membership
+  const stripe_publishable_key = pageData.stripe_publishable_key
+  
 
   useEffect(()=> {  
         
@@ -27,9 +29,7 @@ const Checkout = () => {
           }
       }     
       return Parser(html, options);
-  }    
-
-  console.log(customer)
+  }  
  
   return (
     <>
@@ -38,8 +38,7 @@ const Checkout = () => {
         <Head>
         <title>{pageData.meta.title}</title>
         <meta name="description" content={pageData.meta.description} />            
-        <script src="https://secure.nochex.com/exp/jquery.js"></script>        
-        <script src="https://secure.nochex.com/exp/nochex_lib.js"></script> 
+        <script async src="https://js.stripe.com/v3/buy-button.js"></script>                          
         </Head>                
         :
         <Head>
@@ -59,33 +58,12 @@ const Checkout = () => {
               <div className="text-center pt-5">
               {
                 customer ?
-                <>                
-                <h6>{ membership.name }</h6>
-                <h6><b>{ allFunction.currency(membership.price,membership.currency_code) }</b></h6>                  
-
-                <button id="ncx-show-checkout" title="Checkout" className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded">Pay</button> 
-                <form id="nochexForm" className="ncx-form" name="nochexForm">
-                  <script 
-                  id="ncx-config"
-                  ncxfield-api_key="nvkd236fb549072428dbb0d2e98a40272b0"
-                  ncxfield-merchant_id="Instantly_Legal"
-                  ncxfield-amount={membership.price}
-                  ncxfield-fullname={customer.name}
-                  ncxfield-email={customer.email}
-                  ncxfield-phone={customer.phone}
-                  ncxfield-order_id={pageData.order_id}
-                  ncxfield-test_transaction="true"
-                  ncxfield-use_apc="true"                      
-                  ncxfield-success_url={ route('membership.checkout.success') }
-                  ncxfield-callback_url={ route('membership.checkout.callback') }                 
-                  ncxfield-optional_1="xcdfggg"                   
-                  ></script>
-                </form>
-
-                <p className="p-2">
-                By selecting Place Secure Order, you agree to the 
-                <Link href={ route('terms') } style={{color:"rgb(19 111 254)"}}><b>Terms of Use</b></Link>.
-                </p>
+                <>  
+                <stripe-buy-button
+                  buy-button-id={membership.stripe_buy_button_id}                                
+                  publishable-key={stripe_publishable_key}
+                >
+                </stripe-buy-button>
                 </>
                 :                
                 <p className="p-2">

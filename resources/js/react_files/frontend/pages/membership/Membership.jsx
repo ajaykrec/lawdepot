@@ -34,19 +34,20 @@ const Membership = () => {
     }    
 
     const select_membership = (membership_id) =>{
-
+        
         let obj = {
             membership_id:membership_id
         }  
         router.post(route('select.membership.post'),{
             ...obj,               
-            onSuccess: (res) => {  
+            onSuccess: (res) => {                  
                 console.log(res)
+                location.href = res.url
             }
         })
         
     }
- 
+
     return (
         <>
         <Head>

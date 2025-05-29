@@ -28,7 +28,7 @@ class DocumentController extends Controller
         //Session::forget('fields');  
        
         $country = AllFunction::get_current_country();         
-        $country_id = $country['country_id'] ?? '';
+        $country_id = $country['country_id'] ?? '';        
 
         $q = DB::table('documents');       
         $q = $q->leftJoin('documents_category','documents_category.category_id','=','documents.category_id');   
@@ -36,9 +36,13 @@ class DocumentController extends Controller
         $q = $q->where('documents.country_id',$country_id);   
         $q = $q->where('documents.slug',$slug); 
         $document = $q->first(); 
-        $document = json_decode(json_encode($document), true); 
+        $document = json_decode(json_encode($document), true);         
 
-        $document_id = $document['document_id'] ?? '';        
+        $document_id = $document['document_id'] ?? '';  
+        
+        ######## 
+        AllFunction::reset_session_document_id($document_id);   
+        ########      
         
         $meta = [
             'title'=>$document['meta_title'] ?? '',
@@ -46,7 +50,7 @@ class DocumentController extends Controller
             'description'=>$document['meta_description'] ?? '',
         ];  
         $header_banner = [
-            'title'=>$document['name'],
+            'title'=>$document['name'] ?? '',
             'banner_image'=>'',
             'banner_text'=>'',
         ];
@@ -151,32 +155,22 @@ class DocumentController extends Controller
             $inputs = (array)json_decode($inputs);             
             
             $returnfields = [];
-            foreach($inputs as $key=>$val){                 
-                // if( is_array($val) ){
-                //     $returnfields[$key] = $val;
-                // }     
-                // elseif( AllFunction::is_json_data($val) ){
-                //     $returnfields[$key] = (array)json_decode($val);
-                // }   
-                // else{
-                //     $returnfields[$key] = $val;
-                // }      
+            foreach($inputs as $key=>$val){ 
                 $returnfields[$key] = $val;
             }
-            $fields = $returnfields;  
-            
+            $fields = $returnfields;              
            
             $step_row = DB::table('documents_step')->select('*')->where('step_id',$step_id)->first(); 
             $step_row = json_decode(json_encode($step_row), true); 
             $document_id = $step_row['document_id'] ?? ''; 
             
             //== reset session: for different document_id ====
-            if( Session::has('document_id') ){  
-                if($document_id!=Session::get('document_id')){
-                    Session::forget('document_id');  
-                    Session::forget('fields');  
-                }                
-            }
+            // if( Session::has('document_id') ){  
+            //     if($document_id!=Session::get('document_id')){
+            //         Session::forget('document_id');  
+            //         Session::forget('fields');  
+            //     }                
+            // }
             //==========
 
             if( Session::has('fields') ){  
@@ -303,7 +297,6 @@ class DocumentController extends Controller
         Session::forget('fields'); 
         Session::forget('openai_document'); 
         //=====  
-
         return redirect( route('customer.documents') )->with(['success'=>'Document saved successfully']);
     }
 }
