@@ -15,7 +15,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector, useDispatch } from 'react-redux'
 import { fieldAction } from '../../actions/fields'
 
-const Date = ({propsData, addMoreIndex}) => { 
+const Date = ({propsData, parentIndex, addMoreIndex}) => { 
 
     const { file_storage_url, pageData } = usePage().props  
 
@@ -46,8 +46,12 @@ const Date = ({propsData, addMoreIndex}) => {
     const quick_info = propsData.quick_info       
     const description = propsData.description         
     
+    const parentIndexCount = (typeof parentIndex !== "undefined" && parentIndex !== '') ? parentIndex : ''
     const addMoreIndexCount = (typeof addMoreIndex !== "undefined" && addMoreIndex !== '') ? addMoreIndex : ''
-    const field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${addMoreIndexCount}` : propsData.field_name
+    var field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${addMoreIndexCount}` : propsData.field_name
+    if(parentIndexCount){
+        field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${parentIndexCount}_${addMoreIndexCount}` : propsData.field_name
+    }
  
     return (
     <>  

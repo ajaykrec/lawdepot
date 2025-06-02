@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Traits\AllFunction; 
 use App\Models\Pages;
-use App\Models\Customers_membership;
+use App\Models\Customers_membership; 
+use App\Models\Orders;
+use App\Models\Orders_item;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia; 
 
@@ -88,8 +90,16 @@ class MyMembershipController extends Controller
         $count = $q->count();     
         $results  = $q->limit($limit)->offset($offset)->get()->toArray(); 
         $results  = json_decode(json_encode($results), true); 
-        $paginate = AllFunction::paginate($count, $limit, $page, 3, $pagi_url);
-        //p($results);
+        $returnArr = [];
+        if($results){
+            foreach($results as $val){
+                $order = Orders::query()->where('order_id',$val['order_id'])->with(['orderitems'])->get()->toArray(); 
+                $val['order'] = $order[0];
+                $returnArr[] = $val;
+            }
+        }
+        $results  = $returnArr;
+        $paginate = AllFunction::paginate($count, $limit, $page, 3, $pagi_url);        
         //=====
         
         $pageData = compact('page','meta','header_banner','breadcrumb','results','paginate','start_count'); 

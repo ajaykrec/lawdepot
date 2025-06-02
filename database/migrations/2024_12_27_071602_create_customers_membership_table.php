@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('cus_membership_id');   
             $table->integer('customer_id');   
             $table->integer('membership_id');  
+            $table->integer('order_id');
             $table->integer('document_id');  
             $table->date('start_date')->nullable();       
             $table->date('end_date')->nullable();       

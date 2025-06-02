@@ -1220,11 +1220,17 @@ trait AllFunction {
 
         $return_question = [];
         if($session_fields){
+           
             foreach($session_fields as $key=>$val){
-                $question_id = str_replace('q','',$key);
+                $question_id = explode('_',$key);
+                $question_id = $question_id[0] ?? '';                
+                $question_id = str_replace('q','',$key);                
                 $question = Documents_question::find($question_id)->toArray(); 
-                $short_question = $question['short_question'] ? $question['short_question'] : $question['question'];
-                $return_question[$short_question] = $val;
+                $short_question = trim($question['short_question'] ? $question['short_question'] : $question['question']);
+                if($val){
+                    $return_question[$short_question][] = $val;            
+                }
+                
             }
         }
         $return_array = [

@@ -22,10 +22,11 @@ import allFunction from '../../helper/allFunction';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
-const Add_more = ({propsData}) => { 
+const Add_more = ({propsData, addMoreIndex}) => { 
 
     const { file_storage_url, pageData } = usePage().props  
-
+    
+    const question_id = propsData.question_id
     const answer_type = propsData.answer_type
     const options = propsData.options
     const label_text = propsData.label
@@ -36,6 +37,8 @@ const Add_more = ({propsData}) => {
     const add_another_text = (propsData.add_another_text !='') ? propsData.add_another_text : 'Another' 
     const add_another_button_text = (propsData.add_another_button_text !='') ? propsData.add_another_button_text : 'Add another' 
     const selected_field_count = field_name + '_count' 
+    
+    const addMoreIndexCount = (typeof addMoreIndex !== "undefined" && addMoreIndex !== '') ? addMoreIndex : ''    
 
     const dispatch = useDispatch()
     const fields   = useSelector( (state)=> state.fields )      
@@ -79,26 +82,27 @@ const Add_more = ({propsData}) => {
       } 
       
      {/*
-      <div className={`question ${ label_text ? '' : 'q-margin' }`}>
-        { question_text } 
-        { 
-          quick_info &&
-          <>
-          &nbsp; 
-          <OverlayTrigger
-            key="top"
-            placement="top"
-            overlay={
-              <Tooltip>
-              {parseWithLinks(''+quick_info+'')}
-              </Tooltip>
-            }
-          >           
-          <i className="fa-solid fa-circle-question"></i>
-          </OverlayTrigger>
-          </>
-        }                                                                
-      </div>
+        <div className={`question ${ label_text ? '' : 'q-margin' }`}>
+          { question_text } 
+          { 
+            quick_info &&
+            <>
+            &nbsp; 
+            <OverlayTrigger
+              key="top"
+              placement="top"
+              overlay={
+                <Tooltip>
+                {parseWithLinks(''+quick_info+'')}
+                </Tooltip>
+              }
+            >           
+            <i className="fa-solid fa-circle-question"></i>
+            </OverlayTrigger>
+            </>
+          }                                                                
+        </div>
+
       */}
       
       {
@@ -107,7 +111,7 @@ const Add_more = ({propsData}) => {
           let index = i + 1
 
           return(              
-              <div key={i} className="my-3 p-3" style={{border:"2px solid #ccc"}}>
+              <div key={i} className="my-3 p-3" style={{ border:"2px solid #ccc" }}>
 
                 <div className="d-flex justify-content-between mb-2">
                   <div><b>{allFunction.getOrdinal(i+1)} {add_another_text}</b></div>
@@ -134,7 +138,7 @@ const Add_more = ({propsData}) => {
 
               { 
                   answer_type == 'label' ?  
-                  <Label propsData={propsData} addMoreIndex={index} />  
+                  <Label propsData={propsData} parentIndex={addMoreIndexCount} addMoreIndex={index} />  
                   :  
                   answer_type == 'radio' ?  
                   <Radio propsData={propsData} addMoreIndex={index} />  

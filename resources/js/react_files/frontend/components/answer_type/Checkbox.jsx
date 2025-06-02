@@ -174,10 +174,10 @@ const Checkbox = ({propsData, addMoreIndex}) => {
                       <div key={j} className={`my-3 oqall-${val.question_id}`} id={`oq-${val.option_id}`} style={style}>                        
                         {
                           is_add_another == 1 ?  
-                          <Add_more propsData={val2} />                                             
+                          <Add_more propsData={val2} addMoreIndex={addMoreIndexCount} />                                             
                           :
                           answer_type == 'radio' ?  
-                          <Radio  propsData={val2} />  
+                          <Radio  propsData={val2} addMoreIndex={addMoreIndexCount} />  
                           :   
                           answer_type == 'radio_group' ?  
                           <Radio_group  propsData={val2} index={j} />  
@@ -186,7 +186,7 @@ const Checkbox = ({propsData, addMoreIndex}) => {
                           <Checkbox  propsData={val2} />  
                           :   
                           answer_type == 'dropdown' ?  
-                          <Dropdown  propsData={val2} />  
+                          <Dropdown  propsData={val2} addMoreIndex={addMoreIndexCount} />  
                           :                          
                           answer_type == 'text' ?  
                           <Text propsData={val2} addMoreIndex={addMoreIndexCount} />                                             

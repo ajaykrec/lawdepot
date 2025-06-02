@@ -111,7 +111,7 @@ class DocumentController extends Controller
             $session_fields = (array)json_decode($session_fields); 
             $fields = array_merge($fields, $session_fields); 
         }  
-        
+                
        
         $q = DB::table('documents_faq')->select('*')
         ->where('step_id',$step_id)
@@ -125,6 +125,12 @@ class DocumentController extends Controller
         ]);
         p($filter_question_value);
         */
+
+        // $templateApiJsonData = AllFunction::get_templateApiJsonData([
+        //     'document_id'=>$document_id,
+        //     'session_fields'=>(Session::has('fields')) ? Session::get('fields') : '',
+        // ]);   
+        // p($templateApiJsonData);   
 
         $pageData = compact('document','meta','header_banner','breadcrumb','steps','step_id','group','percent','questions','fields','previous_url','next_url','faqs','is_download'); 
         return Inertia::render('frontend/pages/document/Document', [            
@@ -152,13 +158,13 @@ class DocumentController extends Controller
             $step_id = $request['step_id'] ?? '';        
             $group  = $request['group'] ?? ''; 
             $inputs = $request['fields'] ?? [];  
-            $inputs = (array)json_decode($inputs);             
+            $inputs = (array)json_decode($inputs);               
             
             $returnfields = [];
             foreach($inputs as $key=>$val){ 
                 $returnfields[$key] = $val;
             }
-            $fields = $returnfields;              
+            $fields = $returnfields;             
            
             $step_row = DB::table('documents_step')->select('*')->where('step_id',$step_id)->first(); 
             $step_row = json_decode(json_encode($step_row), true); 
@@ -181,6 +187,8 @@ class DocumentController extends Controller
                 }
                 $fields = array_merge($returnArr, $fields);                 
             }  
+
+            //p($fields);
 
             Session::put('document_id', $document_id);          
             Session::put('fields', json_encode($fields));
@@ -242,8 +250,7 @@ class DocumentController extends Controller
         $templateApiJsonData = AllFunction::get_templateApiJsonData([
             'document_id'=>$document_id,
             'session_fields'=>$session_fields,
-        ]); 
-        $templateApiJsonData = $templateApiJsonData;  
+        ]);         
 
         $guest_document_count = AllFunction::guest_document_count($document_id);         
         //=== call OpenAI [start] ======         

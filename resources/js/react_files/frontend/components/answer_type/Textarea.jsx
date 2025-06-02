@@ -15,7 +15,7 @@ import Tooltip from 'react-bootstrap/Tooltip';
 import { useSelector, useDispatch } from 'react-redux'
 import { fieldAction } from '../../actions/fields'
 
-const Textarea = ({propsData, addMoreIndex}) => { 
+const Textarea = ({propsData, parentIndex, addMoreIndex}) => { 
 
     const { file_storage_url, pageData } = usePage().props     
 
@@ -45,8 +45,12 @@ const Textarea = ({propsData, addMoreIndex}) => {
     const quick_info = propsData.quick_info     
     const description = propsData.description         
     
-    const addMoreIndexCount = (typeof addMoreIndex !== "undefined" && addMoreIndex !== '') ? addMoreIndex : ''
-    const field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${addMoreIndexCount}` : propsData.field_name
+    const parentIndexCount = (typeof parentIndex !== "undefined" && parentIndex !== '') ? parentIndex : ''
+    const addMoreIndexCount = (typeof addMoreIndex !== "undefined" && addMoreIndex !== '') ? addMoreIndex : ''   
+    var field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${addMoreIndexCount}` : propsData.field_name
+    if(parentIndexCount){
+        field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${parentIndexCount}_${addMoreIndexCount}` : propsData.field_name
+    }
  
     return (
         <>    

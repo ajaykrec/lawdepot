@@ -20,6 +20,7 @@ const My_membership = () => {
   const membershipModelState = useSelector( (state)=> state.membership_modal ) 
 
   const [membership_data, set_membership_data] = useState({})   
+  const [order_data, set_order_data] = useState({}) 
   
   const parseWithLinks = (html) =>{
         const options = {     
@@ -71,6 +72,7 @@ const My_membership = () => {
                               results.map((val,i)=>{
                                 start_count++
                                 const membership = val.membership
+                                const order = val.order
                                 return(
                                   <tr key={i}>
                                     <th scope="row">{start_count}</th> 
@@ -83,6 +85,8 @@ const My_membership = () => {
                                       onClick={()=>{
                                         dispatch(membershipAction(true))
                                         set_membership_data(membership)
+                                        set_order_data(order)
+                                        
                                       }}
                                       >View</button>
                                     </td>
@@ -105,7 +109,7 @@ const My_membership = () => {
           </div> 
         </section>   
         {membershipModelState.show &&
-          <Membership_modal data={membership_data} />
+          <Membership_modal membership={membership_data} order={order_data} />
         }	      
     </>
   )

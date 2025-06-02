@@ -186,16 +186,16 @@ const Radio = ({propsData, addMoreIndex}) => {
                 return questions.map((val2,j)=>{  
                   const answer_type = val2.answer_type
                   const is_add_another = val2.is_add_another
-                  console.log(val2)
+                  
                   return(                                         
                     
                       <div key={j} className={`my-3 ${option_class_prefix}${val.question_id}`} id={`${option_id_prefix}${val.option_id}`} style={style}>                        
                         {
                           is_add_another == 1 ?  
-                          <Add_more propsData={val2} />                                             
+                          <Add_more propsData={val2} addMoreIndex={addMoreIndexCount} />                                             
                           :
                           answer_type == 'radio' ?  
-                          <Radio propsData={val2} />  
+                          <Radio propsData={val2} addMoreIndex={addMoreIndexCount} />  
                           :    
                           answer_type == 'radio_group' ?  
                           <Radio_group propsData={val2} index={j} />  

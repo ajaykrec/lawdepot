@@ -24,6 +24,11 @@ class MembershipController extends Controller
     use AllFunction; 
 
     public function index(Request $request){  
+
+        $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
+        if(!$customer){
+            return redirect( route('customer.login') );
+        }
        
         $language_id = AllFunction::get_current_language();    
         $country     = AllFunction::get_current_country();         
@@ -338,7 +343,8 @@ class MembershipController extends Controller
             //=== update order table =====
             $tableData = [
                 'invoice_sufix'=>$invoice_sufix,
-                'invoice_number'=>$invoice,
+                'invoice_number'=>$invoice_number,
+                'stripe_invoice'=>$invoice,
                 'customer_id'=>$customer_id,
                 'transaction_id'=>$transaction_id,
                 'name'=>$customer['name'] ?? '',
@@ -405,6 +411,7 @@ class MembershipController extends Controller
             $tableData = [
                 'customer_id'=>$customer_id,
                 'membership_id'=>$membership_id,
+                'order_id'=>$order_id,
                 'start_date'=>date('Y-m-d'),  
                 'end_date'=>$end_date,
                 'document_id'=>0,

@@ -439,7 +439,6 @@ header .navbar [class*=col-] {
 .disabled{
      border : 3px solid #fff
 }
-
 /**** nprogress [start] *****/
 #nprogress {
     pointer-events: none;

@@ -20,7 +20,7 @@ import { fieldAction } from '../../actions/fields'
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
 
-const Label = ({propsData, addMoreIndex}) => { 
+const Label = ({propsData, parentIndex, addMoreIndex}) => { 
 
     const { file_storage_url, pageData } = usePage().props  
     
@@ -53,6 +53,7 @@ const Label = ({propsData, addMoreIndex}) => {
     const quick_info = propsData.quick_info  
     const description = propsData.description      
 
+    const parentIndexCount = (typeof parentIndex !== "undefined" && parentIndex !== '') ? parentIndex : ''    
     const addMoreIndexCount = (typeof addMoreIndex !== "undefined" && addMoreIndex !== '') ? addMoreIndex : ''
     const field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${addMoreIndexCount}` : propsData.field_name
     const radio_id_prefix = (addMoreIndexCount !=='') ? `o-${addMoreIndexCount}-` : 'o-'
@@ -77,16 +78,16 @@ const Label = ({propsData, addMoreIndex}) => {
                       <Checkbox propsData={val} addMoreIndex={addMoreIndexCount}  />  
                       :    
                       answer_type == 'dropdown' ?  
-                      <Dropdown propsData={val} addMoreIndex={addMoreIndexCount} />  
+                      <Dropdown propsData={val} parentIndex={parentIndexCount} addMoreIndex={addMoreIndexCount} />  
                       :                  
                       answer_type == 'text' ?  
-                      <Text propsData={val} addMoreIndex={addMoreIndexCount} />                                             
+                      <Text propsData={val} parentIndex={parentIndexCount} addMoreIndex={addMoreIndexCount} />                                             
                       :
                       answer_type == 'textarea' ?  
-                      <Textarea propsData={val} addMoreIndex={addMoreIndexCount} /> 
+                      <Textarea propsData={val} parentIndex={parentIndexCount} addMoreIndex={addMoreIndexCount} /> 
                       :  
                       answer_type == 'date' ?  
-                      <Date propsData={val} addMoreIndex={addMoreIndexCount} />  
+                      <Date propsData={val} parentIndex={parentIndexCount} addMoreIndex={addMoreIndexCount} />  
                       : 
                       ''                        
                     }  

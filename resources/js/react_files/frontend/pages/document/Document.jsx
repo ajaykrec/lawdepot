@@ -54,8 +54,7 @@ const Document = ({ pageData }) => {
   useEffect(() => {
     setData(fieldState)
   }, [fieldState]);
-
-  //console.log(data)
+  
    
   const handleChildInputChange = (arg) => {
     setData(arg);
@@ -78,12 +77,7 @@ const Document = ({ pageData }) => {
       
       let formData = new FormData() 
       formData.append('fields', JSON.stringify(data)); 
-      router.post(url,formData)  
-
-      // let formData   = new FormData(e.target) 
-      // let formObject = Object.fromEntries(formData.entries());  
-      // formData  = JSON.stringify(formObject)      
-      // router.post(url,{'fields':formData})  
+      router.post(url,formData)       
   }
  
   return (
@@ -168,18 +162,18 @@ const Document = ({ pageData }) => {
       </div>
     </section>  
 
-    {
+    {/*
         document.description &&
         <section className="section">
           <div className="container">
             <div className="row">
               <div className="col-12 pb-5">
-              {/* {parseWithLinks(''+document.description+'')}  */}
+              { parseWithLinks(''+document.description+'') } 
               </div>
             </div>
           </div>
         </section>
-    } 
+    */} 
     
     </>
   )
