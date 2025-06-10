@@ -97,7 +97,7 @@ const Text = ({propsData, parentIndex, addMoreIndex}) => {
                 description && 
                 <>
                 <div className="card">
-                    <div className="card-body" style={{lineHeight:"22px"}}>
+                    <div className="card-body" style={{lineHeight:"22px",background:"#eec"}}>
                     {parseWithLinks(''+description+'')}
                     </div>
                 </div>

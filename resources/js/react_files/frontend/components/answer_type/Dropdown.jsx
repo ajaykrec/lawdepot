@@ -5,7 +5,12 @@ import Parser, { domToReact } from 'html-react-parser';
 import anime from 'animejs/lib/anime.es.js';
 
 //=== answer_type ==
-
+import Add_more from './Add_more';
+import Radio from './Radio';
+import Radio_group from './Radio_group';
+import Text from './Text';
+import Textarea from './Textarea';
+import Date from './Date';
 //=====
 
 //=== Tooltip ==
@@ -124,10 +129,58 @@ const Dropdown = ({propsData, parentIndex, addMoreIndex}) => {
             } 
 
             { 
+                options.map((val,i)=>{     
+                    let questions = val.questions                
+                    let value = data[field_name] ?? ''
+                    let style = {  
+                        'display' : value == val.value   ? '' : 'none' 
+                    }    
+                    
+                    return questions.map((val2,j)=>{  
+                        const answer_type = val2.answer_type
+                        const is_add_another = val2.is_add_another
+                        return(                                         
+                        
+                            <div key={j} className={`my-3 oqall-${val.question_id}`} id={`oq-${val.option_id}`} style={style}>                        
+                            {
+                                is_add_another == 1 ?  
+                                <Add_more propsData={val2} addMoreIndex={addMoreIndexCount} />                                             
+                                :
+                                answer_type == 'radio' ?  
+                                <Radio  propsData={val2} addMoreIndex={addMoreIndexCount} />  
+                                :   
+                                answer_type == 'radio_group' ?  
+                                <Radio_group  propsData={val2} index={j} />  
+                                :  
+                                answer_type == 'checkbox' ?  
+                                <Checkbox  propsData={val2} />  
+                                :   
+                                answer_type == 'dropdown' ?  
+                                <Dropdown  propsData={val2} addMoreIndex={addMoreIndexCount} />  
+                                :                          
+                                answer_type == 'text' ?  
+                                <Text propsData={val2} addMoreIndex={addMoreIndexCount} />                                             
+                                :
+                                answer_type == 'textarea' ?  
+                                <Textarea  propsData={val2} addMoreIndex={addMoreIndexCount} /> 
+                                :  
+                                answer_type == 'date' ?  
+                                <Date  propsData={val2} />  
+                                : 
+                                ''                        
+                            }  
+                            </div>                    
+                        )
+                    }) 
+                    
+                })
+            } 
+
+            { 
                 description && 
                 <>
                 <div className="card">
-                    <div className="card-body" style={{lineHeight:"22px"}}>
+                    <div className="card-body" style={{lineHeight:"22px",background:"#eec"}}>
                     {parseWithLinks(''+description+'')}
                     </div>
                 </div>

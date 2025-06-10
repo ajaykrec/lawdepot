@@ -46,12 +46,17 @@ const Add_more = ({propsData, addMoreIndex}) => {
       //...fields
     }) 
     
+    const [count, setCount] = useState(1)   
+    
     useEffect(()=> {  
+      let sfc = ( typeof fields[selected_field_count] !== "undefined" ) ? fields[selected_field_count] : 1       
       setData({
         ...fields,
-        [selected_field_count]:fields[selected_field_count] ?? 1
-      })
-    },[fields])   
+        [selected_field_count]:sfc
+      }) 
+      setCount(sfc)
+      console.log('sfc:', sfc)     
+    },[fields,selected_field_count])   
 
     const parseWithLinks = (html) =>{
         const options = {     
@@ -62,15 +67,14 @@ const Add_more = ({propsData, addMoreIndex}) => {
             }
         }     
         return Parser(html, options);
-    }  
+    }     
     
-    const [count, setCount] = useState( fields[selected_field_count] ? parseInt(fields[selected_field_count]) : 1)   
     
     var listItems = [] 
     for (let i = 0; i < count; i++) {
       listItems.push(i)      
     }  
-     
+         
     return (
 
       <>      

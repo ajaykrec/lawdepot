@@ -129,7 +129,7 @@ class DocumentController extends Controller
         //     'document_id'=>$document_id,
         //     'session_fields'=>(Session::has('fields')) ? Session::get('fields') : '',
         // ]);   
-        // p($templateApiJsonData);   
+        //p($templateApiJsonData);   
 
         $pageData = compact('document','meta','header_banner','breadcrumb','steps','step_id','group','percent','questions','fields','previous_url','next_url','faqs','is_download'); 
         return Inertia::render('frontend/pages/document/Document', [            
@@ -249,61 +249,54 @@ class DocumentController extends Controller
         $templateApiJsonData = AllFunction::get_templateApiJsonData([
             'document_id'=>$document_id,
             'session_fields'=>$session_fields,
-        ]); 
-        $templateApiJsonData = $templateApiJsonData;  
-        $guest_document_count = AllFunction::guest_document_count($document_id); 
+        ]);         
 
-        $template = (Session::has('openai_document')) ? Session::get('openai_document') : '';        
-        $document['template'] = $template; 
-
-
-        $last_templateApiJsonData_question = (Session::has('last_templateApiJsonData_question')) ? Session::get('last_templateApiJsonData_question') : '';  
-        if( 
-            $last_templateApiJsonData_question !== $templateApiJsonData['question'] || 
-            $last_templateApiJsonData_question === $templateApiJsonData['question']){
-            
-            Session::put('last_templateApiJsonData_question', $templateApiJsonData['question']);           
-            //=== call OpenAI [start] ======         
-            if( $guest_document_count < 12 && $document['openai_system_content'] && $document['openai_user_content']){ 
-                
-                $messagesArr = [
-                    [
-                        'role'=>'system', 
-                        'content'=> $document['openai_system_content']
-                    ],
-                    [
-                        'role'=>'user', 
-                        'content' => $document['openai_user_content'] . "\n```json\n" . 
-                        json_encode($templateApiJsonData['question'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . 
-                        "\n```"
-                    ],
-                ];         
-            
-                $result = OpenAI::chat()->create([
-                    'model' => 'gpt-4-turbo',
-                    'messages' =>  $messagesArr,
-                ]);
-                
-                $openai_document = $result->choices[0]->message->content;       
-                $openai_document = AllFunction::convertMarkdownToHtml($openai_document); 
-                Session::put('openai_document', $openai_document);                        
-                AllFunction::save_document();  
-            }
-        }        
+        $guest_document_count = AllFunction::guest_document_count($document_id);         
+        //=== call OpenAI [start] ======         
+        if( $guest_document_count < 2 && $document['openai_system_content'] && $document['openai_user_content']){           
+            $messagesArr = [
+                [
+                    'role'=>'system', 
+                    'content'=> $document['openai_system_content']
+                ],
+                [
+                    'role'=>'user', 
+                    'content'=> $document['openai_user_content'] . json_encode($templateApiJsonData['question'])
+                ],
+            ];
+            $result = OpenAI::chat()->create([
+                'model' => 'gpt-4o',
+                'messages' =>  $messagesArr,
+            ]);
+            $openai_document = $result->choices[0]->message->content; 
+            $openai_document = AllFunction::text_to_html($openai_document);        
+            Session::put('openai_document', $openai_document);              
+            AllFunction::save_document();                     
+        }
         //=== call OpenAI [ends] ======   
-       
-        $template = (Session::has('openai_document')) ? Session::get('openai_document') : '';         
-        $document['template'] =AllFunction::convertMarkdownToHtml($template); 
-       
-        $active_membership = AllFunction::get_active_membership();  
+        $guest_document_count = AllFunction::guest_document_count($document_id);              
+        $template = (Session::has('openai_document')) ? Session::get('openai_document') : '';        
 
+        // $filter_question_value = AllFunction::filter_question_value([
+        //     'document_id'=>$document_id ?? '',            
+        // ]);  
+        // $template = $document['template'] ?? '';  
+        // $template = AllFunction::replace_template([
+        //     'template' => $template,
+        //     'question_value' => $filter_question_value,
+        // ]);  
+        $document['template'] = $template; 
+        
+        $active_membership = AllFunction::get_active_membership();  
+        
         $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent','active_membership','templateApiJsonData','is_download','guest_document_count'); 
         return Inertia::render('frontend/pages/document/Document_download', [            
             'pageData' => $pageData,            
         ]);
     }   
 
-    public function save_document(Request $request){ 
+    public function save_document(Request $request){  
+
         AllFunction::save_document();
         //==== remove session ====
         Session::forget('document_id'); 

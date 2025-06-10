@@ -35,8 +35,6 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-use Parsedown;
-//composer require erusev/parsedown
 
 
 trait AllFunction {  
@@ -1211,346 +1209,71 @@ trait AllFunction {
         }  
         return $template;
     }
-        
-    //==== Added by A. Roy [start] =====//
+    //===
     static function get_templateApiJsonData($data){         
         $document_id = $data['document_id'] ?? ''; 
         $session_fields = $data['session_fields'] ?? '';
         $session_fields = (array)json_decode($session_fields);
+        //p($session_fields);
         $document = Document::find($document_id)->toArray(); 
         $country_id = $document['country_id'] ?? '';
-        $country = Country::find($country_id)->toArray(); 
+        $country = Country::find($country_id)->toArray();         
 
-        $nested = AllFunction::buildNestedAnswers($session_fields);
-       
-        AllFunction::cleanNestedStructure($nested);
-        AllFunction::mapFieldKeysToLabels($nested);        
+        $return_session_question = [];
+        if($session_fields){                       
+            foreach($session_fields as $key=>$val){
+                $question_id = explode('_',$key);
+                $question_id = $question_id[0] ?? '';                
+                $question_id = str_replace('q','',$question_id);                
+                //$question = Documents_question::find($question_id)->toArray(); 
+                //$short_question = trim($question['short_question'] ? $question['short_question'] : $question['question']);
+                if($val){
+                    $return_session_question[$question_id][] = $val;            
+                }                
+            }
+        }
+        //p($return_session_question);
+
+        $questions = [];        
+        $q = DB::table('documents_question')->select('*')->where('document_id',$document_id); 
+        $q = $q->orderBy('question_id','asc')->get()->toArray(); 
+        $result = json_decode(json_encode($q), true);        
+        if($result){
+            foreach($result as $val){
+                $val['options'] = AllFunction::get_options([
+                    'question_id'=>$val['question_id'],  
+                ]);
+                $questions[$val['question_id']] = $val;
+            }
+        }  
+        $questions = array_values($questions);  
+        $return_array = [];
+        foreach($questions as $val){            
+            $question_id = $val['question_id'];
+            $questionText = trim(($val['short_question']) ? $val['short_question'] : $val['question']);
+            $questionValueArr = $return_session_question[$question_id] ?? [];
+            if($questionValueArr){               
+                if(count($questionValueArr) == 1){
+                    $return_array[$questionText] = $questionValueArr[0];
+                }
+                else{
+                    $return_array[$questionText] = $questionValueArr;
+                }                
+            } 
+        }
+
+        p($return_array);
+
+
 
         $return_array = [
             'document_name'=>$document['name'] ?? '',
             'country'=>$country['name'] ?? '',
-            'question'=>$nested ?? '',
+            'question'=>$return_question ?? '',
         ];
-        return $return_array; 
-    }      
-    public static function cleanNestedStructure(array &$array): void {
-        foreach ($array as $key => &$value) {
-            if (is_array($value)) {
-                // Recursively clean children                
-                AllFunction::cleanNestedStructure($value);
+        return $return_array;        
 
-                // Remove this item if it's an empty array after cleanup
-                if(empty($value)){
-                    unset($array[$key]);
-                }
-
-                // Optional: flatten one-keyed arrays like [q90 => [q90 => "X"]]
-                elseif (count($value) === 1 && isset($value[$key]) && is_scalar($value[$key])) {
-                    $value = $value[$key];
-                }
-            }
-        }
-    }
-	
-	public static function build_nested_answers(array $fields): array{
-        // Load all questions and options in memory
-        $questions = \DB::table('documents_question')->get()->keyBy('field_name');
-        $options = \DB::table('documents_question_option')->get()->groupBy('question_id');
-
-        $result = [];
-
-        foreach ($fields as $key => $value) {
-            // Skip count fields for now
-            if (str_ends_with($key, '_count')) continue;
-
-            // Match keys like q93, q93_1, q2296_1_1, etc.
-            preg_match('/^(q\d+)(?:_(\d+))?(?:_(\d+))?$/', $key, $matches);
-            $base_field = $matches[1] ?? null;
-            $first = $matches[2] ?? null;
-            $second = $matches[3] ?? null;
-
-            if (!isset($questions[$base_field])) continue;
-
-            if ($first !== null && $second !== null) {
-                $result[$base_field][$first][$second][$base_field] = $value;
-            } elseif ($first !== null) {
-                $result[$base_field][$first][$base_field] = $value;
-            } else {
-                $result[$base_field] = $value;
-            }
-        }
-
-        // Recursively organize nested children
-        foreach ($questions as $q) {
-            $q = (array) $q;
-            $field_name = $q['field_name'];
-            if (!isset($result[$field_name])) continue;
-
-            $has_children = isset($q['id']) && isset($options[$q['id']]);
-
-            if (!$has_children) continue;
-
-            if ($q['is_add_another']) {
-                foreach ($result[$field_name] as $idx => &$entry) {
-                    $entry = array_merge($entry, self::inject_child_fields($q['id'], $idx, $fields));
-                }
-            } else {
-                $nested = self::inject_child_fields($q['id'], null, $fields);
-                $result[$field_name] = array_merge(
-                    is_array($result[$field_name]) ? $result[$field_name] : [$field_name => $result[$field_name]],
-                    $nested
-                );
-            }
-        }
-        return $result;
-    }
-
-    private static function inject_child_fields(int $parent_question_id, $repeat_index, array $fields): array{
-        $output = [];
-        $options = \DB::table('documents_question_option')->where('question_id', $parent_question_id)->pluck('id');
-        $child_questions = \DB::table('documents_question')
-            ->whereIn('parent_option_id', $options)
-            ->get();
-
-        foreach ($child_questions as $child) {
-            $field = $child->field_name;
-            $is_repeat = $child->is_add_another;
-
-            if($is_repeat){
-                $count_key = $field . '_count';
-                $count = $fields[$count_key] ?? 0;
-
-                for ($i = 1; $i <= $count; $i++) {
-                    $child_data = [];
-                    foreach ($fields as $fkey => $fval) {
-                        if (preg_match("/^" . preg_quote($field) . "_{$repeat_index}_{$i}$/", $fkey)) {
-                            $child_data[$field] = $fval;
-                        }
-                    }
-                    if (!empty($child_data)) {
-                        $output[$field][] = $child_data;
-                    }
-                }
-            } else {
-                $key = $repeat_index !== null ? "{$field}_{$repeat_index}" : $field;
-                if (isset($fields[$key])) {
-                    $nested = self::inject_child_fields($child->id, $repeat_index, $fields);
-                    $output[$field] = array_merge([$field => $fields[$key]], $nested);
-                }
-            }
-        }
-        return $output;
-    }
-
-    public static function convertFieldsToNestedArray($fields){
-        $result = [];
-
-        foreach ($fields as $key => $value) {
-            // Skip count keys
-            if (str_ends_with($key, '_count')) {
-                continue;
-            }
-
-            // Split the key by underscore
-            $parts = explode('_', $key);
-            $base = array_shift($parts); // e.g., q87
-
-            // No nesting needed
-            if (empty($parts)) {
-                if ($value !== '') {
-                    $result[$base] = $value;
-                }
-                continue;
-            }
-
-            // Assign to nested structure
-            $ref = &$result[$base];
-            foreach ($parts as $part) {
-                if (!isset($ref[$part])) {
-                    $ref[$part] = [];
-                }
-                $ref = &$ref[$part];
-            }
-
-            // Set the value at the deepest level
-            $ref[$base] = $value;
-        }
-
-        return $result;
-    }
-
-    public static function buildNestedAnswers(array $flatFields): array{
-        $structured = [];
-        $parentMap = self::buildFieldParentMap();
-
-        foreach ($flatFields as $fullKey => $value) {
-            if (str_ends_with($fullKey, '_count')) continue;
-            if ($value === '' || $value === null) continue;
-
-            preg_match('/^(q\d+)(?:_(\d+))?(?:_(\d+))?$/', $fullKey, $matches);
-            $baseField = $matches[1] ?? null;
-            $index1 = $matches[2] ?? null;
-            $index2 = $matches[3] ?? null;
-
-            if (!$baseField) continue;
-
-            // Walk up the parent chain
-            $path = [$baseField];
-            while (isset($parentMap[end($path)])) {
-                $path[] = $parentMap[end($path)];
-            }
-            $path = array_reverse($path); // root to leaf
-
-            // Insert into nested array
-            $ref = &$structured;
-            foreach ($path as $depth => $field) {
-                if ($depth === 0) {
-                    if ($index1 !== null) {
-                        if (!isset($ref[$field][$index1])) $ref[$field][$index1] = [];
-                        $ref = &$ref[$field][$index1];
-                    } else {
-                        if (!isset($ref[$field])) $ref[$field] = [];
-                        $ref = &$ref[$field];
-                    }
-                } elseif ($depth === 1 && $index2 !== null) {
-                    if (!isset($ref[$field][$index2])) $ref[$field][$index2] = [];
-                    $ref = &$ref[$field][$index2];
-                } else {
-                    if (!isset($ref[$field])) $ref[$field] = [];
-                    $ref = &$ref[$field];
-                }
-            }
-
-            // Finally set value directly under the last field, not as $ref[$baseField][$baseField]
-            if (!isset($ref[$baseField])) {
-                $ref[$baseField] = $value;
-            }
-        }
-        return $structured;
-    }
-
-    public static function buildFieldParentMap(): array{
-        $parentMap = [];
-        // Load all questions
-        $questions = Documents_question::all()->keyBy('question_id');
-        $fieldToQuestion = Documents_question::all()->keyBy('field_name');
-        $optionToQuestion = Documents_question_option::pluck('question_id', 'option_id');
-
-        foreach ($questions as $q) {
-            $field = $q->field_name;
-            $optionId = $q->option_id;
-
-            // Follow option to parent question
-            if ($optionId && isset($optionToQuestion[$optionId])) {
-                $parentQId = $optionToQuestion[$optionId];
-                if (isset($questions[$parentQId])) {
-                    $parentMap[$field] = $questions[$parentQId]->field_name;
-                }
-            }
-        }
-        return $parentMap;
-    }
-
-    public static function mapFieldKeysToLabels(array &$array): void{
-        // Step 1: Build the map of field_name => label
-        $labelMap = Documents_question::all()->mapWithKeys(function ($q) {
-            return [$q->field_name => $q->short_question ?: $q->question];
-        })->toArray();
-
-        // Step 2: Recursive helper
-        $renameKeys = function (&$arr) use (&$renameKeys, $labelMap) {
-            foreach ($arr as $key => &$value) {
-                if (is_array($value)) {
-                    $renameKeys($value);
-                }
-
-                $newKey = $labelMap[$key] ?? $key;
-                if ($newKey !== $key) {
-                    $arr[$newKey] = $value;
-                    unset($arr[$key]);
-                }
-            }
-        };
-        // Step 3: Apply to the top-level array
-        $renameKeys($array);
-    }
-
-    static function convertMarkdownToHtml(string $markdown): string{
-        $parsedown = new Parsedown();
-        $htmlContent = $parsedown->text($markdown);
-        // Wrap the HTML in a styled container div
-        return '
-        <div class="markdown-preview">
-            ' . $htmlContent . '
-        </div>';
-    }
-
-    static function removeEmptyFields(array $data): array{
-        return array_filter($data, function($value) {
-            return trim($value) !== '';
-        });
-    }
-
-    static function blurRandomElements_old(string $content, int $count = 3): string{
-        // Match <p> and <h1> to <h6> tags
-        preg_match_all('/<(p|h[1-6])\b[^>]*>(.*?)<\/\1>/is', $content, $matches);
-
-        $elements = $matches[0];
-        $total = count($elements);
-
-        if ($total === 0 || $count <= 0) {
-            return $content;
-        }
-
-        // Pick random unique indices to blur
-        $keysToBlur = array_rand($elements, min($count, $total));
-        if (!is_array($keysToBlur)) {
-            $keysToBlur = [$keysToBlur];
-        }
-
-        foreach ($keysToBlur as $key) {
-            $original = $elements[$key];
-            $tag = $matches[1][$key]; // 'p' or 'h1'... 'h6'
-            $innerContent = $matches[2][$key];
-
-            $blurred = "<$tag><span class=\"docblurred\">" . strip_tags($innerContent, '<strong><em><a>') . "</span></$tag>";
-            $content = str_replace($original, $blurred, $content);
-        }
-        return $content;
-    }
-
-    static function blurRandomElements(string $content, int $count = 3): string{
-        // Match all paragraphs and heading tags (h1–h6)
-        preg_match_all('/<(p|h[1-6])\b[^>]*>(.*?)<\/\1>/is', $content, $matches);
-
-        $elements = $matches[0];
-        $total = count($elements);
-
-        // Determine exclusion count (first 2 + last 2)
-        $excludeCount = 2;
-        if ($total <= $excludeCount * 2) {
-            return $content; // Not enough elements to blur
-        }
-
-        // Collect index range that is eligible for blurring
-        $eligibleKeys = range($excludeCount, $total - $excludeCount - 1);
-
-        // Shuffle and pick N keys to blur
-        shuffle($eligibleKeys);
-        $keysToBlur = array_slice($eligibleKeys, 0, min($count, count($eligibleKeys)));
-
-        // Build replacements
-        foreach ($keysToBlur as $key) {
-            $original = $elements[$key];
-            $tag = $matches[1][$key];
-            $innerContent = $matches[2][$key];
-
-            $blurred = "<$tag><span class=\"docblurred\">" . strip_tags($innerContent, '<strong><em><a>') . "</span></$tag>";
-            $content = str_replace($original, $blurred, $content);
-        }
-        return $content;
-    }
-    //==== Added by A. Roy [ends] =====//
+    }    
 
     static function percentage_of_answer($document_id, $session_fields){   
         $total_question = DB::table('documents_question')->where('document_id',$document_id)->where('option_id','0')->count(); 
