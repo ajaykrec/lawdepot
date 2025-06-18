@@ -115,18 +115,18 @@ class CustomerDocumentController extends Controller
             'keywords'=>'',
             'description'=>'',
         ];   
-
-        $document = Customers_document::find($cus_document_id)->with(['document'])->get()->toArray();         
-        $document = $document[0] ?? [];
-
+        
+        $document = Customers_document::where('cus_document_id',$cus_document_id)->with(['document'])->first()->toArray();  
         $customer_id = $document['customer_id'] ?? '';
-        $filter_values = $document['filter_values'] ?? '';
-        $template = $document['document']['template'] ?? '';
-        $template = AllFunction::replace_template([
-            'template' => $template,
-            'question_value' => (array)json_decode($filter_values),
-        ]); 
-        $document['document']['template'] = $template;        
+
+        // $filter_values = $document['filter_values'] ?? '';
+        // $template = $document['document']['template'] ?? '';
+        // $template = AllFunction::replace_template([
+        //     'template' => $template,
+        //     'question_value' => (array)json_decode($filter_values),
+        // ]); 
+        // $document['document']['template'] = $template;    
+        $document['document']['template'] = $document['openai_document'] ?? '';    
 
         $data = compact('meta','document','customer_id','cus_document_id');        
         return view('admin.customers_document.show')->with($data);

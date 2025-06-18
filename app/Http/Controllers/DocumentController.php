@@ -10,6 +10,9 @@ use App\Models\Documents_step;
 use App\Models\Documents_question;
 use App\Models\Documents_question_option;
 use App\Models\Customers_document;
+use App\Models\Customers_membership;
+
+
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia; 
 
@@ -22,7 +25,7 @@ class DocumentController extends Controller
 {
     use AllFunction; 
 
-    public function index($slug, Request $request){  
+    public function index($slug, Request $request){ 
         
         //Session::forget('document_id');  
         //Session::forget('fields');  
@@ -130,6 +133,7 @@ class DocumentController extends Controller
         //     'session_fields'=>(Session::has('fields')) ? Session::get('fields') : '',
         // ]);   
         // p($templateApiJsonData);   
+        //p($session_fields);   
 
         $pageData = compact('document','meta','header_banner','breadcrumb','steps','step_id','group','percent','questions','fields','previous_url','next_url','faqs','is_download'); 
         return Inertia::render('frontend/pages/document/Document', [            
@@ -204,6 +208,9 @@ class DocumentController extends Controller
         }        
     }
     public function download($slug, Request $request){  
+
+        $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
+        $customer_id = $customer['customer_id'] ?? '';
        
         $country = AllFunction::get_current_country();         
         $country_id = $country['country_id'] ?? '';
@@ -235,13 +242,15 @@ class DocumentController extends Controller
         ];
 
         $session_fields = (Session::has('fields')) ? Session::get('fields') : '';         
-        $is_download = AllFunction::percentage_of_answer( $document_id, $session_fields ); 
-        
+        $is_download = AllFunction::percentage_of_answer( $document_id, $session_fields );         
         //=== check download permision ===
         if(!$is_download){
             return redirect( route('doc.index',$slug) );
         }
         //=====
+
+        $active_membership = AllFunction::get_active_membership();  
+
         $steps = DB::table('documents_step')->select('*')->where('document_id',$document_id)->where('status',1)->orderBy('sort_order','asc')->get()->toArray(); 
         $steps = json_decode(json_encode($steps), true);        
         $percent = 100;
@@ -251,20 +260,15 @@ class DocumentController extends Controller
             'session_fields'=>$session_fields,
         ]); 
         $templateApiJsonData = $templateApiJsonData;  
-        $guest_document_count = AllFunction::guest_document_count($document_id); 
-
-        $template = (Session::has('openai_document')) ? Session::get('openai_document') : '';        
-        $document['template'] = $template; 
-
+        //p($templateApiJsonData);
+        $guest_document_count = AllFunction::guest_document_count($document_id);        
 
         $last_templateApiJsonData_question = (Session::has('last_templateApiJsonData_question')) ? Session::get('last_templateApiJsonData_question') : '';  
-        if( 
-            $last_templateApiJsonData_question !== $templateApiJsonData['question'] || 
-            $last_templateApiJsonData_question === $templateApiJsonData['question']){
+        if( $last_templateApiJsonData_question !== $templateApiJsonData['question'] ){
             
             Session::put('last_templateApiJsonData_question', $templateApiJsonData['question']);           
             //=== call OpenAI [start] ======         
-            if( $guest_document_count < 12 && $document['openai_system_content'] && $document['openai_user_content']){ 
+            if( $guest_document_count < 2 && $document['openai_system_content'] && $document['openai_user_content']){ 
                 
                 $messagesArr = [
                     [
@@ -286,16 +290,17 @@ class DocumentController extends Controller
                 
                 $openai_document = $result->choices[0]->message->content;       
                 $openai_document = AllFunction::convertMarkdownToHtml($openai_document); 
-                Session::put('openai_document', $openai_document);                        
-                AllFunction::save_document();  
+                Session::put('openai_document', $openai_document);  
+                
+                if(!$customer_id){
+                    AllFunction::save_document();  
+                }
+                
             }
         }        
-        //=== call OpenAI [ends] ======   
-       
+        //=== call OpenAI [ends] ======          
         $template = (Session::has('openai_document')) ? Session::get('openai_document') : '';         
-        $document['template'] =AllFunction::convertMarkdownToHtml($template); 
-       
-        $active_membership = AllFunction::get_active_membership();  
+        $document['template'] = $template;        
 
         $pageData = compact('document','meta','header_banner','breadcrumb','steps','percent','active_membership','templateApiJsonData','is_download','guest_document_count'); 
         return Inertia::render('frontend/pages/document/Document_download', [            

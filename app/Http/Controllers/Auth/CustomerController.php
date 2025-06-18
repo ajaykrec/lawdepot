@@ -50,12 +50,27 @@ class CustomerController extends Controller
             ['name'=>$page['name'], 'url'=>''],
         ];
 
-        //==== set return_url
-        $return_url = $request['return_url'] ?? '';            
+        //==== set return_url ====
+        $document_id = (Session::has('document_id')) ? Session::get('document_id') : 0;
+        $document = DB::table('documents')->select('slug')->where('document_id',$document_id)->first(); 
+        $document = json_decode(json_encode($document), true); 
+        $slug = $document['slug'] ?? '';  
+
+        $session_fields = (Session::has('fields')) ? Session::get('fields') : '';         
+        $is_download = AllFunction::percentage_of_answer( $document_id, $session_fields );         
+        
+        $return_url = '';
+        if($request['return_url']){
+            $return_url = $request['return_url'];
+        }
+        elseif($document_id && $is_download){
+            $return_url = route('doc.download', $slug);
+        }        
+        
         if($return_url){
             Session::put('return_url', $return_url);        
         } 
-        //====       
+        //====   
         
         $pageData = compact('page','meta','header_banner','breadcrumb'); 
         return Inertia::render('frontend/Auth/Register', [            
@@ -156,14 +171,29 @@ class CustomerController extends Controller
         $email    = Cookie::get('customer_email') ?? '';
         $password = Cookie::get('customer_password') ?? '';
         $remember = ( $email && $password ) ? true : false ;
-        //===     
+        //===   
+       
+        //==== set return_url ====
+        $document_id = (Session::has('document_id')) ? Session::get('document_id') : 0;
+        $document = DB::table('documents')->select('slug')->where('document_id',$document_id)->first(); 
+        $document = json_decode(json_encode($document), true); 
+        $slug = $document['slug'] ?? '';  
+
+        $session_fields = (Session::has('fields')) ? Session::get('fields') : '';         
+        $is_download = AllFunction::percentage_of_answer( $document_id, $session_fields );         
         
-        //==== set return_url
-        $return_url = $request['return_url'] ?? '';  
+        $return_url = '';
+        if($request['return_url']){
+            $return_url = $request['return_url'];
+        }
+        elseif($document_id && $is_download){
+            $return_url = route('doc.download', $slug);
+        }        
+        
         if($return_url){
             Session::put('return_url', $return_url);        
         } 
-        //====       
+        //====   
 
         $pageData = compact( 'page', 'meta', 'header_banner', 'breadcrumb', 'email', 'password', 'remember' );    
 

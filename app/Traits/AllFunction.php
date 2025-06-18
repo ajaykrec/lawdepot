@@ -25,6 +25,8 @@ use App\Models\Documents_question;
 use App\Models\Customers_document;
 use App\Models\Documents_question_option;
 use App\Models\Orders;
+use App\Models\Customers_membership;
+
 
 //==== Mail ====
 use Illuminate\Support\Facades\Mail;
@@ -480,18 +482,32 @@ trait AllFunction {
     static function get_active_membership(){  
 
         $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
-        $customer_id = $customer['customer_id'] ?? '';
+        $customer_id = $customer['customer_id'] ?? '';        
         
-        $q = DB::table('customers_membership'); 
-        $q = $q->where('customer_id',$customer_id);   
-        $q = $q->where('status',1); 
-        $q = $q->where('end_date','>=',date('Y-m-d')); 
-        $q = $q->orderBy('cus_membership_id','desc'); 
-        $q = $q->first(); 
-        $data = json_decode(json_encode($q), true); 
-        
+        $data = Customers_membership::query()
+        ->where('customer_id',$customer_id)  
+        ->where('status',1)    
+        ->where('end_date','>=',date('Y-m-d'))      
+        ->with(['membership'])     
+        ->orderBy('cus_membership_id','desc')   
+        ->get()->toArray(); 
+        $data = $data[0] ?? [];
+
         if($data){
-            return true;
+            $membership = $data['membership'] ?? [];
+            if( $membership['is_per_document'] == 1 ){
+                $count = DB::table('customers_document')
+                ->where('customer_id',$customer_id) 
+                ->where('created_at','>=',$data['start_date'])        
+                ->count();  
+                
+                return ($count > 0) ? false : true;
+                
+            }
+            else{
+                return true;
+            }
+            
         }
         else{
             return false;
@@ -1576,7 +1592,7 @@ trait AllFunction {
     }
 
     static function guest_document_count($document_id){   
-        $date_before = date('Y-m-d H:i:s',strtotime('-6 hour')); // 2025-05-05 08:18:46 
+        $date_before = date('Y-m-d H:i:s',strtotime('-6 hour')); // 2025-05-05 11:00:00 , 2025-05-05 05:00:00 , 2025-05-05 11:30:00
         
         $count = DB::table('customers_document')
         ->where('document_id',$document_id) 

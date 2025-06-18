@@ -129,16 +129,16 @@ class MyDocumentController extends Controller
             ['name'=>'View Document', 'url'=>''],
         ];
 
-        $document = Customers_document::find($cus_document_id)->with(['document'])->get()->toArray();         
-        $document = $document[0] ?? [];
+        $document = Customers_document::where('cus_document_id',$cus_document_id)->with(['document'])->first()->toArray();   
+        // $filter_values = $document['filter_values'] ?? '';
+        // $template = $document['document']['template'] ?? '';
+        // $template = AllFunction::replace_template([
+        //     'template' => $template,
+        //     'question_value' => (array)json_decode($filter_values),
+        // ]); 
+        // $document['document']['template'] = $template;
 
-        $filter_values = $document['filter_values'] ?? '';
-        $template = $document['document']['template'] ?? '';
-        $template = AllFunction::replace_template([
-            'template' => $template,
-            'question_value' => (array)json_decode($filter_values),
-        ]); 
-        $document['document']['template'] = $template;
+        $document['document']['template'] = $document['openai_document'] ?? '';
 
         $pageData = compact('page','meta','header_banner','breadcrumb','document'); 
         return Inertia::render('frontend/pages/my_documents/View_document', [            
@@ -175,16 +175,16 @@ class MyDocumentController extends Controller
             ['name'=>'Edit Document', 'url'=>''],
         ];
 
-        $document = Customers_document::find($cus_document_id)->with(['document'])->get()->toArray();         
-        $document = $document[0] ?? [];
-
-        $filter_values = $document['filter_values'] ?? '';
-        $template = $document['document']['template'] ?? '';
-        $template = AllFunction::replace_template([
-            'template' => $template,
-            'question_value' => (array)json_decode($filter_values),
-        ]); 
-        $document['document']['template'] = $template;
+          
+        $document = Customers_document::where('cus_document_id',$cus_document_id)->with(['document'])->first()->toArray();   
+        // $filter_values = $document['filter_values'] ?? '';
+        // $template = $document['document']['template'] ?? '';
+        // $template = AllFunction::replace_template([
+        //     'template' => $template,
+        //     'question_value' => (array)json_decode($filter_values),
+        // ]); 
+        // $document['document']['template'] = $template;
+        $document['document']['template'] = $document['openai_document'] ?? '';
 
         $pageData = compact('page','meta','header_banner','breadcrumb','document'); 
         return Inertia::render('frontend/pages/my_documents/Edit_document', [            

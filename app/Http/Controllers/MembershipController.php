@@ -201,20 +201,10 @@ class MembershipController extends Controller
         
         $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
         $customer_id = $customer['customer_id'] ?? '';  
-
-        $order_id = Session::has('order_id') ? Session::get('order_id') : '123456'; 
-        if(!$order_id){
-            // $table = new Orders;                  
-            // $table->identity   = $request['identity'];                          
-            // $table->status     = $request['status'];
-            // $table->save();
-            // $order_id = $table->order_id;  
-            // Session::put('order_id', $order_id);  
-        }      
-        
+       
         $stripe_publishable_key = env('STRIPE_Publishable_key');
 
-        $pageData = compact('page','meta','header_banner','breadcrumb','membership','all_membership','order_id','stripe_publishable_key'); 
+        $pageData = compact('page','meta','header_banner','breadcrumb','membership','all_membership','stripe_publishable_key'); 
         
         return Inertia::render('frontend/pages/checkout/Checkout', [            
             'pageData' => $pageData,            
@@ -246,28 +236,16 @@ class MembershipController extends Controller
         $breadcrumb = [
             ['name'=>'Home', 'url'=>route('home')],            
             ['name'=>$page['name'], 'url'=>''],
-        ];        
-
-        //=== document ===
-        $document_id = (Session::has('document_id')) ? Session::get('document_id') : '';
-        $document = [];
-        if($document_id){
-            $document = Document::find($document_id);         
-            if($document){
-                $document = $document->toArray();  
-            }       
-            
-            $filter_question_value = AllFunction::filter_question_value([
-                'document_id'=>$document_id ?? '',            
-            ]);  
-            $template = $document['template'] ?? '';  
-            $template = AllFunction::replace_template([
-                'template' => $template,
-                'question_value' => $filter_question_value,
-            ]);  
-            $document['template'] = $template;         
-        }        
-        //======
+        ]; 
+       
+        $document_id = (Session::has('document_id')) ? Session::get('document_id') : ''; 
+        if(!$document_id){
+            return redirect( route('home',$slug) );
+        }
+        //=====
+        $document    = Document::find($document_id)->toArray();      
+        $template    = (Session::has('openai_document')) ? Session::get('openai_document') : '';         
+        $document['template'] = $template;        
 
         $pageData = compact('page','meta','header_banner','breadcrumb','document_id','document'); 
         return Inertia::render('frontend/pages/checkout/Checkout_success', [            
@@ -315,7 +293,6 @@ class MembershipController extends Controller
             // $table->user_type  = 'callback';            
             // $table->modules    = $checkout_session;   
             // $table->save();  
-
             MembershipController::save_order_data($checkout_session);
         }
     }
@@ -340,7 +317,7 @@ class MembershipController extends Controller
             $trial_period_days = $membership['trial_period_days'] ?? 0;       
             $membership['specification'] = (array)json_decode($membership['specification']);        
             
-            //=== update order table =====
+            //=== insert order table =====
             $tableData = [
                 'invoice_sufix'=>$invoice_sufix,
                 'invoice_number'=>$invoice_number,
@@ -447,11 +424,7 @@ class MembershipController extends Controller
                 'subject'=>$subject,
                 'content'=>$body,
             ]);           
-            //=== mail to user [ends] ===    
-            
-            //==== remove session ====
-            Session::forget('membership_id'); 
-            //=====  
+            //=== mail to user [ends] ===              
         }            
     }  
     

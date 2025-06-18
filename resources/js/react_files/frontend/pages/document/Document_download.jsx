@@ -18,7 +18,8 @@ const Document_download = () => {
   const steps = pageData.steps
   const percent = pageData.percent
   const templateApiJsonData = pageData.templateApiJsonData  
-  const guest_document_count = pageData.guest_document_count    
+  const guest_document_count = pageData.guest_document_count 
+  const active_membership = pageData.active_membership       
 
   useEffect( ()=>{  
     
@@ -48,26 +49,25 @@ const Document_download = () => {
       <div className="container h-100">  
           <div className="row text-center"> 
             <div className="col-12">  
-
               {
-                pageData.active_membership &&
+                active_membership ?
                 <>                
                 <Link href={ route('save.document') } className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded">Save Document</Link> 
-                </>                
-              }      
-
-              {               
+                </>    
+                :    
                 guest_document_count >= 2  ?
                 <>                
-                <h6>{ parseWithLinks(`You have reached your <b>maximum limit</b>, to download and print ${document.name}, you must select a free or premium membership.`)}</h6> 
-                <Link href={ route('membership.index')} className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded">Select Membership</Link> 
+                <h6>
+                {parseWithLinks(`You have reached your <b>maximum limit</b>, to download and print ${document.name}, you must select a free or premium membership.`)}
+                </h6> 
+                <Link href={ route('membership.index') } className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded">Select Membership</Link> 
                 </>
                 :
                 <>
                 <h6>{`To download and print your ${document.name}, you must select a free or premium membership.`}</h6> 
                 <Link href={ route('membership.index')} className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded">Select Membership</Link> 
-                </>
-              }                          
+                </>        
+              }                                
             </div>
           </div>
       </div>

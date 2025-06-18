@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('question')->nullable();
             $table->text('quick_info')->nullable();  
             $table->text('description')->nullable();                  
-            $table->string('placeholder',255)->nullable();    
+            $table->text('placeholder')->nullable();    
             $table->string('answer_type',50)->nullable()->comment('text, textarea, dropdown, radio, checkbox, date, image, file');   
             $table->tinyInteger('display_type')->comment('0:vertical, 1:horizontal');   
             $table->string('field_name',150)->nullable();   
