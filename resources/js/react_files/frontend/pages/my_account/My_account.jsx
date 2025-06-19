@@ -9,6 +9,8 @@ import MyAccountNavBar from '../../components/navbar/MyAccountNavBar';
 const My_account = () => {
 
   const { file_storage_url, customer, pageData, common_data } = usePage().props
+
+  const active_membership = pageData.active_membership
   
   const parseWithLinks = (html) =>{
       const options = {     
@@ -19,9 +21,7 @@ const My_account = () => {
           }
       }     
       return Parser(html, options);
-  }  
-  
-  console.log(customer) // 
+  } 
 
   return (
     <>
@@ -65,7 +65,7 @@ const My_account = () => {
               </li>
             </ul>
             {
-              !pageData.active_membership &&
+              active_membership === false &&
               <p>You do not have any subscriptions <Link href={ route('membership.index') } style={{color:"rgb(19 111 254)"}}><b>purchage</b></Link> a subscription</p>
             }
             </div>            

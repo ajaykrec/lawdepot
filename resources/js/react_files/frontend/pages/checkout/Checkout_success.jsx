@@ -8,10 +8,20 @@ import Header_banner from '../../components/banner/Header_banner';
 import Breadcrumb from '../../components/breadcrumb/Breadcrumb';
 import allFunction from '../../helper/allFunction';
 
+//=== react-to-pdf ===
+import generatePDF, { Resolution, Margin } from 'react-to-pdf';
+//====
+
 const Checkout_success = () => {
 
   const { file_storage_url, common_data, customer, pageData } = usePage().props  
-  const document = pageData.document
+  const document_id = pageData.document_id
+  const document = pageData.document 
+  const template = document.template ?? ''  
+
+  const filename = (document.file_name) ? document.file_name + '.pdf' : ''
+  const targetRef = useRef();
+  const pdf_options = allFunction.reactPdfOtions(filename)
   
   useEffect(()=> {  
             
@@ -49,21 +59,30 @@ const Checkout_success = () => {
     </section>   
 
     {
-      pageData.document_id &&
+      document_id &&
       <section className="pt-0 pb-5">
         <div className="container">  
             <div className="row"> 
               <div className="col-lg-12 col-md-12 col-12 text-center"> 
 
                 <div className='p-2'>
-                <Link href={ route('save.document') } className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded">Save Document</Link> 
+                <button className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded"
+                onClick={() =>{
+                    generatePDF(targetRef, pdf_options)
+                    const timeoutId = setTimeout(() => {
+                      location.href = route('save.document')
+                    }, 3000);
+                    return () => clearTimeout(timeoutId);
+
+                }} 
+                >Save and Download</button> 
                 </div>
 
                 <div className="contractPreview">
                   <div className="contract" style={{userSelect:"none"}}>
                       <div className="outputVersion1">
-                        <div style={{background:"url(/frontend-assets/images/draft_bg.png) repeat-y center top/contain #fff"}}> 
-                        { parseWithLinks(''+document.template+'') }      
+                        <div id='pdf-id' ref={targetRef}> 
+                        { parseWithLinks(''+template+'') }      
                         </div>
                       </div>
                   </div>   

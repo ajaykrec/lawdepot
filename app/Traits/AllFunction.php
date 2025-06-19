@@ -489,7 +489,7 @@ trait AllFunction {
         ->where('status',1)    
         ->where('end_date','>=',date('Y-m-d'))      
         ->with(['membership'])     
-        ->orderBy('cus_membership_id','desc')   
+        ->orderBy('membership_id','asc')   
         ->get()->toArray(); 
         $data = $data[0] ?? [];
 

@@ -1,5 +1,5 @@
 import Layout from './../../layouts/GuestLayout'
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {Head, useForm, usePage,  Link } from '@inertiajs/react'
 import Parser, { domToReact } from 'html-react-parser';
 import allFunction from '../../helper/allFunction';
@@ -8,9 +8,9 @@ import Header_banner from '../../components/banner/Header_banner';
 import Breadcrumb from '../../components/breadcrumb/Breadcrumb';
 import MyAccountNavBar from '../../components/navbar/MyAccountNavBar';
 import $ from "jquery"
+
 //=== react-to-pdf ===
 import generatePDF, { Resolution, Margin } from 'react-to-pdf';
-import { useRef } from 'react';
 //====
 
 const View_document = () => {
@@ -19,41 +19,7 @@ const View_document = () => {
   const document = pageData.document ?? []  
   const filename = document.file_name + '.pdf'
   const targetRef = useRef();
-  const options = {
-    filename: filename,
-    method: "save",
-    // default is Resolution.MEDIUM = 3, which should be enough, higher values
-    // increases the image quality but also the size of the PDF, so be careful
-    // using values higher than 10 when having multiple pages generated, it
-    // might cause the page to crash or hang.
-    resolution: Resolution.MEDIUM,
-    page: {
-      // margin is in MM, default is Margin.NONE = 0
-      margin: 10,
-      // default is 'A4'
-      format: "letter",
-      // default is 'portrait'
-      orientation: "portrait"
-    },
-    canvas: {
-      // default is 'image/jpeg' for better size performance
-      mimeType: "image/jpeg",
-      qualityRatio: 1
-    },
-    // Customize any value passed to the jsPDF instance and html2canvas
-    // function. You probably will not need this and things can break,
-    // so use with caution.
-    overrides: {
-      // see https://artskydj.github.io/jsPDF/docs/jsPDF.html for more options
-      pdf: {
-        compress: true
-      },
-      // see https://html2canvas.hertzen.com/configuration for more options
-      canvas: {
-        useCORS: true
-      }
-    }
-  };
+  const pdf_options = allFunction.reactPdfOtions(filename)
   
   const parseWithLinks = (html) =>{
       const options = {     
@@ -84,7 +50,9 @@ const View_document = () => {
             
               <div className='p-2 text-center'>
               <button type='button' className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded"
-              onClick={() => generatePDF(targetRef, options)}              
+                onClick={() =>{
+                    generatePDF(targetRef, pdf_options)
+                }}              
               >
               <i className="fa-solid fa-file-arrow-down" style={{fontSize:"18px"}}></i> Download                
               </button> 
@@ -93,7 +61,7 @@ const View_document = () => {
               <div className="contractPreview">
                 <div className="contract" style={{userSelect:"none"}}>
                     <div className="outputVersion1">
-                      <div style={{background:"url(/frontend-assets/images/draft_bg.png) repeat-y center top/contain #fff"}}> 
+                      <div> 
                       <div className='p-3' id='pdf-id' ref={targetRef}>                        
                         { parseWithLinks(''+document.openai_document+'') }                         
                       </div>   

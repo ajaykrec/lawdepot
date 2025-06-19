@@ -6,9 +6,14 @@ import Parser, { domToReact } from 'html-react-parser';
 import Category_banner from '../../components/banner/Category_banner';
 import Steps_header from './Steps_header';
 import Breadcrumb from '../../components/breadcrumb/Breadcrumb';
+import allFunction from '../../helper/allFunction';
 
 import anime from 'animejs/lib/anime.es.js';
 import OpenAI from 'openai';
+
+//=== react-to-pdf ===
+import generatePDF, { Resolution, Margin } from 'react-to-pdf';
+//====
 
 const Document_download = () => {
 
@@ -19,7 +24,11 @@ const Document_download = () => {
   const percent = pageData.percent
   const templateApiJsonData = pageData.templateApiJsonData  
   const guest_document_count = pageData.guest_document_count 
-  const active_membership = pageData.active_membership       
+  const active_membership = pageData.active_membership   
+  
+  const filename = document.file_name + '.pdf'
+  const targetRef = useRef();
+  const pdf_options = allFunction.reactPdfOtions(filename)
 
   useEffect( ()=>{  
     
@@ -52,7 +61,16 @@ const Document_download = () => {
               {
                 active_membership ?
                 <>                
-                <Link href={ route('save.document') } className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded">Save Document</Link> 
+                <button className="btn btn-medium btn-dark-gray btn-box-shadow btn-rounded"
+                onClick={() =>{
+                    generatePDF(targetRef, pdf_options)
+                    const timeoutId = setTimeout(() => {
+                      location.href = route('save.document')
+                    }, 3000);
+                    return () => clearTimeout(timeoutId);
+
+                }} 
+                >Save and Download</button> 
                 </>    
                 :    
                 guest_document_count >= 2  ?
@@ -81,9 +99,16 @@ const Document_download = () => {
               <div className="contractPreview">
                 <div className="contract" style={{userSelect:"none"}}>
                     <div className="outputVersion1">
-                      <div style={{background:"url(/frontend-assets/images/draft_bg.png) repeat-y center top/contain #fff"}}> 
-                      { parseWithLinks(''+document.template+'') }  
-                      </div>
+                      {
+                        active_membership ?
+                        <div id='pdf-id' ref={targetRef}> 
+                        { parseWithLinks(''+document.template+'') }  
+                        </div>
+                        :
+                        <div style={{background:"url(/frontend-assets/images/draft_bg.png) repeat-y center top/contain #fff"}}> 
+                        { parseWithLinks(''+document.template+'') }  
+                        </div>
+                      }                      
                     </div>
                 </div>   
               </div> 

@@ -291,11 +291,7 @@ class DocumentController extends Controller
                 $openai_document = $result->choices[0]->message->content;       
                 $openai_document = AllFunction::convertMarkdownToHtml($openai_document); 
                 Session::put('openai_document', $openai_document);  
-                
-                if(!$customer_id){
-                    AllFunction::save_document();  
-                }
-                
+                AllFunction::save_document();                 
             }
         }        
         //=== call OpenAI [ends] ======          

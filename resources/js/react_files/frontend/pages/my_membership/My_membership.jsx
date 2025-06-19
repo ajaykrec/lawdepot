@@ -54,6 +54,10 @@ const My_membership = () => {
                 </div>
                 <div className="col-lg-9 col-md-12 col-12">   
                     { pageData.page.content ? <>{parseWithLinks(''+pageData.page.content+'')}</> : '' }  
+
+                    <div className="text-end my-2">                   
+                      <Link href={ route('membership.index') } className="badge bg-secondary text-white px-2 py-2">Purchage/Upgrade Subscription</Link>
+                    </div>
                     <div className="table-responsive">                          
                         <table className="table table-hover table-striped">
                           <thead>
@@ -63,6 +67,7 @@ const My_membership = () => {
                               <th scope="col">Price</th>
                               <th scope="col">Start date</th>
                               <th scope="col">End date</th>
+                              <th scope="col">Status</th>
                               <th scope="col" className='text-center'>Option</th>
                             </tr>
                           </thead>
@@ -80,6 +85,20 @@ const My_membership = () => {
                                     <td>{ allFunction.currency(membership.price, membership.currency_code) }</td>
                                     <td>{ allFunction.dateFormat(val.start_date) }</td>
                                     <td>{ allFunction.dateFormat(val.end_date) }</td>  
+                                    <td>
+                                      { 
+                                        val.status === 0 ?
+                                        <span className="badge rounded-pill bg-danger">In-Active</span>                                        
+                                        :
+                                        val.status === 1 ?
+                                        <span className="badge rounded-pill bg-success">Active</span>
+                                        :
+                                        val.status === 2 ?
+                                        <span className="badge rounded-pill bg-warning">Up-Comming</span>
+                                        :
+                                        ''
+                                      }                                      
+                                    </td>  
                                     <td className='text-center'>
                                       <button type="button" className="btn1"
                                       onClick={()=>{
@@ -89,13 +108,19 @@ const My_membership = () => {
                                         
                                       }}
                                       >View</button>
+
+                                      <button type="button" className="btn1"
+                                      onClick={()=>{
+                                                                                
+                                      }}
+                                      >Cancel</button>
                                     </td>
                                   </tr>
                                 )
                               })
                               :
                               <tr>
-                                  <td colspan="6">No record found</td>
+                                  <td colspan="7">No record found</td>
                               </tr>
                             }
                           </tbody>

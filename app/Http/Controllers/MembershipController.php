@@ -10,6 +10,9 @@ use App\Models\Customers;
 use App\Models\Orders;
 use App\Models\Country;
 use App\Models\Users_type;
+use App\Models\Customers_membership;
+
+
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Session;
@@ -26,9 +29,28 @@ class MembershipController extends Controller
     public function index(Request $request){  
 
         $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
+        $customer_id = $customer['customer_id'] ?? '';        
         if(!$customer){
             return redirect( route('customer.login') );
+        }        
+
+        $customers_membership = Customers_membership::query()
+        ->where('customer_id',$customer_id)  
+        ->where('status',1)    
+        ->where('end_date','>=',date('Y-m-d'))      
+        ->with(['membership'])     
+        ->orderBy('cus_membership_id','desc')   
+        ->get()->toArray(); 
+        $cusMembershipID = [];
+        foreach($customers_membership as $val){
+            $cusMembershipID[] = $val['membership_id'];
         }
+
+        //==== if customer hase '1 Year Pro Subscription' redirect to Dashboard
+        if(in_array('1',$cusMembershipID)){
+             return redirect( route('customer.account') );
+        }
+        //======
        
         $language_id = AllFunction::get_current_language();    
         $country     = AllFunction::get_current_country();         
@@ -64,9 +86,13 @@ class MembershipController extends Controller
         $results = json_decode(json_encode($q), true); 
         $membership = [];
         foreach( $results as $val ){
-            $val['specification'] = (array)json_decode($val['specification']);
-            $membership[] = $val;
-        }             
+
+            if(!in_array($val['membership_id'],$cusMembershipID)){
+                $val['specification'] = (array)json_decode($val['specification']);
+                $membership[] = $val;
+            }            
+        }  
+        //P($membership);           
 
         $pageData = compact('page','meta','header_banner','breadcrumb','membership'); 
         return Inertia::render('frontend/pages/membership/Membership', [            
@@ -237,16 +263,15 @@ class MembershipController extends Controller
             ['name'=>'Home', 'url'=>route('home')],            
             ['name'=>$page['name'], 'url'=>''],
         ]; 
-       
+        
+        $document = [];
         $document_id = (Session::has('document_id')) ? Session::get('document_id') : ''; 
-        if(!$document_id){
-            return redirect( route('home',$slug) );
+        if($document_id){
+            $document = Document::find($document_id)->toArray();      
+            $template = (Session::has('openai_document')) ? Session::get('openai_document') : '';         
+            $document['template'] = $template;        
         }
-        //=====
-        $document    = Document::find($document_id)->toArray();      
-        $template    = (Session::has('openai_document')) ? Session::get('openai_document') : '';         
-        $document['template'] = $template;        
-
+        //=====  
         $pageData = compact('page','meta','header_banner','breadcrumb','document_id','document'); 
         return Inertia::render('frontend/pages/checkout/Checkout_success', [            
             'pageData' => $pageData,            
