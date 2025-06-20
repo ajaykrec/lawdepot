@@ -26,7 +26,7 @@ class MembershipController extends Controller
 {
     use AllFunction; 
 
-    public function index(Request $request){  
+    public function index(Request $request){          
 
         $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
         $customer_id = $customer['customer_id'] ?? '';        
@@ -323,8 +323,10 @@ class MembershipController extends Controller
     }
     public function save_order_data($data){  
 
-        $transaction_id = $data->id ?? '';
-        $invoice = $data->invoice ?? '';
+        $stripe_session_id = $data->id ?? '';
+        $stripe_invoice = $data->invoice ?? '';
+        $stripe_subscription_id = $data->subscription ?? '';
+
         $country_id = $data->metadata->country_id ?? '';
         $customer_id = $data->metadata->customer_id ?? '';
         $membership_id = $data->metadata->membership_id ?? '';       
@@ -346,9 +348,10 @@ class MembershipController extends Controller
             $tableData = [
                 'invoice_sufix'=>$invoice_sufix,
                 'invoice_number'=>$invoice_number,
-                'stripe_invoice'=>$invoice,
+                'stripe_invoice'=>$stripe_invoice,
                 'customer_id'=>$customer_id,
-                'transaction_id'=>$transaction_id,
+                'transaction_id'=>$stripe_subscription_id,
+                'stripe_session_id'=>$stripe_session_id,
                 'name'=>$customer['name'] ?? '',
                 'email'=>$customer['email'] ?? '',
                 'phone'=>$customer['phone'] ?? '',
@@ -413,6 +416,7 @@ class MembershipController extends Controller
             $tableData = [
                 'customer_id'=>$customer_id,
                 'membership_id'=>$membership_id,
+                'stripe_subscription_id'=>$stripe_subscription_id,
                 'order_id'=>$order_id,
                 'start_date'=>date('Y-m-d'),  
                 'end_date'=>$end_date,

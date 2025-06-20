@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('invoice_sufix')->nullable();               
             $table->string('invoice_number',50)->nullable();       
             $table->string('stripe_invoice',255)->nullable(); 
+            $table->string('stripe_session_id',255)->nullable();             
             $table->integer('customer_id');
             $table->string('transaction_id',150)->nullable();       
             $table->string('name',150)->nullable()->nullable();       

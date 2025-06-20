@@ -44,6 +44,7 @@ Route::middleware(['auth.customer','front_view'])->group( function(){
 
     Route::get('/my-account',[MyAccountController::class, 'index'])->name('customer.account');     
     Route::get('/my-membership',[MyMembershipController::class, 'index'])->name('customer.membership'); 
+    Route::get('/cancel-membership/{cus_membership_id}',[MyMembershipController::class, 'cancel_membership'])->name('cancel.membership'); 
     Route::get('/my-account-settings',[MySettingsController::class, 'index'])->name('customer.settings'); 
     Route::post('/my-account-settings',[MySettingsController::class, 'account_post'])->name('customer.settings.post'); 
     Route::get('/change-password',[ChangePasswordController::class, 'index'])->name('customer.changepassword'); 

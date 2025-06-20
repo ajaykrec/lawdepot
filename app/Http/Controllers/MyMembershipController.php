@@ -107,5 +107,26 @@ class MyMembershipController extends Controller
             'pageData' => $pageData,            
         ]);
     }
+
+    
+    public function cancel_membership($cus_membership_id, Request $request){   
+
+        $cus_membership = Customers_membership::where('cus_membership_id',$cus_membership_id)->first()->toArray();  
+        $stripe_subscription_id = $cus_membership['stripe_subscription_id'] ?? '';        
+        
+        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+        $response = $stripe->subscriptions->cancel($stripe_subscription_id, []);
+
+        //p($response); 
+        if($response->status == 'canceled'){
+
+            $table = Customers_membership::find($cus_membership_id);
+            $table->status = 3; 
+            $table->save(); 
+
+            return redirect( route('customer.membership') )->with(['success'=>'Subscription has been Canceled successfully']);
+        }
+        
+    }
     
 }

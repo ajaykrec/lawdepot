@@ -78,10 +78,14 @@
                                         <td class="text-center">{{ $val['start_date'] }}</td> 
                                         <td class="text-center">{{ $val['end_date'] }}</td> 
                                         <td class="text-center">
-                                            @if($val['status'] == '1')                                                
+                                            @if($val['status'] == '0')                                                
+                                                <span class="badge rounded-pill bg-danger">In-Active</span>
+                                            @elseif($val['status'] == '1')                                                
                                                 <span class="badge rounded-pill bg-success">Active</span>
-                                            @else
-                                                <span class="badge rounded-pill bg-danger">In-Active</span>                                                
+                                            @elseif($val['status'] == '2')                                                
+                                                <span class="badge rounded-pill bg-warning">Up-Comming</span>
+                                            @elseif($val['status'] == '3')                                                
+                                                <span class="badge rounded-pill bg-danger">Canceled</span>  
                                             @endif
                                         </td>
                                         <td class="text-end px-5">                                           

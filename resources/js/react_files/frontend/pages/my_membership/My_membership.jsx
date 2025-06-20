@@ -12,6 +12,9 @@ import Membership_modal from './Membership_modal';
 import { useSelector, useDispatch } from 'react-redux'
 import { membershipAction } from '../../actions/modal'
 
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
 const My_membership = () => {
 
   const { file_storage_url, customer, common_data, pageData } = usePage().props
@@ -22,6 +25,8 @@ const My_membership = () => {
   const [membership_data, set_membership_data] = useState({})   
   const [order_data, set_order_data] = useState({}) 
   
+  const MySwal = withReactContent(Swal)
+
   const parseWithLinks = (html) =>{
         const options = {     
             replace: ({ name, attribs, children }) => {
@@ -38,6 +43,32 @@ const My_membership = () => {
   const country = common_data.country
   var start_count = pageData.start_count ?? 1
   start_count= start_count-1
+
+  const confirmCancel = async (id)=>{	
+      MySwal.fire({
+        title: 'Are you sure?',
+        text: "You want to Cancel this Subscription",			
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, Cancel it!',
+        cancelButtonText: 'No'
+        }).then( async (result) => {
+        if (result.isConfirmed) {                                          
+          location.href = route('cancel.membership',id)    
+          // MySwal.fire({
+          //       //icon: 'success',
+          //       width: '350px',
+          //       animation: false,
+          //       title: 'Canceled!',
+          //       text: "Subscription has been Canceled successfully."
+          // })		
+
+        }
+      })	
+  }   
+
+
   return (
     <>
     <Head>
@@ -96,6 +127,9 @@ const My_membership = () => {
                                         val.status === 2 ?
                                         <span className="badge rounded-pill bg-warning">Up-Comming</span>
                                         :
+                                        val.status === 3 ?
+                                        <span className="badge rounded-pill bg-danger">Canceled</span>
+                                        :
                                         ''
                                       }                                      
                                     </td>  
@@ -109,11 +143,14 @@ const My_membership = () => {
                                       }}
                                       >View</button>
 
-                                      <button type="button" className="btn1"
-                                      onClick={()=>{
-                                                                                
-                                      }}
-                                      >Cancel</button>
+                                      { 
+                                        val.status !== 3 &&
+                                        <button type="button" className="btn1"
+                                        title="Cancel" onClick={() => confirmCancel(val.cus_membership_id)}
+                                        >Cancel</button>
+                                      }
+
+                                      
                                     </td>
                                   </tr>
                                 )

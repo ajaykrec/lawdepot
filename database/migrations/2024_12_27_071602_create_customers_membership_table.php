@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('cus_membership_id');   
             $table->integer('customer_id');   
             $table->integer('membership_id');  
+            $table->string('stripe_subscription_id',255)->nullable();            
             $table->integer('order_id');
             $table->integer('document_id');  
             $table->date('start_date')->nullable();       
