@@ -39,12 +39,22 @@
                                     @endforeach
                                 </select>                             
                                 </div>  
+                                </div>                                                                    
+                                
+                                <div class="col-lg-4 col-md-6 col-12">
+                                <div class="mb-2">
+                                <select class="form-select" id="mode" name="mode">
+                                    <option value="">Mode</option>
+                                    <option value="payment" {{ ($mode=='payment') ? 'selected' : '' }}>payment</option>
+                                    <option value="subscription" {{ ($mode=='subscription') ? 'selected' : '' }}>subscription</option>
+                                </select>                             
+                                </div>  
                                 </div>     
                                 
                                 <div class="col-lg-4 col-md-6 col-12">
                                 <div class="mb-2">
                                 <select class="form-select" id="status" name="status">
-                                    <option value=""></option>
+                                    <option value="">Status</option>
                                     <option value="1" {{ ($status=='1') ? 'selected' : '' }}>Active</option>
                                     <option value="0" {{ ($status=='0') ? 'selected' : '' }}>In-Active</option>
                                 </select>                             
@@ -80,6 +90,7 @@
                                     <th>Name</th> 
                                     <th>Country</th>
                                     <th>Price</th>
+                                    <th>Mode</th>       
                                     <th>Status</th>                                    
                                     <th class="text-end px-5">Action</th>
                                 </tr>                                         
@@ -92,7 +103,8 @@
                                         <td>{{ $start_count }}</td>
                                         <td>{{ $val['name'] }}</td>  
                                         <td>{{ $val['country']['name'] ?? '' }}</td>    
-                                        <td>{{ currency($val['price'], $val['currency_code']) }}</td>                                     
+                                        <td>{{ currency($val['price'], $val['currency_code']) }}</td> 
+                                        <td>{{ $val['mode'] }}</td>                                      
                                         <td>
                                             @if($val['status'] == '1')                                                
                                                 <span class="badge rounded-pill bg-success">Active</span>
@@ -118,7 +130,7 @@
                                     @endforeach
                                 @else
                                 <tr>
-                                    <td colspan="7">No record found</td>
+                                    <td colspan="8">No record found</td>
                                 </tr>
                                 @endif
                             </tbody>

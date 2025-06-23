@@ -95,9 +95,8 @@ const My_membership = () => {
                             <tr className='table-secondary'>
                               <th scope="col">#</th>
                               <th scope="col">Subscription</th>
-                              <th scope="col">Price</th>
-                              <th scope="col">Start date</th>
-                              <th scope="col">End date</th>
+                              <th scope="col">Price</th>                              
+                              <th scope="col">Renew Date</th>
                               <th scope="col">Status</th>
                               <th scope="col" className='text-center'>Option</th>
                             </tr>
@@ -113,8 +112,7 @@ const My_membership = () => {
                                   <tr key={i}>
                                     <th scope="row">{start_count}</th> 
                                     <td>{membership.name}</td>
-                                    <td>{ allFunction.currency(membership.price, membership.currency_code) }</td>
-                                    <td>{ allFunction.dateFormat(val.start_date) }</td>
+                                    <td>{ allFunction.currency(membership.price, membership.currency_code) }</td>                                    
                                     <td>{ allFunction.dateFormat(val.end_date) }</td>  
                                     <td>
                                       { 
@@ -125,10 +123,10 @@ const My_membership = () => {
                                         <span className="badge rounded-pill bg-success">Active</span>
                                         :
                                         val.status === 2 ?
-                                        <span className="badge rounded-pill bg-warning">Up-Comming</span>
+                                        <span className="badge rounded-pill bg-secondary">Up-Comming</span>
                                         :
                                         val.status === 3 ?
-                                        <span className="badge rounded-pill bg-danger">Canceled</span>
+                                        <span className="badge rounded-pill bg-warning">To Be Cancelled</span>
                                         :
                                         ''
                                       }                                      
@@ -157,7 +155,7 @@ const My_membership = () => {
                               })
                               :
                               <tr>
-                                  <td colspan="7">No record found</td>
+                                  <td colspan="6">No record found</td>
                               </tr>
                             }
                           </tbody>

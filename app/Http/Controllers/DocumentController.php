@@ -9,9 +9,9 @@ use App\Models\Document;
 use App\Models\Documents_step;
 use App\Models\Documents_question;
 use App\Models\Documents_question_option;
-use App\Models\Customers_document;
+use App\Models\Customers_document; 
+use App\Models\Customers_guest_document;
 use App\Models\Customers_membership;
-
 
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia; 
@@ -26,9 +26,6 @@ class DocumentController extends Controller
     use AllFunction; 
 
     public function index($slug, Request $request){ 
-        
-        //Session::forget('document_id');  
-        //Session::forget('fields');  
        
         $country = AllFunction::get_current_country();         
         $country_id = $country['country_id'] ?? '';        
@@ -113,8 +110,7 @@ class DocumentController extends Controller
         if( $session_fields ){             
             $session_fields = (array)json_decode($session_fields); 
             $fields = array_merge($fields, $session_fields); 
-        }  
-                
+        }                  
        
         $q = DB::table('documents_faq')->select('*')
         ->where('step_id',$step_id)
@@ -291,7 +287,23 @@ class DocumentController extends Controller
                 $openai_document = $result->choices[0]->message->content;       
                 $openai_document = AllFunction::convertMarkdownToHtml($openai_document); 
                 Session::put('openai_document', $openai_document);  
-                AllFunction::save_document();                 
+                
+                //=== save customers_guest_document ==               
+                $filter_question_value = AllFunction::filter_question_value([
+                    'document_id'=>$document_id ?? '',            
+                ]);   
+
+                $table = new Customers_guest_document;               
+                $table->document_id     = $document_id;  
+                $table->ip_address      = $_SERVER['REMOTE_ADDR'] ;          
+                $table->session_fields  = (Session::has('fields')) ? Session::get('fields') : '';
+                $table->filter_values   = json_encode($filter_question_value);                
+                $table->openai_document = $openai_document;
+                $table->save();     
+                $guest_document_id = $table->guest_document_id;
+                Session::put('guest_document_id', $guest_document_id);  
+                //=====                   
+
             }
         }        
         //=== call OpenAI [ends] ======          
@@ -305,11 +317,21 @@ class DocumentController extends Controller
     }   
 
     public function save_document(Request $request){ 
-        AllFunction::save_document();
+
+        $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
+        $customer_id = $customer['customer_id'] ?? 0; 
+        $guest_document_id = (Session::has('guest_document_id')) ? Session::get('guest_document_id') : '';
+
+        AllFunction::save_document([
+            'guest_document_id'=>$guest_document_id,
+            'customer_id'=>$customer_id,
+        ]);
+        
         //==== remove session ====
         Session::forget('document_id'); 
         Session::forget('fields'); 
         Session::forget('openai_document'); 
+        Session::forget('guest_document_id');         
         //=====  
         return redirect( route('customer.documents') )->with(['success'=>'Document saved successfully']);
     }

@@ -135,6 +135,21 @@
                 @enderror 
                 </span>                 
                 </div>
+
+
+                <div class="my-3">
+                <label class="form-label">Mode</label>
+                <select class="form-select" name="mode"> 
+                <option value=""></option>   
+                <option value="payment" {{ (old('mode')=='payment') ? 'selected' : '' }}>payment</option>   
+                <option value="subscription" {{ (old('mode')=='subscription') ? 'selected' : '' }}>subscription</option>  
+                </select>
+                <span class="err" id="error-mode">
+                @error('mode')
+                {{$message}}
+                @enderror 
+                </span>      
+                </div>
                 
 
                 <div class="my-3">

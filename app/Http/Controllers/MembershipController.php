@@ -36,7 +36,7 @@ class MembershipController extends Controller
 
         $customers_membership = Customers_membership::query()
         ->where('customer_id',$customer_id)  
-        ->where('status',1)    
+        ->whereIn('status',[1,3])    
         ->where('end_date','>=',date('Y-m-d'))      
         ->with(['membership'])     
         ->orderBy('cus_membership_id','desc')   
@@ -50,7 +50,7 @@ class MembershipController extends Controller
         if(in_array('1',$cusMembershipID)){
              return redirect( route('customer.account') );
         }
-        //======
+        //======        
        
         $language_id = AllFunction::get_current_language();    
         $country     = AllFunction::get_current_country();         
@@ -79,6 +79,8 @@ class MembershipController extends Controller
             ['name'=>$page['name'], 'url'=>''],
         ];
 
+        $guest_document_id = (Session::has('guest_document_id')) ? Session::get('guest_document_id') : '';
+
         $q = DB::table('membership')->select('*')
         ->where('country_id',$country_id)
         ->where('status',1)
@@ -88,8 +90,16 @@ class MembershipController extends Controller
         foreach( $results as $val ){
 
             if(!in_array($val['membership_id'],$cusMembershipID)){
-                $val['specification'] = (array)json_decode($val['specification']);
-                $membership[] = $val;
+
+                if( $val['membership_id'] == 4 && !$guest_document_id){
+
+                }
+                else{
+                    $val['specification'] = (array)json_decode($val['specification']);
+                    $membership[] = $val;
+                }
+
+                
             }            
         }  
         //P($membership);           
@@ -113,6 +123,7 @@ class MembershipController extends Controller
         
         $membership = Membership::find($membership_id)->toArray(); 
         $membership_name = $membership['name'] ?? '';
+        $mode = $membership['mode'] ?? '';
         $membership_description = $membership['description'] ?? '';
         $membership_price = $membership['price'] ?? 0;
         $time_period = $membership['time_period'] ?? 0;
@@ -138,38 +149,74 @@ class MembershipController extends Controller
         $country_id = $country['country_id'] ?? '';
 
         $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
-        $response = $stripe->checkout->sessions->create([           
-            'success_url' => route('membership.checkout.success'),
-            'line_items' => [
-                [
-                    'price_data' => [
-                        'currency'=>'GBP',
-                        'product_data'=>[
-                            'name'=>$membership_name,
-                            //'description'=>$membership_description
+
+        if($mode == 'subscription'){
+
+            $response = $stripe->checkout->sessions->create([           
+                'success_url' => route('membership.checkout.success'),
+                'line_items' => [
+                    [
+                        'price_data' => [
+                            'currency'=>'GBP',
+                            'product_data'=>[
+                                'name'=>$membership_name,
+                                //'description'=>$membership_description
+                            ],
+                            'currency'=>$currency,
+                            'unit_amount'=> $membership_price*100,
+                            'recurring'=>[
+                                'interval'=>$time_period_sufix,
+                                'interval_count'=>$time_period,                            
+                            ]
                         ],
-                        'currency'=>$currency,
-                        'unit_amount'=> $membership_price*100,
-                        'recurring'=>[
-                            'interval'=>$time_period_sufix,
-                            'interval_count'=>$time_period,                            
-                        ]
+                        'quantity' => 1,
                     ],
-                    'quantity' => 1,
                 ],
-            ],
-            'mode' => 'subscription',
-            'subscription_data' => $subscription_data,
-            'customer'=>$stripe_customer_id,
-            //'customer_email'=>$email,
-            'metadata'=> [
-                'membership_id' => $membership_id,
-                'customer_id' => $customer_id,
-                'country_id'=> $country_id,
-            ]
-        ]);        
-        
-        return Inertia::location($response->url);
+                'mode' => 'subscription',
+                'subscription_data' => $subscription_data,
+                'customer'=>$stripe_customer_id,
+                //'customer_email'=>$email,
+                'metadata'=> [
+                    'guest_document_id'=> (Session::has('guest_document_id')) ? Session::get('guest_document_id') : '',
+                    'membership_id' => $membership_id,
+                    'customer_id' => $customer_id,
+                    'country_id'=> $country_id,
+                    'mode'=> $mode,
+                ]
+            ]);    
+            return Inertia::location($response->url);   
+
+        }
+        else{
+            $response = $stripe->checkout->sessions->create([           
+                'success_url' => route('membership.checkout.success'),
+                'line_items' => [
+                    [
+                        'price_data' => [
+                            'currency'=>'GBP',
+                            'product_data'=>[
+                                'name'=>$membership_name,
+                                //'description'=>$membership_description
+                            ],
+                            'currency'=>$currency,
+                            'unit_amount'=> $membership_price*100,                            
+                        ],
+                        'quantity' => 1,
+                    ],
+                ],
+                'mode' => 'payment',                
+                'customer'=>$stripe_customer_id,
+                //'customer_email'=>$email,
+                'metadata'=> [
+                    'guest_document_id'=> (Session::has('guest_document_id')) ? Session::get('guest_document_id') : '',
+                    'membership_id' => $membership_id,
+                    'customer_id' => $customer_id,
+                    'country_id'=> $country_id,
+                    'mode'=> $mode,
+                ]
+            ]);    
+            return Inertia::location($response->url);   
+        }        
         
     }    
 
@@ -264,15 +311,17 @@ class MembershipController extends Controller
             ['name'=>$page['name'], 'url'=>''],
         ]; 
         
-        $document = [];
-        $document_id = (Session::has('document_id')) ? Session::get('document_id') : ''; 
-        if($document_id){
-            $document = Document::find($document_id)->toArray();      
-            $template = (Session::has('openai_document')) ? Session::get('openai_document') : '';         
-            $document['template'] = $template;        
-        }
-        //=====  
-        $pageData = compact('page','meta','header_banner','breadcrumb','document_id','document'); 
+        // $document = [];
+        // $document_id = (Session::has('document_id')) ? Session::get('document_id') : ''; 
+        // if($document_id){
+        //     $document = Document::find($document_id)->toArray();      
+        //     $template = (Session::has('openai_document')) ? Session::get('openai_document') : '';         
+        //     $document['template'] = $template;        
+        // }
+        // //=====  
+        // $pageData = compact('page','meta','header_banner','breadcrumb','document_id','document'); 
+
+        $pageData = compact('page','meta','header_banner','breadcrumb'); 
         return Inertia::render('frontend/pages/checkout/Checkout_success', [            
             'pageData' => $pageData,            
         ]);               
@@ -329,7 +378,9 @@ class MembershipController extends Controller
 
         $country_id = $data->metadata->country_id ?? '';
         $customer_id = $data->metadata->customer_id ?? '';
-        $membership_id = $data->metadata->membership_id ?? '';       
+        $membership_id = $data->metadata->membership_id ?? '';    
+        $guest_document_id = $data->metadata->guest_document_id ?? '';    
+        $mode = $data->metadata->mode ?? '';             
         
         if($membership_id){            
 
@@ -408,25 +459,38 @@ class MembershipController extends Controller
             ];        
             DB::table('orders_items')->insert($tableData);
 
-            //=== update customers_membership table =====
-            $end_date = date('Y-m-d',strtotime('+ ' . $membership['time_period'] .' '. $membership['time_period_sufix']));   
-            if($trial_period_days > 0){
-                $end_date = date('Y-m-d', strtotime('+ ' . $trial_period_days .' day', strtotime($end_date))  );   
-            }     
-            $tableData = [
-                'customer_id'=>$customer_id,
-                'membership_id'=>$membership_id,
-                'stripe_subscription_id'=>$stripe_subscription_id,
-                'order_id'=>$order_id,
-                'start_date'=>date('Y-m-d'),  
-                'end_date'=>$end_date,
-                'document_id'=>0,
-                'status'=>1,
-                'created_at'=>date('Y-m-d H:i:s'),  
-                'updated_at'=>date('Y-m-d H:i:s'),   
-            ];        
-            DB::table('customers_membership')->insert($tableData);           
+            
+            //=== customers_membership =====
+            if($mode == 'subscription'){
 
+                $end_date = date('Y-m-d',strtotime('+ ' . $membership['time_period'] .' '. $membership['time_period_sufix']));   
+                if($trial_period_days > 0){
+                    $end_date = date('Y-m-d', strtotime('+ ' . $trial_period_days .' day', strtotime($end_date))  );   
+                }     
+                $tableData = [
+                    'customer_id'=>$customer_id,
+                    'membership_id'=>$membership_id,
+                    'stripe_subscription_id'=>$stripe_subscription_id,
+                    'order_id'=>$order_id,
+                    'start_date'=>date('Y-m-d'),  
+                    'end_date'=>$end_date,
+                    'document_id'=>0,
+                    'status'=>1,
+                    'created_at'=>date('Y-m-d H:i:s'),  
+                    'updated_at'=>date('Y-m-d H:i:s'),   
+                ];        
+                DB::table('customers_membership')->insert($tableData);  
+
+            }     
+            
+            //=== customers_document =====
+            if($guest_document_id){
+                AllFunction::save_document([
+                    'guest_document_id'=>$guest_document_id,
+                    'customer_id'=>$customer_id,
+                ]);
+            }
+           
             //=== mail to user [start] ===            
             $settings = AllFunction::get_setting([
                 'site_url',              

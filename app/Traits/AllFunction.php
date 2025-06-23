@@ -23,10 +23,10 @@ use App\Models\Document;
 use App\Models\Documents_step;
 use App\Models\Documents_question; 
 use App\Models\Customers_document;
+use App\Models\Customers_guest_document;
 use App\Models\Documents_question_option;
 use App\Models\Orders;
 use App\Models\Customers_membership;
-
 
 //==== Mail ====
 use Illuminate\Support\Facades\Mail;
@@ -39,7 +39,6 @@ use PHPMailer\PHPMailer\Exception;
 
 use Parsedown;
 //composer require erusev/parsedown
-
 
 trait AllFunction {  
     
@@ -486,7 +485,7 @@ trait AllFunction {
         
         $data = Customers_membership::query()
         ->where('customer_id',$customer_id)  
-        ->where('status',1)    
+        ->whereIn('status',[1,3])    
         ->where('end_date','>=',date('Y-m-d'))      
         ->with(['membership'])     
         ->orderBy('membership_id','asc')   
@@ -1594,7 +1593,7 @@ trait AllFunction {
     static function guest_document_count($document_id){   
         $date_before = date('Y-m-d H:i:s',strtotime('-6 hour')); // 2025-05-05 11:00:00 , 2025-05-05 05:00:00 , 2025-05-05 11:30:00
         
-        $count = DB::table('customers_document')
+        $count = DB::table('customers_guest_document')
         ->where('document_id',$document_id) 
         ->where('ip_address',$_SERVER['REMOTE_ADDR'])
         ->where('created_at','>=',$date_before)        
@@ -1602,31 +1601,35 @@ trait AllFunction {
         return $count;         
     }
     
-    static function save_document(){   
-        $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
-        $customer_id = $customer['customer_id'] ?? 0; 
+    static function save_document($data){  
+        
+        $customer_id = $data['customer_id'] ?? ''; 
+        $guest_document_id = $data['guest_document_id'] ?? ''; 
+        $guest_document = Customers_guest_document::where('guest_document_id',$guest_document_id)->with(['document'])->first()->toArray();         
 
-        $document_id = (Session::has('document_id')) ? Session::get('document_id') : 0;
-        $document = Document::where('document_id',$document_id)->first()->toArray();         
-        
-        $session_fields = (Session::has('fields')) ? Session::get('fields') : '';   
-        
-        $filter_question_value = AllFunction::filter_question_value([
-            'document_id'=>$document_id ?? '',            
-        ]);   
-        
-        $openai_document = (Session::has('openai_document')) ? Session::get('openai_document') : '';   
-       
+        $document_id        = $guest_document['document_id'] ?? '';  
+        $session_fields     = $guest_document['session_fields'] ?? '';
+        $filter_values      = $guest_document['filter_values'] ?? '';
+        $openai_document    = $guest_document['openai_document'] ?? '';
+        $document           = $guest_document['document'] ?? [];
+
         //===save ==
         $table = new Customers_document;
         $table->customer_id     = $customer_id;
         $table->document_id     = $document_id;            
         $table->session_fields  = $session_fields;
-        $table->filter_values   = json_encode($filter_question_value);
+        $table->filter_values   = json_encode($filter_values);
         $table->file_name       = $document['name'] ?? '';
         $table->ip_address      = $_SERVER['REMOTE_ADDR'] ;
         $table->openai_document = $openai_document;
-        $table->save();         
+        $table->save(); 
+        
+        //==== remove session ====
+        Session::forget('document_id'); 
+        Session::forget('fields'); 
+        Session::forget('openai_document'); 
+        Session::forget('guest_document_id');         
+        //=====  
     }
 
     static function text_to_html($text){   

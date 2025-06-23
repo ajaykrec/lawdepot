@@ -28,6 +28,8 @@ class MembershipController extends Controller
         $filterArr['name']              = $request['name'] ?? ''; 
         $filterArr['country_id']        = $request['country_id'] ?? '';
         $filterArr['status']            = $request['status'] ?? '';   
+        $filterArr['mode']              = $request['mode'] ?? '';   
+        
 
         //=== pagi_url
         $pagi_url = route('membership-setting.index').'?';
@@ -60,7 +62,10 @@ class MembershipController extends Controller
                     }   
                     if($key == 'country_id'){
                         $q->where('country_id', $val);
-                    }                             
+                    }  
+                    if($key == 'mode'){
+                        $q->where('mode', $val);
+                    }
                     if($key == 'status'){
                         $q->where('status', $val);
                     }
@@ -128,7 +133,9 @@ class MembershipController extends Controller
             'price'   => 'required',   
             'time_period'   => 'required',            
             'time_period_sufix'   => 'required',                     
-            'status'  => 'required'
+            'status'  => 'required',
+            'mode'  => 'required',
+            
         ];
         $messages = [];
         $messages['country_id.required'] = 'Country is required';
@@ -154,7 +161,8 @@ class MembershipController extends Controller
             $table->price               = $request['price'] ?? 0;
             $table->currency_code       = $country->currency_code ?? '';
             $table->time_period         = $request['time_period'] ?? 0;
-            $table->time_period_sufix   = $request['time_period_sufix'] ?? '';  
+            $table->time_period_sufix   = $request['time_period_sufix'] ?? '';   
+            $table->mode                = $request['mode'] ?? '';
             $table->trial_period_days   = $request['trial_period_days'] ?? 0;
             $table->is_per_document     = $request['is_per_document'] ?? 0;
             $table->button_color        = $request['button_color'] ?? '';  
@@ -204,7 +212,8 @@ class MembershipController extends Controller
             'price'   => 'required',   
             'time_period'   => 'required',            
             'time_period_sufix'   => 'required',                     
-            'status'  => 'required'
+            'status'  => 'required',
+            'mode' => 'required',
         ];
         $messages = [];
         $messages['country_id.required'] = 'Country is required';
@@ -230,6 +239,7 @@ class MembershipController extends Controller
             $table->currency_code       = $country->currency_code ?? '';
             $table->time_period         = $request['time_period'] ?? 0;
             $table->time_period_sufix   = $request['time_period_sufix'] ?? '';
+            $table->mode                = $request['mode'] ?? '';
             $table->trial_period_days   = $request['trial_period_days'] ?? 0;
             $table->is_per_document     = $request['is_per_document'] ?? 0;
             $table->button_color        = $request['button_color'] ?? '';   

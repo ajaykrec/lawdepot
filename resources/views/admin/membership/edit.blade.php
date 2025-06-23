@@ -140,6 +140,24 @@
                 </span>                 
                 </div>
 
+
+                @php
+                $mode = old('mode', $data['mode'] ?? '');
+                @endphp
+                <div class="my-3">
+                <label class="form-label">Mode</label>
+                <select class="form-select" name="mode"> 
+                <option value=""></option>   
+                <option value="payment" {{ ($mode=='payment') ? 'selected' : '' }}>payment</option>   
+                <option value="subscription" {{ ($mode=='subscription') ? 'selected' : '' }}>subscription</option>  
+                </select>
+                <span class="err" id="error-mode">
+                @error('mode')
+                {{$message}}
+                @enderror 
+                </span>      
+                </div>
+
                
                 @php
                 $status = old('status', $data['status'] ?? '');

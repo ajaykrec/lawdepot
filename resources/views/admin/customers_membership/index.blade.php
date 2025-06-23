@@ -56,9 +56,8 @@
                                     <th style="width:5%;"><input class="form-check-input checkall" type="checkbox"></th>
                                     <th>#</th>
                                     <th>Subscription</th> 
-                                    <th class="text-center">Price</th>        
-                                    <th class="text-center">Start date</th>                
-                                    <th class="text-center">End date</th>                                                              
+                                    <th class="text-center">Price</th> 
+                                    <th class="text-center">Renew Date</th>                                                              
                                     <th class="text-center">Status</th>                                    
                                     <th class="text-end px-5">Action</th>
                                 </tr>                                         
@@ -74,8 +73,7 @@
                                         <td>{{ $val['membership']['name'] }}</td>  
                                         <td class="text-center">
                                             {{ currency($val['membership']['price'], $val['membership']['currency_code']) }}
-                                        </td>  
-                                        <td class="text-center">{{ $val['start_date'] }}</td> 
+                                        </td> 
                                         <td class="text-center">{{ $val['end_date'] }}</td> 
                                         <td class="text-center">
                                             @if($val['status'] == '0')                                                
@@ -83,9 +81,9 @@
                                             @elseif($val['status'] == '1')                                                
                                                 <span class="badge rounded-pill bg-success">Active</span>
                                             @elseif($val['status'] == '2')                                                
-                                                <span class="badge rounded-pill bg-warning">Up-Comming</span>
+                                                <span class="badge rounded-pill bg-secondary">Up-Comming</span>
                                             @elseif($val['status'] == '3')                                                
-                                                <span class="badge rounded-pill bg-danger">Canceled</span>  
+                                                <span class="badge rounded-pill bg-warning">To Be Cancelled</span>  
                                             @endif
                                         </td>
                                         <td class="text-end px-5">                                           
@@ -104,7 +102,7 @@
                                     @endforeach
                                 @else
                                 <tr>
-                                    <td colspan="8">No record found</td>
+                                    <td colspan="7">No record found</td>
                                 </tr>
                                 @endif
                             </tbody>

@@ -21,6 +21,7 @@ return new class extends Migration
             $table->decimal('price'); 
             $table->integer('time_period');    
             $table->enum('time_period_sufix',['day','week','month','year']); 
+            $table->enum('mode',['payment','subscription']); 
             $table->integer('trial_period_days');    
             $table->integer('is_per_document');
             $table->string('button_color',50)->nullable(); 
