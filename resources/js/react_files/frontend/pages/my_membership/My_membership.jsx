@@ -128,6 +128,9 @@ const My_membership = () => {
                                         val.status === 3 ?
                                         <span className="badge rounded-pill bg-warning">To Be Cancelled</span>
                                         :
+                                        val.status === 4 ?
+                                        <span className="badge rounded-pill bg-danger">Cancelled</span>
+                                        :
                                         ''
                                       }                                      
                                     </td>  

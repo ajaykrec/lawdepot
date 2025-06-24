@@ -84,6 +84,8 @@
                                                 <span class="badge rounded-pill bg-secondary">Up-Comming</span>
                                             @elseif($val['status'] == '3')                                                
                                                 <span class="badge rounded-pill bg-warning">To Be Cancelled</span>  
+                                            @elseif($val['status'] == '4')                                                
+                                                <span class="badge rounded-pill bg-danger">Cancelled</span>  
                                             @endif
                                         </td>
                                         <td class="text-end px-5">                                           
