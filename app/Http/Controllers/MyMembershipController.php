@@ -9,7 +9,6 @@ use App\Models\Orders;
 use App\Models\Orders_item;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia; 
-
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Cache;
@@ -47,7 +46,7 @@ class MyMembershipController extends Controller
         ];
 
         $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
-        $customer_id = $customer['customer_id'] ?? '';        
+        $customer_id = $customer['customer_id'] ?? ''; 
 
         //=== membership list
         $filterArr            = [];

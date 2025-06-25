@@ -12,7 +12,6 @@ use App\Models\Country;
 use App\Models\Users_type;
 use App\Models\Customers_membership;
 
-
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Session;
@@ -392,6 +391,7 @@ class MembershipController extends Controller
             $country = Country::find($country_id)->toArray();   
             
             $membership = Membership::find($membership_id)->toArray(); 
+            $code = $membership['code'] ?? '';       
             $trial_period_days = $membership['trial_period_days'] ?? 0;       
             $membership['specification'] = (array)json_decode($membership['specification']);        
             
@@ -461,7 +461,7 @@ class MembershipController extends Controller
 
             
             //=== customers_membership =====
-            if($mode == 'subscription'){
+            if($mode == 'subscription' && $code == 'TRIAL' ){
 
                 $end_date = date('Y-m-d',strtotime('+ ' . $membership['time_period'] .' '. $membership['time_period_sufix']));   
                 if($trial_period_days > 0){
@@ -480,8 +480,73 @@ class MembershipController extends Controller
                     'updated_at'=>date('Y-m-d H:i:s'),   
                 ];        
                 DB::table('customers_membership')->insert($tableData);  
+            } 
+            elseif($mode == 'subscription' && $code == '1YEARPRO' ){               
 
-            }     
+                $q = DB::table('customers_membership');   
+                $q = $q->leftJoin('membership','membership.membership_id','=','customers_membership.membership_id');     
+                $q = $q->select('customers_membership.*','membership.code');         
+                $q = $q->where('customers_membership.customer_id',$customer_id);         
+                $q = $q->whereIn('customers_membership.status',[1]); 
+                $q = $q->where('membership.code','TRIAL'); 
+                $q = $q->get()->toArray(); 
+                $q = json_decode(json_encode($q), true);
+                $trial_membership = $q[0] ?? [];                
+                
+                if($trial_membership){
+                    
+                    $datediff = date_diff( date_create(date('Y-m-d')), date_create($trial_membership['start_date']));
+
+                    if($datediff <= 7){
+                        //=== cancel trial membership
+                        MembershipController::cancel_membership([
+                            'cus_membership_id'=>$trial_membership['cus_membership_id'],
+                            'end_date'=>date('Y-m-d'),
+                            'status'=>4
+                        ]);
+                        $start_date = date('Y-m-d');
+                        $end_date   = date('Y-m-d',strtotime('+ ' . $membership['time_period'] .' '. $membership['time_period_sufix']));   
+                        if($trial_period_days > 0){
+                            $end_date = date('Y-m-d', strtotime('+ ' . $trial_period_days .' day', strtotime($end_date))  );   
+                        }     
+                    }
+                    elseif($datediff > 7){
+                        //=== cancel trial membership
+                        MembershipController::cancel_membership([
+                            'cus_membership_id'=>$trial_membership['cus_membership_id'],                            
+                            'status'=>3
+                        ]);
+                        $start_date = $trial_membership['end_date'];
+                        $end_date = date('Y-m-d',strtotime('+ ' . $membership['time_period'] .' '. $membership['time_period_sufix'], strtotime($start_date)));   
+                        if($trial_period_days > 0){
+                            $end_date = date('Y-m-d', strtotime('+ ' . $trial_period_days .' day', strtotime($end_date))  );   
+                        }                       
+
+                    }
+                }
+                else{
+                    $start_date = date('Y-m-d');
+                    $end_date = date('Y-m-d',strtotime('+ ' . $membership['time_period'] .' '. $membership['time_period_sufix']));   
+                    if($trial_period_days > 0){
+                        $end_date = date('Y-m-d', strtotime('+ ' . $trial_period_days .' day', strtotime($end_date))  );   
+                    }     
+
+                }
+                
+                $tableData = [
+                    'customer_id'=>$customer_id,
+                    'membership_id'=>$membership_id,
+                    'stripe_subscription_id'=>$stripe_subscription_id,
+                    'order_id'=>$order_id,
+                    'start_date'=>$start_date,  
+                    'end_date'=>$end_date,
+                    'document_id'=>0,
+                    'status'=>1,
+                    'created_at'=>date('Y-m-d H:i:s'),  
+                    'updated_at'=>date('Y-m-d H:i:s'),   
+                ];        
+                DB::table('customers_membership')->insert($tableData);  
+            }         
             
             //=== customers_document =====
             if($guest_document_id){
@@ -520,5 +585,28 @@ class MembershipController extends Controller
             //=== mail to user [ends] ===              
         }            
     }  
+
+    public function cancel_membership($data){  
+        
+        $cus_membership_id = $data['cus_membership_id'] ?? '';
+        $end_date = $data['end_date'] ?? '';
+        $status = $data['status'] ?? '';
+
+        $cus_membership = Customers_membership::where('cus_membership_id',$cus_membership_id)->first()->toArray();  
+        $stripe_subscription_id = $cus_membership['stripe_subscription_id'] ?? '';        
+        
+        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+        $response = $stripe->subscriptions->cancel($stripe_subscription_id, []);
+        
+        if($response->status == 'canceled'){            
+            $table = Customers_membership::find($cus_membership_id);
+            $table->status   = $status; 
+            $table->end_date = ($end_date) ? $end_date : $cus_membership['end_date']; 
+            $table->save();             
+        }
+        
+    }
+
+   
     
 }

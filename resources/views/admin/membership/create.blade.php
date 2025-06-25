@@ -49,6 +49,17 @@
                 </span>                 
                 </div>
 
+
+                <div class="my-3">
+                <label class="form-label">Subscription Code</label>
+                <input type="text" class="form-control" id="code" name="code" value="{{ old('code') }}"> 
+                <span class="err" id="error-code">
+                @error('code')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div>
+
                
                 <div class="mb-3">
                 <label class="form-label">Description</label>

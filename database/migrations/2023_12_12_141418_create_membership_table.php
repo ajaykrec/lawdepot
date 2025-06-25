@@ -15,13 +15,14 @@ return new class extends Migration
             $table->id('membership_id');  
             $table->integer('country_id');       
             $table->string('name',150)->nullable();   
+            $table->string('code',100)->nullable(); 
             $table->text('description')->nullable();  
             $table->text('specification')->nullable();  
             $table->string('currency_code',10)->nullable();          
             $table->decimal('price'); 
             $table->integer('time_period');    
             $table->enum('time_period_sufix',['day','week','month','year']); 
-            $table->enum('mode',['payment','subscription']); 
+            $table->enum('mode',['payment','subscription']);             
             $table->integer('trial_period_days');    
             $table->integer('is_per_document');
             $table->string('button_color',50)->nullable(); 

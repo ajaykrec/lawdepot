@@ -130,6 +130,7 @@ class MembershipController extends Controller
         $rules = [
             'country_id'=> 'required',
             'name'    => 'required',
+            'code'    => 'required',
             'price'   => 'required',   
             'time_period'   => 'required',            
             'time_period_sufix'   => 'required',                     
@@ -155,7 +156,8 @@ class MembershipController extends Controller
             // store
             $table = new Membership;
             $table->country_id          = $request['country_id'] ?? '';
-            $table->name                = $request['name'];           
+            $table->name                = $request['name'] ?? '';   
+            $table->code                = $request['code'] ?? '';               
             $table->description         = $request['description'] ?? '';
             $table->specification       = json_encode($request['specification'] ?? '');
             $table->price               = $request['price'] ?? 0;
@@ -209,6 +211,7 @@ class MembershipController extends Controller
         $rules = [
             'country_id'=> 'required',
             'name'    => 'required',
+            'code'    => 'required',
             'price'   => 'required',   
             'time_period'   => 'required',            
             'time_period_sufix'   => 'required',                     
@@ -232,7 +235,8 @@ class MembershipController extends Controller
 
             $table = Membership::find($id);
             $table->country_id          = $request['country_id'] ?? '';
-            $table->name                = $request['name'];           
+            $table->name                = $request['name'] ?? '';      
+            $table->code                = $request['code'] ?? '';         
             $table->description         = $request['description'] ?? '';
             $table->specification       = json_encode($request['specification'] ?? '');    
             $table->price               = $request['price'] ?? 0;

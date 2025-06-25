@@ -49,6 +49,16 @@
                 @enderror 
                 </span>                 
                 </div>
+
+                <div class="my-3">
+                <label class="form-label">Subscription Code</label>
+                <input type="text" class="form-control" style="background:#eed" id="code" name="code" value="{{ old('code', $data['code'] ?? '') }}" readonly> 
+                <span class="err" id="error-code">
+                @error('code')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div>
                 
 
                 <div class="mb-3">
