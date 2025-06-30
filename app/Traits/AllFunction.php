@@ -1657,6 +1657,52 @@ trait AllFunction {
                 Session::forget('fields');  
             }                
         }        
+    } 
+    
+    static function cancel_membership($data){  
+
+        $cus_membership_id = $data['cus_membership_id'] ?? '';  
+        $cus_membership = Customers_membership::where('cus_membership_id',$cus_membership_id)->with(['membership'])->first()->toArray();  
+        $stripe_subscription_id = $cus_membership['stripe_subscription_id'] ?? '';  
+        $code = $cus_membership['membership']['code'] ?? '';  
+        
+        if($code == 'TRIAL'){
+            $diff = date_diff( date_create(date('Y-m-d')), date_create($cus_membership['start_date']));
+            $datediff = $diff->format("%a");
+            if($datediff <= 7){ 
+
+                $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+                $response = $stripe->subscriptions->cancel($stripe_subscription_id, []);
+
+                $table = Customers_membership::find($cus_membership_id);
+                $table->status   = 4; 
+                $table->end_date = date('Y-m-d'); 
+                $table->save();  
+            }
+            elseif($datediff > 7){
+                
+                $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+                $response = $stripe->subscriptions->update($stripe_subscription_id,
+                    ['cancel_at_period_end' => true]
+                );
+
+                $table = Customers_membership::find($cus_membership_id);
+                $table->status = 3;            
+                $table->save();  
+            }
+        }
+        else{
+            $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+            //$response = $stripe->subscriptions->cancel($stripe_subscription_id, []);
+            $response = $stripe->subscriptions->update($stripe_subscription_id,
+                ['cancel_at_period_end' => true]
+            );
+
+            $table = Customers_membership::find($cus_membership_id);
+            $table->status = 3; 
+            $table->save(); 
+
+        }
     }      
     
 }

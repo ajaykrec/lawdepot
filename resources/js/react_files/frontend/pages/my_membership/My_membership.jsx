@@ -145,7 +145,8 @@ const My_membership = () => {
                                       >View</button>
 
                                       { 
-                                        val.status !== 3 &&
+                                        
+                                        ( val.status !== 3 && val.status !== 4 ) &&
                                         <button type="button" className="btn1"
                                         title="Cancel" onClick={() => confirmCancel(val.cus_membership_id)}
                                         >Cancel</button>

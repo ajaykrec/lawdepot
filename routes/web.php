@@ -19,6 +19,7 @@ use App\Http\Controllers\MyMembershipController;
 use App\Http\Controllers\MySettingsController;
 use App\Http\Controllers\ChangePasswordController;
 
+use App\Http\Controllers\TestingController;
 
 //=== download file ====
 Route::get('/download/{folder}/{file_name}', function ($folder,$file_name) { 
@@ -91,6 +92,7 @@ Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
     Route::get('/checkout', [MembershipController::class, 'checkout'])->name('membership.checkout');
     Route::any('/checkout-success', [MembershipController::class, 'success'])->name('membership.checkout.success');
     Route::any('/checkout-callback', [MembershipController::class, 'callback'])->name('membership.checkout.callback');
+    Route::any('/renew-callback', [MembershipController::class, 'renew'])->name('membership.renew.callback');   
     
 
     //=== pages ==
@@ -102,6 +104,9 @@ Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'
     //=== contact ==
     Route::get('/contact', [ContactController::class,'index'])->name('contact');
     Route::post('/contact', [ContactController::class,'post_contact'])->name('post.contact');  
+
+    //=== testing ==
+    Route::get('/testing-renewal', [TestingController::class,'index']);
     
     //=== 404 page ====
     Route::any('{catchall}', [PagesController::class,'notfound'])->where('catchall', '.*');

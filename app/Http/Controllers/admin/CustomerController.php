@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Traits\AllFunction;
 use App\Models\Customers;
 use App\Models\Customers_address;
+use App\Models\Membership;
 
 use Illuminate\Support\Facades\DB;
 
@@ -30,11 +31,23 @@ class CustomerController extends Controller
             'keywords'=>'',
             'description'=>'',
         ];    
+
+        
+        $q = DB::table('membership')    
+        ->where('mode','subscription')  
+        ->get()->toArray();  
+        $memberships = json_decode(json_encode($q), true); 
+        $mArr = [];
+        foreach($memberships as $val){
+            $mArr[$val['membership_id']] = $val;
+        }        
+
         
         $filterArr               = [];
         $filterArr['name']       = $request['name'] ?? '';
         $filterArr['email']      = $request['email'] ?? '';
         $filterArr['phone']      = $request['phone'] ?? '';
+        $filterArr['membership_id'] = $request['membership_id'] ?? '';   
         $filterArr['status']     = $request['status'] ?? '';   
 
         //=== pagi_url
@@ -59,7 +72,7 @@ class CustomerController extends Controller
         $offset = ($page - 1)*$limit;
         $start_count  = ($page * $limit - $limit + 1);
 
-        $q = Customers::query();
+        $q = Customers::query();        
         if($filterArr){
             foreach($filterArr as $key=>$val){
                 if($val!=''){
@@ -72,20 +85,36 @@ class CustomerController extends Controller
                     if($key == 'phone'){
                         $q->where('phone','like','%'.$val.'%');
                     }
+                    if($key == 'membership_id'){
+                        $q->whereRelation('customers_membership', 'membership_id', $val);
+                        $q->whereRelation('customers_membership', 'status', 1);
+                    }
                     if($key == 'status'){
                         $q->where('status',$val);
                     }
                 }
             }
         }     
-        $q->with(['membership','documents']);        
+        $q->with(['customers_membership','documents']);        
         $q->orderBy("name", "asc"); 
         $count = $q->count();     
-        $results  = $q->limit($limit)->offset($offset)->get()->toArray(); 
-        $paginate = AllFunction::paginate($count, $limit, $page, 3, $pagi_url);        
+        $resultsArr  = $q->limit($limit)->offset($offset)->get()->toArray(); 
+        $results = [];
+        foreach($resultsArr as $val){
+            $customers_membership = $val['customers_membership']; 
+            $membership = [];           
+            foreach($customers_membership as $val2){
+                if($val2['status'] == 1){
+                    $membership = $mArr[$val2['membership_id']] ?? [];          
+                }
+            }   
+            $val['membership'] = $membership;          
+            $results[] = $val;
+        }      
+        //p($results); 
+        $paginate = AllFunction::paginate($count, $limit, $page, 3, $pagi_url);   
 
-        $data = compact('meta','results','count','start_count','paginate'); 
-        
+        $data = compact('meta','results','count','start_count','paginate','memberships');         
         $data = array_merge($data,$filterArr);        
        
         return view('admin.customers.index')->with($data);

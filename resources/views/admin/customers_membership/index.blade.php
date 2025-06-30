@@ -29,8 +29,11 @@
                                 <div class="mb-2">
                                 <select class="form-select" id="status" name="status">
                                     <option value="">Status</option>
-                                    <option value="1" {{ ($status=='1') ? 'selected' : '' }}>Active</option>
                                     <option value="0" {{ ($status=='0') ? 'selected' : '' }}>In-Active</option>
+                                    <option value="1" {{ ($status=='1') ? 'selected' : '' }}>Active</option>
+                                    <option value="2" {{ ($status=='2') ? 'selected' : '' }}>Up-Comming</option>
+                                    <option value="3" {{ ($status=='3') ? 'selected' : '' }}>To Be Cancelled</option>
+                                    <option value="4" {{ ($status=='4') ? 'selected' : '' }}>Cancelled</option>
                                 </select>                             
                                 </div>  
                                 </div>     

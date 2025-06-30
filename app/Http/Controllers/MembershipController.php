@@ -10,8 +10,8 @@ use App\Models\Customers;
 use App\Models\Orders;
 use App\Models\Country;
 use App\Models\Users_type;
+use App\Models\Test_callback_url;
 use App\Models\Customers_membership;
-
 use Illuminate\Support\Facades\DB;
 
 use Illuminate\Support\Facades\Session;
@@ -40,13 +40,13 @@ class MembershipController extends Controller
         ->with(['membership'])     
         ->orderBy('cus_membership_id','desc')   
         ->get()->toArray(); 
-        $cusMembershipID = [];
+        $cusMembershipCode = [];
         foreach($customers_membership as $val){
-            $cusMembershipID[] = $val['membership_id'];
+            $cusMembershipCode[] = $val['membership']['code'];
         }
 
         //==== if customer hase '1 Year Pro Subscription' redirect to Dashboard
-        if(in_array('1',$cusMembershipID)){
+        if(in_array('1YEARPRO',$cusMembershipCode)){
              return redirect( route('customer.account') );
         }
         //======        
@@ -88,9 +88,9 @@ class MembershipController extends Controller
         $membership = [];
         foreach( $results as $val ){
 
-            if(!in_array($val['membership_id'],$cusMembershipID)){
+            if(!in_array($val['code'], $cusMembershipCode)){
 
-                if( $val['membership_id'] == 4 && !$guest_document_id){
+                if( $val['code'] == 'ONEOFF' && !$guest_document_id){
 
                 }
                 else{
@@ -357,16 +357,16 @@ class MembershipController extends Controller
     public function fulfill_checkout($session_id){
         
         $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
-        $checkout_session = $stripe->checkout->sessions->retrieve($session_id, [
+        $data = $stripe->checkout->sessions->retrieve($session_id, [
             'expand' => ['line_items'],
         ]);     
 
-        if($checkout_session->payment_status != 'unpaid'){
-            // $table = new Users_type;
-            // $table->user_type  = 'callback';            
-            // $table->modules    = $checkout_session;   
+        if($data->payment_status != 'unpaid'){
+            // $table = new Test_callback_url;
+            // $table->name      = 'checkout.session.completed';            
+            // $table->response  = $data;   
             // $table->save();  
-            MembershipController::save_order_data($checkout_session);
+            MembershipController::save_order_data($data);
         }
     }
     public function save_order_data($data){  
@@ -494,16 +494,17 @@ class MembershipController extends Controller
                 $trial_membership = $q[0] ?? [];                
                 
                 if($trial_membership){
+
+                    //=== cancel trial membership
+                    AllFunction::cancel_membership([
+                        'cus_membership_id'=>$trial_membership['cus_membership_id']
+                    ]);  
                     
-                    $datediff = date_diff( date_create(date('Y-m-d')), date_create($trial_membership['start_date']));
+                    $diff = date_diff( date_create(date('Y-m-d')), date_create($trial_membership['start_date']));
+                    $datediff = $diff->format("%a");
 
                     if($datediff <= 7){
-                        //=== cancel trial membership
-                        MembershipController::cancel_membership([
-                            'cus_membership_id'=>$trial_membership['cus_membership_id'],
-                            'end_date'=>date('Y-m-d'),
-                            'status'=>4
-                        ]);
+
                         $start_date = date('Y-m-d');
                         $end_date   = date('Y-m-d',strtotime('+ ' . $membership['time_period'] .' '. $membership['time_period_sufix']));   
                         if($trial_period_days > 0){
@@ -511,11 +512,7 @@ class MembershipController extends Controller
                         }     
                     }
                     elseif($datediff > 7){
-                        //=== cancel trial membership
-                        MembershipController::cancel_membership([
-                            'cus_membership_id'=>$trial_membership['cus_membership_id'],                            
-                            'status'=>3
-                        ]);
+                        
                         $start_date = $trial_membership['end_date'];
                         $end_date = date('Y-m-d',strtotime('+ ' . $membership['time_period'] .' '. $membership['time_period_sufix'], strtotime($start_date)));   
                         if($trial_period_days > 0){
@@ -584,29 +581,173 @@ class MembershipController extends Controller
             ]);           
             //=== mail to user [ends] ===              
         }            
-    }  
+    } 
 
-    public function cancel_membership($data){  
-        
-        $cus_membership_id = $data['cus_membership_id'] ?? '';
-        $end_date = $data['end_date'] ?? '';
-        $status = $data['status'] ?? '';
+    public function renew(Request $request){       
 
-        $cus_membership = Customers_membership::where('cus_membership_id',$cus_membership_id)->first()->toArray();  
-        $stripe_subscription_id = $cus_membership['stripe_subscription_id'] ?? '';        
-        
-        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
-        $response = $stripe->subscriptions->cancel($stripe_subscription_id, []);
-        
-        if($response->status == 'canceled'){            
-            $table = Customers_membership::find($cus_membership_id);
-            $table->status   = $status; 
-            $table->end_date = ($end_date) ? $end_date : $cus_membership['end_date']; 
-            $table->save();             
+        $endpoint_secret = env('STRIPE_Renew_Endpoint_Secret_key');
+        $payload = @file_get_contents('php://input');
+        $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
+        $event = null;
+
+        try{
+            $event = \Stripe\Webhook::constructEvent(
+                $payload, $sig_header, $endpoint_secret
+            );
+        }catch(\UnexpectedValueException $e) {
+            // Invalid payload
+            http_response_code(400);
+            exit();
+        }catch(\Stripe\Exception\SignatureVerificationException $e) {
+            // Invalid signature
+            http_response_code(400);
+            exit();
         }
-        
-    }
 
-   
+        if( $event->type == 'invoice.payment_succeeded'){
+            $id = $event->data->object->id;
+            MembershipController::fulfill_renew_succeeded($id);
+        }
+        elseif( $event->type == 'invoice.payment_failed'){
+            $id = $event->data->object->id;
+            MembershipController::fulfill_renew_failed($id);
+        }
+        http_response_code(200);        
+    }
+    public function fulfill_renew_succeeded($id){
+        
+        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));        
+        $data = $stripe->invoices->retrieve($id, []);
+
+        if($data->billing_reason == 'subscription_cycle'){
+            
+            //=== insert response data into table for record 
+            $table = new Test_callback_url;
+            $table->name      = 'invoice.payment_succeeded for billing_reason:subscription_cycle';            
+            $table->response  = $data;   
+            $table->save();  
+            //=====
+            
+            $stripe_invoice = $data->id ?? '';
+            $stripe_subscription_id = $data->parent->subscription_details->subscription ?? '';
+            $amount_paid = $data->amount_paid ?? 0;
+            $amount_paid = ($amount_paid/100);
+            $stripe_customer_id = $data->customer ?? '';
+
+            $start_date = $data->lines->data[0]->period->start ?? '';
+            $start_date = date('Y-m-d', $start_date);
+            $end_date = $data->lines->data[0]->period->end ?? '';
+            $end_date = date('Y-m-d', $end_date);
+            $status = $data->status ?? '';  //paid
+
+            $q = Customers_membership::query();          
+            $q = $q->where('stripe_subscription_id',$stripe_subscription_id);    
+            $q = $q->with(['membership']);      
+            $q = $q->first(); 
+            $cus_membership = json_decode(json_encode($q), true); 
+
+            $cus_membership_id = $cus_membership['cus_membership_id'] ?? '';
+            $customer_id = $cus_membership['customer_id'] ?? '';
+            $membership_id = $cus_membership['membership_id'] ?? '';
+            $country_id = $cus_membership['membership']['country_id'] ?? '';
+
+            $invoice_sufix = AllFunction::get_invoice_sufix();
+            $invoice_number = AllFunction::get_invoice_number();
+            $ip = AllFunction::get_client_ip();
+
+            $customer = Customers::find($customer_id)->toArray();    
+            $country = Country::find($country_id)->toArray();   
+            
+            $membership = Membership::find($membership_id)->toArray(); 
+            $code = $membership['code'] ?? '';       
+            $trial_period_days = $membership['trial_period_days'] ?? 0;       
+            $membership['specification'] = (array)json_decode($membership['specification']);             
+
+            //=== insert order table =====
+            $tableData = [
+                'invoice_sufix'=>$invoice_sufix,
+                'invoice_number'=>$invoice_number,
+                'stripe_invoice'=>$stripe_invoice,
+                'customer_id'=>$customer_id,
+                'transaction_id'=>$stripe_subscription_id,
+                'stripe_session_id'=>'',
+                'name'=>$customer['name'] ?? '',
+                'email'=>$customer['email'] ?? '',
+                'phone'=>$customer['phone'] ?? '',
+
+                'billing_name'=> '',
+                'billing_address'=> '',
+                'billing_country_id'=>$country_id ?? '',
+                'billing_country'=>$country['name'] ?? '',
+                'billing_zone_id'=>'0',
+                'billing_zone'=>'',
+                'billing_city'=>'',
+                'billing_postcode'=>'',                    
+                'shipping_name'=> '',
+                'shipping_address'=> '',
+                'shipping_country_id'=>$country_id ?? '',
+                'shipping_country'=>$country['name'] ?? '',
+                'shipping_zone_id'=>'0',
+                'shipping_zone'=>'',
+                'shipping_city'=>'',
+                'shipping_postcode'=>'',                      
+                'comment'=>'',             
+                'payment_method'=>'Stripe',
+                'shipping_method'=>'',
+                'ip'=>$ip,
+                'currency_code'=>$country['currency_code'] ?? '',
+                'total'=>$membership['price'] ?? '0.00',
+                'sub_total'=>$membership['price'] ?? '0.00',
+                
+                'discount'=>0.00,
+                'tax'=>0.00,
+                'delivery_charge'=>0.00,
+                'commission'=>0.00,
+
+                'order_status'=>'1',
+                'payment_status'=>'1',
+                'delivery_status'=>'2',  
+                'created_at'=>date('Y-m-d H:i:s'),  
+                'updated_at'=>date('Y-m-d H:i:s'),   
+            ];        
+            $order_id = DB::table('orders')->insertGetId($tableData);
+            $tableData = [
+                'order_id'=>$order_id,
+                'customer_id'=>$customer_id,
+                'item_id'=>$membership_id,
+                'item_name'=>$membership['name'] ?? '',
+                'item_type'=>'0',
+                'image'=>'',
+                'options'=>'',
+                'currency_code'=>$country['currency_code'] ?? '',
+                'price'=>$membership['price'] ?? '0.00',
+                'quantity'=>1,
+                'created_at'=>date('Y-m-d H:i:s'),  
+                'updated_at'=>date('Y-m-d H:i:s'),   
+            ];        
+            DB::table('orders_items')->insert($tableData);
+            
+            //=== update Customers_membership
+            $table = Customers_membership::find($cus_membership_id);
+            $table->order_id = $order_id;
+            $table->start_date = $start_date;
+            $table->end_date = $end_date; 
+            $table->status = 1; 
+            $table->save();            
+            
+        }
+    } 
+    public function fulfill_renew_failed($id){  
+        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));        
+        $data = $stripe->invoices->retrieve($id, []);
+        
+        if($data->billing_reason == 'subscription_cycle'){
+            //=== insert response data into table for record 
+            $table = new Test_callback_url;
+            $table->name      = 'invoice.payment_failed for billing_reason:subscription_cycle';            
+            $table->response  = $data;   
+            $table->save(); 
+        }
+    }
     
 }

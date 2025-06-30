@@ -41,11 +41,22 @@
                                 <input type="text" class="form-control" id="phone" name="phone" value="{{ $phone ?? '' }}" placeholder="Phone">                                
                                 </div>  
                                 </div> 
+
+                                <div class="col-lg-4 col-md-6 col-12">
+                                <div class="mb-2">
+                                <select class="form-select" id="membership_id" name="membership_id">
+                                    <option value="">Membership</option>
+                                    @foreach($memberships as $val)
+                                    <option value="{{ $val['membership_id'] }}" {{ ($val['membership_id']==$membership_id) ? 'selected' : '' }}>{{ $val['name'] }}</option>
+                                    @endforeach
+                                </select>                             
+                                </div>  
+                                </div>     
                                 
                                 <div class="col-lg-4 col-md-6 col-12">
                                 <div class="mb-2">
                                 <select class="form-select" id="status" name="status">
-                                    <option value=""></option>
+                                    <option value="">Status</option>
                                     <option value="1" {{ ($status=='1') ? 'selected' : '' }}>Active</option>
                                     <option value="0" {{ ($status=='0') ? 'selected' : '' }}>In-Active</option>
                                 </select>                             
@@ -81,8 +92,9 @@
                                     <th>Name</th>
                                     <th>Email</th>
                                     <th>Phone</th>
-                                    <th>Status</th>                                    
-                                    <th class="text-end px-5">Action</th>
+                                    <th class="text-center">Active Membership</th>   
+                                    <th class="text-center">Status</th>                                    
+                                    <th class="text-center px-5">Action</th>
                                 </tr>                                         
                             </thead>                            
                             <tbody>
@@ -93,18 +105,24 @@
                                         <td>{{ $start_count }}</td>
                                         <td>{{ $val['name'] }}</td>   
                                         <td>{{ $val['email'] }}</td> 
-                                        <td>{{ $val['phone'] }}</td>                                                           
-                                        <td>
+                                        <td>{{ $val['phone'] }}</td>   
+                                        <td class="text-center">
+                                            <span class="badge rounded-pill" style="background:{{ $val['membership']['button_color'] ?? '#ccc' }}">
+                                                {{ $val['membership']['name'] ?? 'None' }}
+                                            </span>
+                                        </td>                                                             
+                                        <td class="text-center">
                                             @if($val['status'] == '1')                                                
                                                 <span class="badge rounded-pill bg-success">Active</span>
                                             @else
                                                 <span class="badge rounded-pill bg-danger">In-Active</span>                                                
                                             @endif
                                         </td>
-                                        <td class="text-end">                                           
+                                        <td class="text-center">                                           
 
-                                            <a href="{{ route('customers.membership.index',$val['customer_id']) }}" class="btn btn-md" title="Membership">Membership ({{ count($val['membership']) }})</a> |
-                                            <a href="{{ route('customers.cusdocument.index',$val['customer_id']) }}" class="btn btn-md" title="Documents">Documents ({{ count($val['documents']) }})</a> |                                               
+                                            <a href="{{ route('customers.membership.index',$val['customer_id']) }}" class="btn btn-md" title="Membership"><i class="bi bi-bookmarks-fill"></i> ({{ count($val['customers_membership']) }})</a> |
+                                            <a href="{{ route('customers.cusdocument.index',$val['customer_id']) }}" class="btn btn-md" title="Documents"><i class="bi bi-file-earmark-text-fill"></i> ({{ count($val['documents']) }})</a> |
+                                                       
 
                                             @if(has_permision(['customers'=>'RW']))
                                             <a href="{{ route('customers.edit',$val['customer_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
@@ -119,7 +137,7 @@
                                     @endforeach
                                 @else
                                 <tr>
-                                    <td colspan="7">No record found</td>
+                                    <td colspan="8">No record found</td>
                                 </tr>
                                 @endif
                             </tbody>

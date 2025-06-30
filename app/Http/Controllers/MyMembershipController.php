@@ -47,6 +47,25 @@ class MyMembershipController extends Controller
 
         $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
         $customer_id = $customer['customer_id'] ?? ''; 
+        $stripe_customer_id = $customer['stripe_customer_id'] ?? ''; 
+
+        /*
+        // https://docs.stripe.com/api-pagination?examples=list
+        // https://docs.stripe.com/api/pagination
+        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+        $subscriptions = $stripe->subscriptions->all([
+            'customer' => $stripe_customer_id,
+            'limit' => 10,
+            //'status'=>'',
+            //'starting_after'=>'sub_1RQmbHRu7kEVO5cCP3Z9WAEf', // for next request
+            //'ending_before'=>'sub_1RQmbHRu7kEVO5cCP3Z9WAEf' // for previous request
+        ]);
+        p($subscriptions);
+        //$product = $stripe->products->retrieve('prod_SYg2cmAsRO8Vgy', []);
+        p($product);
+        */
+        
+        
 
         //=== membership list
         $filterArr            = [];
@@ -108,24 +127,11 @@ class MyMembershipController extends Controller
     }
 
     
-    public function cancel_membership($cus_membership_id, Request $request){   
-
-        $cus_membership = Customers_membership::where('cus_membership_id',$cus_membership_id)->first()->toArray();  
-        $stripe_subscription_id = $cus_membership['stripe_subscription_id'] ?? '';        
-        
-        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
-        $response = $stripe->subscriptions->cancel($stripe_subscription_id, []);
-
-        //p($response); 
-        if($response->status == 'canceled'){
-
-            $table = Customers_membership::find($cus_membership_id);
-            $table->status = 3; 
-            $table->save(); 
-
-            return redirect( route('customer.membership') )->with(['success'=>'Subscription has been Canceled successfully']);
-        }
-        
+    public function cancel_membership($cus_membership_id, Request $request){ 
+        AllFunction::cancel_membership([
+            'cus_membership_id'=>$cus_membership_id
+        ]);        
+        return redirect( route('customer.membership') )->with(['success'=>'Subscription has been Canceled successfully']);
     }
     
 }

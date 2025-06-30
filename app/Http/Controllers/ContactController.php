@@ -16,7 +16,7 @@ class ContactController extends Controller
 {
     use AllFunction; 
 
-    public function index(){       
+    public function index(){          
 
         $language_id = AllFunction::get_current_language();    
 
@@ -107,7 +107,6 @@ class ContactController extends Controller
                 'content'=>$body,
             ]);
             //=== mail [ends] ===
-
             return redirect( route('contact') )->with(['success'=>'We received your information. We will get back to you soon.']);
         }        
     }
