@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id('membership_id');  
             $table->integer('country_id');       
             $table->string('name',150)->nullable();   
+            $table->string('name_after_free_trial',150)->nullable();   
             $table->string('code',100)->nullable(); 
             $table->text('description')->nullable();  
             $table->text('specification')->nullable();  

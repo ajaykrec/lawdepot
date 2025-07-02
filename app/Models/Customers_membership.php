@@ -15,4 +15,10 @@ class Customers_membership extends Model
     function membership(){
         return $this->hasOne('App\Models\Membership','membership_id','membership_id');
     }
+    function order(){
+        return $this->hasOne('App\Models\Orders','order_id','order_id');
+    }
+    function orderitems(){
+        return $this->hasMany('App\Models\Orders_item','order_id','order_id');
+    }
 }

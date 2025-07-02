@@ -22,9 +22,7 @@ const My_membership = () => {
   const dispatch = useDispatch()  
   const membershipModelState = useSelector( (state)=> state.membership_modal ) 
 
-  const [membership_data, set_membership_data] = useState({})   
-  const [order_data, set_order_data] = useState({}) 
-  
+  const [subscription_data, set_subscription_data] = useState({})    
   const MySwal = withReactContent(Swal)
 
   const parseWithLinks = (html) =>{
@@ -54,16 +52,10 @@ const My_membership = () => {
         confirmButtonText: 'Yes, Cancel it!',
         cancelButtonText: 'No'
         }).then( async (result) => {
-        if (result.isConfirmed) {                                          
-          location.href = route('cancel.membership',id)    
-          // MySwal.fire({
-          //       //icon: 'success',
-          //       width: '350px',
-          //       animation: false,
-          //       title: 'Canceled!',
-          //       text: "Subscription has been Canceled successfully."
-          // })		
+        if (result.isConfirmed) {     
 
+          location.href = route('cancel.membership',id)   
+          
         }
       })	
   }   
@@ -111,7 +103,7 @@ const My_membership = () => {
                                 return(
                                   <tr key={i}>
                                     <th scope="row">{start_count}</th> 
-                                    <td>{membership.name}</td>
+                                    <td>{ val.subscription_name }</td>
                                     <td>{ allFunction.currency(membership.price, membership.currency_code) }</td>                                    
                                     <td>{ allFunction.dateFormat(val.end_date) }</td>  
                                     <td>
@@ -138,8 +130,7 @@ const My_membership = () => {
                                       <button type="button" className="btn1"
                                       onClick={()=>{
                                         dispatch(membershipAction(true))
-                                        set_membership_data(membership)
-                                        set_order_data(order)
+                                        set_subscription_data(val)                                        
                                         
                                       }}
                                       >View</button>
@@ -173,7 +164,7 @@ const My_membership = () => {
           </div> 
         </section>   
         {membershipModelState.show &&
-          <Membership_modal membership={membership_data} order={order_data} />
+          <Membership_modal subscription={subscription_data} />
         }	      
     </>
   )

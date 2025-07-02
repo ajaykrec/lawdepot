@@ -38,8 +38,11 @@ const allFunction = {
       'USD':'$',
       'AUD':'A$'
     }
-    let Amt = amount.replace('.00', '');
-    return codes[currency_code] + Amt; 
+    
+    const AmtArray = String(amount).split(".");
+    const decimalPart = AmtArray[1] ?? '';
+    let Amt = (decimalPart > 0  ) ? amount : AmtArray[0];
+    return codes[currency_code.toUpperCase()] + Amt; 
   },
   objToQuerystring : (obj)=> {
     const keyValuePairs = [];

@@ -120,7 +120,17 @@
                 {{$message}}
                 @enderror 
                 </span>                 
-                </div>                
+                </div>  
+                
+                <div class="my-3">
+                <label class="form-label">Name after free trial</label>
+                <input type="text" class="form-control" id="name_after_free_trial" name="name_after_free_trial" value="{{ old('name_after_free_trial', $data['name_after_free_trial'] ?? '') }}"> 
+                <span class="err" id="error-name_after_free_trial">
+                @error('name_after_free_trial')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div>
 
 
                 @php

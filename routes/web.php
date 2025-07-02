@@ -4,20 +4,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PagesController;
-
 use App\Http\Controllers\SearchController;
-
 use App\Http\Controllers\DocumentCategoryController;
 use App\Http\Controllers\DocumentController; 
-
 use App\Http\Controllers\MembershipController; 
-
 use App\Http\Controllers\Auth\CustomerController;
 use App\Http\Controllers\MyAccountController;
 use App\Http\Controllers\MyDocumentController;
 use App\Http\Controllers\MyMembershipController;
 use App\Http\Controllers\MySettingsController;
+use App\Http\Controllers\MyInvoiceController;
 use App\Http\Controllers\ChangePasswordController;
+
 
 use App\Http\Controllers\TestingController;
 
@@ -54,6 +52,9 @@ Route::middleware(['auth.customer','front_view'])->group( function(){
     Route::get('/my-documents/{cus_document_id}',[MyDocumentController::class, 'view'])->name('customer.documents.view');  
     Route::get('/edit-my-documents/{cus_document_id}',[MyDocumentController::class, 'edit'])->name('customer.documents.edit');  
     Route::post('/update-my-documents/{cus_document_id}',[MyDocumentController::class, 'update'])->name('customer.documents.update');  
+
+    Route::get('/my-invoices',[MyInvoiceController::class, 'index'])->name('customer.invoices'); 
+    
 });
 
 Route::group(['middleware'=>['front_view']],function(){ // 'prefix' => 'in'

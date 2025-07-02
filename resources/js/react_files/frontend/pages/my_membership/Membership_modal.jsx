@@ -18,17 +18,17 @@ const Membership_modal = (props)=>{
 	useEffect(() => {	
 	},[props]);  
 
-  const membership = props.membership 
-  const order = props.order 
-  const orderitems = order.orderitems 
-  console.log(orderitems)
+  const subscription = props.subscription 
+  const membership = subscription.membership 
+  const order = subscription.order 
+  const orderitems = subscription.orderitems 
 
   return reactDOM.createPortal(   
 	  <>      
       <Modal show={membershipModelState.show} size="lg" onHide={()=>dispatch(membershipAction(false))} backdrop="static" id=" membership_modal" className='modal-dialog-centered'>
       <Modal.Header closeButton style={{background:"#e2e3e5"}}>
         <Modal.Title className='mb-0'>
-        { membership.name }
+        { subscription.subscription_name }
         </Modal.Title> 
       </Modal.Header>
       <Modal.Body className="modal-body">

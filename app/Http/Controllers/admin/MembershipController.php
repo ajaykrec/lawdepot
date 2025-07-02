@@ -157,6 +157,8 @@ class MembershipController extends Controller
             $table = new Membership;
             $table->country_id          = $request['country_id'] ?? '';
             $table->name                = $request['name'] ?? '';   
+            $table->name_after_free_trial = $request['name_after_free_trial'] ?? '';   
+            
             $table->code                = $request['code'] ?? '';               
             $table->description         = $request['description'] ?? '';
             $table->specification       = json_encode($request['specification'] ?? '');
@@ -235,7 +237,8 @@ class MembershipController extends Controller
 
             $table = Membership::find($id);
             $table->country_id          = $request['country_id'] ?? '';
-            $table->name                = $request['name'] ?? '';      
+            $table->name                = $request['name'] ?? ''; 
+            $table->name_after_free_trial = $request['name_after_free_trial'] ?? '';        
             $table->code                = $request['code'] ?? '';         
             $table->description         = $request['description'] ?? '';
             $table->specification       = json_encode($request['specification'] ?? '');    

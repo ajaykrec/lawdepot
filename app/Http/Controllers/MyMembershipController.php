@@ -50,7 +50,7 @@ class MyMembershipController extends Controller
         $stripe_customer_id = $customer['stripe_customer_id'] ?? ''; 
 
         /*
-        // https://docs.stripe.com/api-pagination?examples=list
+        // https://docs.stripe.com/api/invoices/list
         // https://docs.stripe.com/api/pagination
         $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
         $subscriptions = $stripe->subscriptions->all([
@@ -63,9 +63,7 @@ class MyMembershipController extends Controller
         p($subscriptions);
         //$product = $stripe->products->retrieve('prod_SYg2cmAsRO8Vgy', []);
         p($product);
-        */
-        
-        
+        */   
 
         //=== membership list
         $filterArr            = [];
@@ -103,20 +101,23 @@ class MyMembershipController extends Controller
                 }
             }
         }            
-        $q->with(['membership']); 
+        $q->with(['membership','order','orderitems']); 
         $q->orderBy('cus_membership_id','desc'); 
         $count = $q->count();     
         $results  = $q->limit($limit)->offset($offset)->get()->toArray(); 
         $results  = json_decode(json_encode($results), true); 
-        $returnArr = [];
-        if($results){
-            foreach($results as $val){
-                $order = Orders::query()->where('order_id',$val['order_id'])->with(['orderitems'])->get()->toArray(); 
-                $val['order'] = $order[0];
-                $returnArr[] = $val;
-            }
-        }
-        $results  = $returnArr;
+        //dd($results);
+        
+        // $returnArr = [];
+        // if($results){
+        //     foreach($results as $val){
+        //         $order = Orders::query()->where('order_id',$val['order_id'])->with(['orderitems'])->get()->toArray(); 
+        //         $val['order'] = $order[0];
+        //         $returnArr[] = $val;
+        //     }
+        // }
+        // $results  = $returnArr;
+
         $paginate = AllFunction::paginate($count, $limit, $page, 3, $pagi_url);        
         //=====
         

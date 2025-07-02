@@ -73,7 +73,7 @@
                                             <input class="form-check-input selected-chk" type="checkbox" name="id[]" value="{{ $val['cus_membership_id'] }}">
                                         </td>
                                         <td>{{ $start_count }}</td>
-                                        <td>{{ $val['membership']['name'] }}</td>  
+                                        <td>{{ $val['subscription_name'] }}</td>  
                                         <td class="text-center">
                                             {{ currency($val['membership']['price'], $val['membership']['currency_code']) }}
                                         </td> 

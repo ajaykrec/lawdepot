@@ -470,6 +470,7 @@ class MembershipController extends Controller
                 $tableData = [
                     'customer_id'=>$customer_id,
                     'membership_id'=>$membership_id,
+                    'subscription_name'=> $membership['name'],            
                     'stripe_subscription_id'=>$stripe_subscription_id,
                     'order_id'=>$order_id,
                     'start_date'=>date('Y-m-d'),  
@@ -533,6 +534,7 @@ class MembershipController extends Controller
                 $tableData = [
                     'customer_id'=>$customer_id,
                     'membership_id'=>$membership_id,
+                    'subscription_name'=> $membership['name'],            
                     'stripe_subscription_id'=>$stripe_subscription_id,
                     'order_id'=>$order_id,
                     'start_date'=>$start_date,  
@@ -715,7 +717,7 @@ class MembershipController extends Controller
                 'order_id'=>$order_id,
                 'customer_id'=>$customer_id,
                 'item_id'=>$membership_id,
-                'item_name'=>$membership['name'] ?? '',
+                'item_name'=>($membership['name_after_free_trial']) ? $membership['name_after_free_trial'] : $membership['name'],
                 'item_type'=>'0',
                 'image'=>'',
                 'options'=>'',
@@ -729,6 +731,7 @@ class MembershipController extends Controller
             
             //=== update Customers_membership
             $table = Customers_membership::find($cus_membership_id);
+            $table->subscription_name = ($membership['name_after_free_trial']) ? $membership['name_after_free_trial'] : $membership['name'];            
             $table->order_id = $order_id;
             $table->start_date = $start_date;
             $table->end_date = $end_date; 

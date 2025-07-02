@@ -1664,7 +1664,9 @@ trait AllFunction {
         $cus_membership_id = $data['cus_membership_id'] ?? '';  
         $cus_membership = Customers_membership::where('cus_membership_id',$cus_membership_id)->with(['membership'])->first()->toArray();  
         $stripe_subscription_id = $cus_membership['stripe_subscription_id'] ?? '';  
-        $code = $cus_membership['membership']['code'] ?? '';  
+        $code = $cus_membership['membership']['code'] ?? ''; 
+        $name = $cus_membership['membership']['name'] ?? '';  
+        $name_after_free_trial = $cus_membership['membership']['name_after_free_trial'] ?? '';  
         
         if($code == 'TRIAL'){
             $diff = date_diff( date_create(date('Y-m-d')), date_create($cus_membership['start_date']));
@@ -1687,7 +1689,8 @@ trait AllFunction {
                 );
 
                 $table = Customers_membership::find($cus_membership_id);
-                $table->status = 3;            
+                $table->status = 3; 
+                $table->subscription_name = ($name_after_free_trial) ? $name_after_free_trial : $name;                
                 $table->save();  
             }
         }
