@@ -440,6 +440,7 @@ header .navbar [class*=col-] {
      border : 3px solid #fff
 }
 /**** nprogress [start] *****/
+/*
 #nprogress {
     pointer-events: none;
 }
@@ -506,6 +507,7 @@ header .navbar [class*=col-] {
         transform: rotate(360deg);
     }
 }
+*/
 /**** nprogress [ends] *****/
 
 /* Added by A.Roy [start] */

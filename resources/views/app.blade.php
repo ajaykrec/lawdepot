@@ -17,6 +17,7 @@
         <link rel="stylesheet" href="/frontend-assets/css/style.css"/>
         <link rel="stylesheet" href="/frontend-assets/css/responsive.css"/>
         <link rel="stylesheet" href="/frontend-assets/css/hosting.css" />
+        <link rel="stylesheet" href="/frontend-assets/css/nprogress.min.css" />
         <!-- jquery -->
         <script src="/frontend-assets/js/jquery.js"></script>
         @viteReactRefresh

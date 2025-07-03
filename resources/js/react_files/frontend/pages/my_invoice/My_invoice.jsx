@@ -54,11 +54,12 @@ const My_invoice = () => {
                           <thead>
                             <tr className='table-secondary'>
                               <th scope="col">#</th>
-                              <th scope="col">Total</th>                               
+                              <th scope="col">Total</th>      
+                              <th scope="col" className='text-center'>Status</th>                         
                               <th scope="col">Invoice Number</th>
                               <th scope="col">Created</th>
-                              <th scope="col">Renewal date</th>                              
-                              <th scope="col" className='text-center'>Status</th>
+                              <th scope="col">Renewal date</th>  
+                              <th scope="col" className='text-center'>Option</th>                              
                             </tr>
                           </thead>
                           <tbody>
@@ -70,16 +71,12 @@ const My_invoice = () => {
                                 let created_date = (new Date(val.created * 1000)).toUTCString() 
                                 let renewal_date = (new Date(val.lines.data[0].period.end * 1000)).toUTCString() 
 
-                                console.log('created:'+val.created+'  end:'+val.lines.data[0].period.end)
+                                let hosted_invoice_url = val.hosted_invoice_url ?? ''
                                
                                 return(
                                   <tr key={i}>
                                     <th scope="row">{start_count}</th>                                     
                                     <td>{ allFunction.currency((val.total/100), val.currency) }</td>  
-                                    <td>{ val.id }</td>   
-                                    <td>{ allFunction.dateFormat(created_date)  }</td>                                                                       
-                                    <td>{ allFunction.dateFormat(renewal_date)  }</td>        
-                                    
                                     <td className='text-center'>
                                       { 
                                         val.status == 'paid' ?
@@ -100,12 +97,18 @@ const My_invoice = () => {
                                         ''
                                       }                                      
                                     </td>                 
+                                    <td>{ val.id }</td>   
+                                    <td>{ allFunction.dateFormat(created_date)  }</td>                                                                       
+                                    <td>{ allFunction.dateFormat(renewal_date)  }</td>       
+                                    <td className='text-center'>
+                                    <a className="btn1" href={hosted_invoice_url} target="_blank">View</a>
+                                    </td>                                     
                                   </tr>
                                 )
                               })
                               :
                               <tr>
-                                  <td colspan="6">No record found</td>
+                                  <td colspan="7">No record found</td>
                               </tr>
                             }
                           </tbody>
