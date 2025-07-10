@@ -12,7 +12,7 @@ import allFunction from '../../helper/allFunction';
 
 const Membership = () => {
 
-    const { file_storage_url, common_data, pageData } = usePage().props  
+    const { file_storage_url, common_data, pageData, flash } = usePage().props  
     const membership_data = pageData.membership
     const country = common_data.country
 
@@ -62,7 +62,7 @@ const Membership = () => {
             <div className="row text-center">
                 <div className="col-12"> 
                 {parseWithLinks(''+pageData.page.content+'')}
-                </div> 
+                </div>                 
             </div>
         </div>
         </section>  

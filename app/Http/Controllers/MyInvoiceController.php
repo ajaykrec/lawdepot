@@ -48,20 +48,30 @@ class MyInvoiceController extends Controller
         $customer = (Session::has('customer_data')) ? Session::get('customer_data') : []; 
         $customer_id = $customer['customer_id'] ?? ''; 
         $stripe_customer_id = $customer['stripe_customer_id'] ?? ''; 
-       
-        // https://docs.stripe.com/api/invoices/list       
-        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
-        $results = $stripe->invoices->all([
-            'customer' => $stripe_customer_id, // cus_Sa1ZjYyLEHNBkS
-            'limit' => 25,
-            //'status'=>'', //draft, open, paid, uncollectible, void
-            //'starting_after'=>'sub_1RQmbHRu7kEVO5cCP3Z9WAEf', // for next request
-            //'ending_before'=>'sub_1RQmbHRu7kEVO5cCP3Z9WAEf' // for previous request
-        ]);   
-        $results = $results->data ?? [];
-        //p($results);       
+
+        $success_message = "";
+        $error_message = "";
+        $results = [];
+        try {
+            // https://docs.stripe.com/api/invoices/list       
+            $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+            $results = $stripe->invoices->all([
+                'customer' => $stripe_customer_id, // cus_Sa1ZjYyLEHNBkS                 
+                'limit' => 25,
+                //'status'=>'', //draft, open, paid, uncollectible, void
+                //'starting_after'=>'sub_1RQmbHRu7kEVO5cCP3Z9WAEf', // for next request
+                //'ending_before'=>'sub_1RQmbHRu7kEVO5cCP3Z9WAEf' // for previous request
+            ]);   
+            $results = $results->data ?? [];          
+        } catch(\Stripe\Exception\CardException $e) {
+            $error_message = "Stripe : A payment error occurred, {$e->getError()->message}.";
+        } catch (\Stripe\Exception\InvalidRequestException $e) {           
+            $error_message = "Stripe : An invalid request occurred, {$e->getError()->message}. ";
+        } catch (Exception $e) {          
+            $error_message = "Stripe : Another problem occurred, maybe unrelated to Stripe.";
+        }        
         
-        $pageData = compact('page','meta','header_banner','breadcrumb','results'); 
+        $pageData = compact('page','meta','header_banner','breadcrumb','results','success_message','error_message'); 
         return Inertia::render('frontend/pages/my_invoice/My_invoice', [            
             'pageData' => $pageData,            
         ]);

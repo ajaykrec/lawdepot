@@ -146,76 +146,104 @@ class MembershipController extends Controller
 
         $country = AllFunction::get_current_country();         
         $country_id = $country['country_id'] ?? '';
-
-        $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+        
+        $error_message = "";
 
         if($mode == 'subscription'){
 
-            $response = $stripe->checkout->sessions->create([           
-                'success_url' => route('membership.checkout.success'),
-                'line_items' => [
-                    [
-                        'price_data' => [
-                            'currency'=>'GBP',
-                            'product_data'=>[
-                                'name'=>$membership_name,
-                                //'description'=>$membership_description
+            try {
+
+                $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+                $response = $stripe->checkout->sessions->create([           
+                    'success_url' => route('membership.checkout.success'),
+                    'line_items' => [
+                        [
+                            'price_data' => [
+                                'currency'=>'GBP',
+                                'product_data'=>[
+                                    'name'=>$membership_name,
+                                    //'description'=>$membership_description
+                                ],
+                                'currency'=>$currency,
+                                'unit_amount'=> $membership_price*100,
+                                'recurring'=>[
+                                    'interval'=>$time_period_sufix,
+                                    'interval_count'=>$time_period,                            
+                                ]
                             ],
-                            'currency'=>$currency,
-                            'unit_amount'=> $membership_price*100,
-                            'recurring'=>[
-                                'interval'=>$time_period_sufix,
-                                'interval_count'=>$time_period,                            
-                            ]
+                            'quantity' => 1,
                         ],
-                        'quantity' => 1,
                     ],
-                ],
-                'mode' => 'subscription',
-                'subscription_data' => $subscription_data,
-                'customer'=>$stripe_customer_id,
-                //'customer_email'=>$email,
-                'metadata'=> [
-                    'guest_document_id'=> (Session::has('guest_document_id')) ? Session::get('guest_document_id') : '',
-                    'membership_id' => $membership_id,
-                    'customer_id' => $customer_id,
-                    'country_id'=> $country_id,
-                    'mode'=> $mode,
-                ]
-            ]);    
-            return Inertia::location($response->url);   
+                    'mode' => 'subscription',
+                    'subscription_data' => $subscription_data,
+                    'customer'=>$stripe_customer_id,
+                    //'customer_email'=>$email,
+                    'metadata'=> [
+                        'guest_document_id'=> (Session::has('guest_document_id')) ? Session::get('guest_document_id') : '',
+                        'membership_id' => $membership_id,
+                        'customer_id' => $customer_id,
+                        'country_id'=> $country_id,
+                        'mode'=> $mode,
+                    ]
+                ]);    
+                return Inertia::location($response->url);   
+
+            } catch(\Stripe\Exception\CardException $e) {
+                $error_message = "Stripe : A payment error occurred, {$e->getError()->message}.";
+            } catch (\Stripe\Exception\InvalidRequestException $e) {           
+                $error_message = "Stripe : An invalid request occurred, {$e->getError()->message}. ";
+            } catch (Exception $e) {          
+                $error_message = "Stripe : Another problem occurred, maybe unrelated to Stripe.";
+            }        
 
         }
         else{
-            $response = $stripe->checkout->sessions->create([           
-                'success_url' => route('membership.checkout.success'),
-                'line_items' => [
-                    [
-                        'price_data' => [
-                            'currency'=>'GBP',
-                            'product_data'=>[
-                                'name'=>$membership_name,
-                                //'description'=>$membership_description
+
+            try {
+
+                $stripe = new \Stripe\StripeClient(env('STRIPE_Secret_key'));
+                $response = $stripe->checkout->sessions->create([           
+                    'success_url' => route('membership.checkout.success'),
+                    'line_items' => [
+                        [
+                            'price_data' => [
+                                'currency'=>'GBP',
+                                'product_data'=>[
+                                    'name'=>$membership_name,
+                                    //'description'=>$membership_description
+                                ],
+                                'currency'=>$currency,
+                                'unit_amount'=> $membership_price*100,                            
                             ],
-                            'currency'=>$currency,
-                            'unit_amount'=> $membership_price*100,                            
+                            'quantity' => 1,
                         ],
-                        'quantity' => 1,
                     ],
-                ],
-                'mode' => 'payment',                
-                'customer'=>$stripe_customer_id,
-                //'customer_email'=>$email,
-                'metadata'=> [
-                    'guest_document_id'=> (Session::has('guest_document_id')) ? Session::get('guest_document_id') : '',
-                    'membership_id' => $membership_id,
-                    'customer_id' => $customer_id,
-                    'country_id'=> $country_id,
-                    'mode'=> $mode,
-                ]
-            ]);    
-            return Inertia::location($response->url);   
-        }        
+                    'mode' => 'payment',                
+                    'customer'=>$stripe_customer_id,
+                    //'customer_email'=>$email,
+                    'metadata'=> [
+                        'guest_document_id'=> (Session::has('guest_document_id')) ? Session::get('guest_document_id') : '',
+                        'membership_id' => $membership_id,
+                        'customer_id' => $customer_id,
+                        'country_id'=> $country_id,
+                        'mode'=> $mode,
+                    ]
+                ]);    
+                return Inertia::location($response->url);   
+
+            } catch(\Stripe\Exception\CardException $e) {
+                $error_message = "Stripe : A payment error occurred, {$e->getError()->message}.";
+            } catch (\Stripe\Exception\InvalidRequestException $e) {           
+                $error_message = "Stripe : An invalid request occurred, {$e->getError()->message}. ";
+            } catch (Exception $e) {          
+                $error_message = "Stripe : Another problem occurred, maybe unrelated to Stripe.";
+            }        
+                
+        }   
+        
+        if($error_message){
+            return redirect( route('membership.index') )->with(['error'=>$error_message]);
+        }
         
     }    
 

@@ -13,23 +13,24 @@ import withReactContent from 'sweetalert2-react-content'
 
 const My_invoice = () => {
 
-  const { file_storage_url, customer, common_data, pageData } = usePage().props
-
-  const [invoice_data, set_invoice_data] = useState({})    
+  const { file_storage_url, customer, common_data, pageData } = usePage().props 
+  
   const MySwal = withReactContent(Swal)
 
   const parseWithLinks = (html) =>{
-        const options = {     
-            replace: ({ name, attribs, children }) => {
-                if (name === 'a' && attribs.href) {
-                    return <Link href={attribs.href} className={attribs.class}>{domToReact(children)}</Link>;
-                }
-            }
-        }     
-        return Parser(html, options);
+      const options = {     
+          replace: ({ name, attribs, children }) => {
+              if (name === 'a' && attribs.href) {
+                  return <Link href={attribs.href} className={attribs.class}>{domToReact(children)}</Link>;
+              }
+          }
+      }     
+      return Parser(html, options);
   }   
 
   const results = pageData.results ?? []
+  const success_message = pageData.success_message ?? ""
+  const error_message = pageData.error_message ?? ""
   var start_count = 0
 
   return (
@@ -48,8 +49,31 @@ const My_invoice = () => {
                 </div>
                 <div className="col-lg-9 col-md-12 col-12">   
                     { pageData.page.content ? <>{parseWithLinks(''+pageData.page.content+'')}</> : '' }  
-                    
-                    <div className="table-responsive">                          
+
+                    {error_message &&            
+                      <div className="alert alert-danger alert-dismissible fade show">
+                        {error_message} 
+                        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={()=>{
+                          set_error_message('')
+                        }}>
+                        <span aria-hidden="true"></span>
+                        </button>        
+                      </div> 
+                    } 
+                    {success_message &&            
+                      <div className="alert alert-success alert-dismissible fade show">
+                        {success_message} 
+                        <button type="button" className="btn-close" data-bs-dismiss="alert" aria-label="Close" onClick={()=>{
+                          set_success_message('')
+                        }}>
+                        <span aria-hidden="true"></span>
+                        </button>        
+                      </div> 
+                    } 
+
+                    {
+                      !error_message &&                
+                      <div className="table-responsive">                          
                         <table className="table table-hover table-striped">
                           <thead>
                             <tr className='table-secondary'>
@@ -72,7 +96,7 @@ const My_invoice = () => {
                                 let renewal_date = (new Date(val.lines.data[0].period.end * 1000)).toUTCString() 
 
                                 let hosted_invoice_url = val.hosted_invoice_url ?? ''
-                               
+                                
                                 return(
                                   <tr key={i}>
                                     <th scope="row">{start_count}</th>                                     
@@ -113,7 +137,8 @@ const My_invoice = () => {
                             }
                           </tbody>
                         </table>
-                    </div>                    
+                      </div>
+                    }                   
                 </div>            
               </div>
           </div> 
