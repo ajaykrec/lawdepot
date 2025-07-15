@@ -43,11 +43,11 @@ function currency($amount, $currency_code){
 }
 
 function full_date_format($date){  
-    return date('j F, Y, g:i a');
+    return date('j F, Y, g:i a', strtotime($date));
 }
 
 function short_date_format($date){  
-    return date('j M, Y');
+    return date('j M, Y', strtotime($date));
 }
 
 if(!function_exists('has_permision')){

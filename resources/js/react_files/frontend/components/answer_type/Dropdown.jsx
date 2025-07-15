@@ -29,6 +29,7 @@ const Dropdown = ({propsData, parentIndex, addMoreIndex}) => {
     const { data, setData, post, processing, errors } = useForm({
         //...fields,     
     })  
+    
 
     useEffect(()=> {  
         setData(fields)
@@ -134,7 +135,9 @@ const Dropdown = ({propsData, parentIndex, addMoreIndex}) => {
                     let value = data[field_name] ?? ''
                     let style = {  
                         'display' : value == val.value   ? '' : 'none' 
-                    }    
+                    }  
+                    
+                    
                     
                     return questions.map((val2,j)=>{  
                         const answer_type = val2.answer_type

@@ -207,6 +207,7 @@ const Checkbox = ({propsData, addMoreIndex}) => {
 
         { 
           description && 
+
           <>
           <div className="card">
             <div className="card-body" style={{lineHeight:"22px"}}>
@@ -214,6 +215,7 @@ const Checkbox = ({propsData, addMoreIndex}) => {
             </div>
           </div>
           </> 
+          
         }                          
       </> 
     )

@@ -329,7 +329,7 @@ trait AllFunction {
                 ->update([$table_field => '']);         
             }          
         }
-     }
+    }
     static function send_mail($data){  
         //AllFunction::mail_with_sendgrid($data);	
         //AllFunction::mail_with_smtp($data);	
