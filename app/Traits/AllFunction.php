@@ -262,7 +262,7 @@ trait AllFunction {
         }        
         else if($width && $height){
 
-            $destination_path   = storage_path('app/public/'.$destination_path);
+            $destination_path = storage_path('app/public/'.$destination_path);
             if( !is_dir($destination_path) ){
                 mkdir($destination_path, 0777, true);
             }    
@@ -304,8 +304,17 @@ trait AllFunction {
         
         //Move Uploaded File       
         $file->storeAs($destination_path,$file_name);
-        return $file_name;
+        return $file_name;       
+     }
+     static function copy_file($data){        
+        $old_file_name      = $data['file_name'] ?? '';
+        $folder_name        = $data['destination_path'] ?? '';  
+        $destination_path   = storage_path('app/public/'.$folder_name);
+        $path_info          = pathinfo($destination_path.'/'.$old_file_name);        
+        $file_name          = microtime(). '-copy-'. '.' .$path_info['extension'];  
        
+        Storage::copy($folder_name.'/'.$old_file_name, $folder_name.'/'.$file_name);
+        return $file_name;       
      }
      static function delete_file($data) {
         $table          = $data['table'] ?? '';

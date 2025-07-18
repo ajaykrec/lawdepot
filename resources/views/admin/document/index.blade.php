@@ -102,7 +102,7 @@
                                     <th>Country</th>
                                     <th>Category</th>
                                     <th>Status</th>                                    
-                                    <th class="text-end px-5">Action</th>
+                                    <th class="text-center" style="width:20%;">Action</th>
                                 </tr>                                         
                             </thead>                            
                             <tbody>
@@ -133,9 +133,18 @@
                                                 <span class="badge rounded-pill bg-danger">In-Active</span>                                                
                                             @endif
                                         </td>
-                                        <td class="text-end">   
+                                        <td class="text-center">   
 
-                                            @if(has_permision(['document'=>'RW'])) 
+                                            @if(has_permision(['document'=>'RW']))                                            
+
+                                            <button type="button" 
+                                            class="btn btn-sm btn-primary" 
+                                            title="Copy"
+                                            id="doc-{{ $val['document_id'] }}"
+                                            onclick="copy_row({{ $val['document_id'] }})"                                                            
+                                            >Copy 
+                                            <span id="doc-spinner-{{ $val['document_id'] }}"></span>
+                                            </button>
 
                                             <a href="{{ route('document.steps.index',$val['document_id']) }}" class="btn btn-md" title="Steps">Steps ({{ count($val['steps']) }})</a>
 
@@ -209,8 +218,7 @@
         }).then(function () {
 
             var url = "{{ route('document.destroy','id') }}"
-            url = url.replace('id',id);       
-
+            url = url.replace('id',id);  
             $.ajax({
                 type: "delete",
                 headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}' },
@@ -272,6 +280,47 @@
                 
             }
         });  
+    }
+
+    const copy_row = (id) =>{ 
+
+        swal({		  
+            title				: 'Are you sure?',
+            text				: 'You want to Copy this Document',
+            type				: 'warning',
+            showCancelButton	: true,
+            confirmButtonColor  : '#3085d6',
+            cancelButtonColor	: '#d33',
+            confirmButtonText	: 'Yes, Copy it!',
+            cancelButtonText	: 'No, cancel!',
+            confirmButtonClass  : 'btn btn-success',
+            cancelButtonClass	: 'btn btn-danger',
+            buttonsStyling	: false,
+            closeOnConfirm	: false	
+        }).then(function () {
+
+            var url = "{{ route('document.copy','id') }}"
+            url = url.replace('id',id); 
+           
+            $('#doc-'+id).prop('disabled', true);
+            $('#doc-spinner-'+id).html('<i class="spinner-border spinner-border-sm" role="status"></i>') 
+
+            $.ajax({
+                type: "post",
+                headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                dataType: "json",
+                url: url, 
+                success: function(response){  
+                    if(response.status=='success'){
+                        $('#doc-'+id).prop('disabled', false);
+                        $('#doc-spinner-'+id).html('') 
+                        location.href = response.url
+                    }
+                }
+            });  
+    
+	    })	
+    
     }
     
     </script>

@@ -25,6 +25,8 @@ use App\Http\Controllers\admin\ZonesController;
 
 use App\Http\Controllers\admin\DocumentCategoryController;
 use App\Http\Controllers\admin\DocumentController;
+use App\Http\Controllers\admin\DocumentCopyController;
+
 use App\Http\Controllers\admin\DocumentStepController;
 use App\Http\Controllers\admin\DocumentFaqController;
 use App\Http\Controllers\admin\DocumentQuestionController;
@@ -77,6 +79,7 @@ Route::middleware(['auth'])->group( function(){
     
     Route::resource('/document-category',DocumentCategoryController::class);    
     Route::resource('/document',DocumentController::class);
+    Route::post('/document-copy/{parent_document_id}', [DocumentCopyController::class, 'copy_document'])->name('document.copy'); 
     Route::get('/doc-categories/{country_id}', [DocumentController::class, 'get_categories'])->name('doc.categories');   
     Route::resource('/document.steps',DocumentStepController::class)->shallow();
     Route::resource('/document.faqs',DocumentFaqController::class)->shallow();    
