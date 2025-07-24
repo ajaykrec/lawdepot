@@ -48,5 +48,7 @@
       });
   });
   </script>
+
+@include('admin.layout.modal')  
 </body>
 </html>

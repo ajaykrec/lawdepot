@@ -96,6 +96,15 @@
 
                                             @if(has_permision(['document'=>'RW']))
 
+                                            <a                                             
+                                            class="btn btn-sm btn-primary" 
+                                            title="Copy"                                            
+                                            data-bs-toggle="modal" 
+                                            href="{{ route('copy.steps.create',$val['step_id']) }}"
+                                            data-bs-target="#large_modal"                                                         
+                                            >Copy                                             
+                                            </a>
+
                                             <a href="{{ route('document.faqs.index',$val['step_id']) }}" class="btn btn-md" title="Steps">
                                                 Faqs ({{ count($val['faqs']) }})
                                             </a>

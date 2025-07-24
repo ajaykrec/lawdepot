@@ -27,7 +27,8 @@ use App\Http\Controllers\admin\DocumentCategoryController;
 use App\Http\Controllers\admin\DocumentController;
 use App\Http\Controllers\admin\DocumentCopyController;
 
-use App\Http\Controllers\admin\DocumentStepController;
+use App\Http\Controllers\admin\DocumentStepController; 
+use App\Http\Controllers\admin\DocumentStepCopyController;
 use App\Http\Controllers\admin\DocumentFaqController;
 use App\Http\Controllers\admin\DocumentQuestionController;
 use App\Http\Controllers\admin\DocumentQuestionOptionController;
@@ -81,7 +82,9 @@ Route::middleware(['auth'])->group( function(){
     Route::resource('/document',DocumentController::class);
     Route::post('/document-copy/{parent_document_id}', [DocumentCopyController::class, 'copy_document'])->name('document.copy'); 
     Route::get('/doc-categories/{country_id}', [DocumentController::class, 'get_categories'])->name('doc.categories');   
-    Route::resource('/document.steps',DocumentStepController::class)->shallow();
+    Route::resource('/document.steps',DocumentStepController::class)->shallow();  
+    Route::get('/copy-steps/{step_id}', [DocumentStepCopyController::class, 'create'])->name('copy.steps.create'); 
+    Route::post('/copy-steps/store', [DocumentStepCopyController::class, 'store'])->name('copy.steps.store'); 
     Route::resource('/document.faqs',DocumentFaqController::class)->shallow();    
     
     //Route::resource('/document.questions',DocumentQuestionController::class)->shallow();

@@ -1406,6 +1406,9 @@ form span.err{
   word-break: break-word;
   overflow-x: hidden;
 }
+.btn-close{
+  font-size: 28px;
+}
 /*!
 * ajay css [ends]
 */
