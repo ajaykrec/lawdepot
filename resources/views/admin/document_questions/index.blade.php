@@ -155,7 +155,20 @@
                                         </td>
                                         <td class="text-end">                                           
 
-                                            @if(has_permision(['document'=>'RW']))                                            
+                                            @if(has_permision(['document'=>'RW']))    
+                                            
+                                            @if($step_id)
+                                            <a                                             
+                                            class="btn btn-sm btn-primary" 
+                                            title="Copy"                                            
+                                            data-bs-toggle="modal" 
+                                            href="{{ route('copy.questions.create',$val['question_id']) }}"
+                                            data-bs-target="#large_modal"                                                         
+                                            >Copy                                             
+                                            </a>
+                                            @endif
+
+
 
                                             <a href="{{ route('document.options.index',$val['question_id']) }}" class="btn btn-md" title="Options">Options ({{ count($val['options'])}})</a>
 

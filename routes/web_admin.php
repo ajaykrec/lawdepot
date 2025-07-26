@@ -31,6 +31,7 @@ use App\Http\Controllers\admin\DocumentStepController;
 use App\Http\Controllers\admin\DocumentStepCopyController;
 use App\Http\Controllers\admin\DocumentFaqController;
 use App\Http\Controllers\admin\DocumentQuestionController;
+use App\Http\Controllers\admin\DocumentQuestionCopyController;
 use App\Http\Controllers\admin\DocumentQuestionOptionController;
 
 use App\Http\Controllers\admin\CustomerController;
@@ -89,6 +90,11 @@ Route::middleware(['auth'])->group( function(){
     
     //Route::resource('/document.questions',DocumentQuestionController::class)->shallow();
     Route::resource('/questions',DocumentQuestionController::class)->shallow();
+    Route::get('/copy-questions/{question_id}', [DocumentQuestionCopyController::class, 'create'])->name('copy.questions.create'); 
+    Route::get('/steps-of-document/{document_id}', [DocumentQuestionCopyController::class, 'steps'])->name('copy.questions.steps'); 
+    Route::post('/copy-questions/store', [DocumentQuestionCopyController::class, 'store'])->name('copy.questions.store');     
+
+
     Route::resource('/document.options',DocumentQuestionOptionController::class)->shallow();    
     Route::post('/shift-question', [DocumentQuestionController::class, 'shift_question'])->name('shift.question');   
     Route::get('/shift-step-group', [DocumentQuestionController::class, 'shift_step_group'])->name('shift.step.group');   
