@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Traits\AllFunction;
 use App\Models\Document;
 use App\Models\Document_category;
+use Illuminate\Support\Facades\DB;
 
 class DocumentController extends Controller
 {
@@ -310,19 +311,60 @@ class DocumentController extends Controller
     {
         //=== check permision
         if(!has_permision(['document'=>'RW'])){ return redirect( route('dashboard') ); }
+       
+        $document_id = $id;
+        
+        $stepArry = [];   
+        $q = DB::table('documents_step')
+        ->where('document_id',$document_id)
+        ->orderBy("step_id","asc")->get()->toArray(); 
+        $documents_step = json_decode(json_encode($q), true);
+        foreach($documents_step as $val){           
+            $stepArry[] = $val['step_id'];           
+        }        
 
-        $table = Document::find($id); 
-        $tableData = $table->toArray();
+        //=== delete documents_faq ===
+        $q = DB::table('documents_faq')        
+        ->whereIn('step_id', $stepArry)
+        ->delete(); 
 
-        //== unlink file        
+        //=== delete documents_step ===
+        $q = DB::table('documents_step')        
+        ->where('document_id',$document_id)
+        ->delete(); 
+
+        //=== delete documents_question ===
+        $q = DB::table('documents_question')        
+        ->where('document_id',$document_id)
+        ->delete(); 
+
+        //=== delete documents_question_option & it's image ===                  
+        $q = DB::table('documents_question_option')
+        ->where('document_id',$document_id)
+        ->orderBy("option_id","asc")->get()->toArray(); 
+        $result = json_decode(json_encode($q), true);
+        foreach($result as $val){
+            $delArr = array(
+            'file_path'=>'uploads/document_option',
+            'file_name'=>$val['image']
+            );
+            AllFunction::delete_file($delArr);
+        } 
+        
+        $q = DB::table('documents_question_option')        
+        ->where('document_id',$document_id)
+        ->delete(); 
+
+        //=== delete documents & it's image ===                  
+        $table = Document::find($id);         
+        $tableData = $table->toArray();  
         $delArr = array(
             'file_path'=>'uploads/document',
             'file_name'=>$tableData['image']
         );
         AllFunction::delete_file($delArr);
-        //======
-
         $table->delete();
+        //======
 
         return json_encode(array(
             'status'=>'success',

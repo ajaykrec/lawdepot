@@ -9,6 +9,7 @@ use App\Traits\AllFunction;
 use App\Models\Document;
 use App\Models\Document_category;
 use App\Models\Documents_step;
+use Illuminate\Support\Facades\DB;
 
 class DocumentStepController extends Controller
 {
@@ -223,6 +224,57 @@ class DocumentStepController extends Controller
 
         $table = Documents_step::find($step_id); 
         $document_id =  $table->document_id ?? '';  
+        $stepArry = [$step_id]; 
+
+        $questionIdArry = [];      
+        $q = DB::table('documents_question')
+        ->select('question_id','option_id')
+        ->where('document_id',$document_id)
+        ->where('step_id',$step_id)
+        ->orderBy("question_id","asc")->get()->toArray(); 
+        $result = json_decode(json_encode($q), true);
+        foreach($result as $val){
+            $array = DocumentStepController::get_option_questions($val['question_id']);           
+            foreach($array as $k=>$v){               
+                $questionIdArry[] = $v;               
+            }
+        }    
+       
+        
+        //=== delete documents_question_option & it's image ===                
+        $optionIdArry = [];  
+        $q = DB::table('documents_question_option')
+        ->where('document_id',$document_id)
+        ->whereIn('question_id', $questionIdArry)
+        ->orderBy("option_id","asc")->get()->toArray(); 
+        $result = json_decode(json_encode($q), true);
+        foreach($result as $val){   
+
+            $optionIdArry[] = $val['option_id'];
+
+            $delArr = array(
+            'file_path'=>'uploads/document_option',
+            'file_name'=>$val['image']
+            );
+            AllFunction::delete_file($delArr);
+        } 
+
+        $q = DB::table('documents_question_option')        
+        ->whereIn('option_id',$optionIdArry)
+        ->delete(); 
+
+        //=== delete documents_question ===
+        $q = DB::table('documents_question')        
+        ->whereIn('question_id',$questionIdArry)
+        ->delete(); 
+
+        //=== delete documents_faq ===        
+        $q = DB::table('documents_faq')        
+        ->whereIn('step_id', $stepArry)
+        ->delete(); 
+
+        //=== delete documents_step ===  
+        $table = Documents_step::find($step_id);        
         $table->delete();
 
         return json_encode(array(
@@ -230,5 +282,29 @@ class DocumentStepController extends Controller
             'url'=>route('document.steps.index',$document_id)
         ));
         exit;
+    }
+    public function get_option_questions($question_id, $returnArr = array() ){
+
+        $returnArr[] = $question_id;        
+
+        $q = DB::table('documents_question_option')
+        ->select('option_id','question_id')
+        ->where('question_id',$question_id)
+        ->orderBy('option_id','asc')
+        ->get()->toArray();         
+        $o_result = json_decode(json_encode($q), true);
+        foreach($o_result as $val){
+            
+            $q = DB::table('documents_question')->select('question_id','option_id')
+            ->where('option_id',$val['option_id'])
+            ->orderBy('question_id','asc')
+            ->get()->toArray(); 
+            $q_result = json_decode(json_encode($q), true);
+            foreach($q_result as $val2){               
+                $returnArr = DocumentStepController::get_option_questions($val2['question_id'],$returnArr);            
+            } 
+            
+        }        
+        return $returnArr;
     }
 }

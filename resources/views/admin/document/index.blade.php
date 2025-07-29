@@ -102,7 +102,7 @@
                                     <th>Country</th>
                                     <th>Category</th>
                                     <th>Status</th>                                    
-                                    <th class="text-center" style="width:20%;">Action</th>
+                                    <th class="text-center" style="width:15%;">Action</th>
                                 </tr>                                         
                             </thead>                            
                             <tbody>
@@ -148,13 +148,19 @@
 
                                             <a href="{{ route('document.steps.index',$val['document_id']) }}" class="btn btn-md" title="Steps">Steps ({{ count($val['steps']) }})</a>
 
+                                            <br />
+
                                             <a href="{{ route('document.edit',$val['document_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
 
-                                            @if( count($val['steps']) < 1)
+                                            <!-- @if( count($val['steps']) < 1)
                                             <button type="button" class="btn btn-md delete"                                           
                                             onclick="delete_row({{ $val['document_id'] }})"                
                                             title="Delete"><i class="bi bi-trash text-danger"></i></button>
-                                            @endif
+                                            @endif -->
+
+                                            <button type="button" class="btn btn-md delete"                                           
+                                            onclick="delete_row({{ $val['document_id'] }})"                
+                                            title="Delete"><i class="bi bi-trash text-danger"></i></button>
 
                                             @endif
                                         </td>

@@ -174,11 +174,11 @@
 
                                             <a href="{{ route('questions.edit',$val['question_id']) }}" class="btn btn-md" title="Edit"><i class="bi bi-pencil-square text-success"></i></a>
                                             
-                                                @if( count($val['options']) < 1)
-                                                <button type="button" class="btn btn-md delete"                                            
-                                                onclick="delete_row({{ $val['question_id'] }})"                      
-                                                title="Delete"><i class="bi bi-trash text-danger"></i></button>
-                                                @endif
+                                               
+                                            <button type="button" class="btn btn-md delete"                                            
+                                            onclick="delete_row({{ $val['question_id'] }})"                      
+                                            title="Delete"><i class="bi bi-trash text-danger"></i></button>
+                                               
 
                                             @endif
                                         </td>
