@@ -129,6 +129,9 @@ class DocumentQuestionOptionController extends Controller
             'text'=>'Add Option',
             'breadcrumb'=>[]]
         );
+
+        $documents = Document::query()->select('document_id','name')->where('document_id','!=',$document_id)->orderBy("name", "asc")->get()->toArray();  
+       
         
         //=== url start====
         $URL = DocumentQuestionOptionController::get_url($step_id,$option_id);
@@ -144,7 +147,7 @@ class DocumentQuestionOptionController extends Controller
         $height = $this->height;  
         $table_names = $this->table_names;
 
-        $data = compact('meta','width','height','table_names','step_id','option_id','document_id','question_id','url','breadcrumb'); 
+        $data = compact('meta','width','height','table_names','step_id','option_id','document_id','question_id','url','breadcrumb','documents'); 
         return view('admin.document_questions_option.create')->with($data);
     }
 
@@ -238,6 +241,7 @@ class DocumentQuestionOptionController extends Controller
             $table->placeholder     = $request['placeholder'] ?? '';
             $table->title           = $request['title'] ?? '';
             $table->value           = $value ?? '';
+            $table->linked_document = $request['linked_document'] ?? 0;
             $table->quick_info      = $request['quick_info'] ?? '';            
             $table->is_table_value  = $request['is_table_value'] ?? 0;
             $table->is_sub_question = $request['is_sub_question'] ?? 0;           
@@ -274,7 +278,9 @@ class DocumentQuestionOptionController extends Controller
             'position'=>'edit',
             'text'=>'Edit option',
             'breadcrumb'=>[]]
-        );        
+        );   
+        
+        $documents = Document::query()->select('document_id','name')->where('document_id','!=',$document_id)->orderBy("name", "asc")->get()->toArray();  
         
         //=== url start====
         $URL = DocumentQuestionOptionController::get_url($step_id,$option_id);
@@ -289,7 +295,7 @@ class DocumentQuestionOptionController extends Controller
         $width  = $this->width; 
         $height = $this->height;  
         $table_names = $this->table_names;
-        $data = compact('meta','data','width','height','table_names','document_id','step_id','option_id','question_id','id','url','breadcrumb');         
+        $data = compact('meta','data','width','height','table_names','document_id','step_id','option_id','question_id','id','url','breadcrumb','documents');         
         return view('admin.document_questions_option.edit')->with($data);
     }
     
@@ -361,8 +367,9 @@ class DocumentQuestionOptionController extends Controller
             $table->question_id     = $question_id;           
             $table->image           = $image;
             $table->placeholder     = $request['placeholder'] ?? '';
-            $table->title           = $request['title'] ?? '';
+            $table->title           = $request['title'] ?? ''; 
             $table->value           = $value;
+            $table->linked_document = $request['linked_document'] ?? 0;
             $table->quick_info      = $request['quick_info'] ?? '';            
             $table->is_table_value  = $request['is_table_value'] ?? 0;
             $table->is_sub_question = $request['is_sub_question'] ?? 0;           

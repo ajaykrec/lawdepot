@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('placeholder',255)->nullable();   
             $table->string('title',200)->nullable();   
             $table->string('value',200)->nullable(); 
+            $table->integer('linked_document');      
             $table->text('quick_info')->nullable();              
             $table->tinyInteger('is_table_value')->comment('0:No, 1:Yes');  
             $table->tinyInteger('is_sub_question')->comment('0:No, 1:Yes');                      

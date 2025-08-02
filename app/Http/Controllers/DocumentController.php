@@ -103,6 +103,7 @@ class DocumentController extends Controller
             }
         }  
         $questions = array_values($questions);  
+        //dd($questions);
         
         $fields = AllFunction::get_document_fields($questions,'field_name'); 
         $session_fields = (Session::has('fields')) ? Session::get('fields') : '';   

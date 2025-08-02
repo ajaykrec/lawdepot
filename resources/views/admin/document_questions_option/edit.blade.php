@@ -194,7 +194,22 @@
                 {{$message}}
                 @enderror 
                 </span>      
-                </div>               
+                </div>   
+                
+                <div class="my-3">
+                <label class="form-label">link to other document</label>
+                <select class="form-select" name="linked_document">   
+                    <option value="0"></option>
+                    @foreach($documents as $val)                 
+                    <option value="{{ $val['document_id'] }}" {{ (old('linked_document', $data['linked_document'] ?? '')==$val['document_id']) ? 'selected' : '' }}>{{ $val['name'] }}</option>
+                    @endforeach
+                </select>     
+                <span class="err" id="error-linked_document">
+                @error('linked_document')
+                {{$message}}
+                @enderror 
+                </span>                 
+                </div>
                 
                 <div class="mb-3">  
                 <button type="submit" class="btn btn-primary">Submit</button>

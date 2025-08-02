@@ -797,6 +797,13 @@ trait AllFunction {
         $result = json_decode(json_encode($result), true);
         foreach($result as $val){
             $is_table_value = $val['is_table_value'] ?? '';
+            $linked_document = $val['linked_document'] ?? 0;           
+
+            $dddoc = DB::table('documents')->select('slug')->where('document_id',$linked_document)->first(); 
+            $dddoc = json_decode(json_encode($dddoc), true); 
+            $linked_document_slug = $dddoc['slug'] ?? ''; 
+
+
             if($is_table_value == 1){
                 $table       = $val['value'] ?? '';                
                 $document_id = $val['document_id'] ?? '';
@@ -813,6 +820,7 @@ trait AllFunction {
                     'option_id'=>$val['option_id'],  
                 ]);
                 $val['quick_info'] = trim($val['quick_info']);
+                $val['linked_document_slug'] = $linked_document_slug;
                 $options[$val['option_id']] = $val;
             }
             

@@ -52,7 +52,7 @@ const Radio = ({propsData, addMoreIndex}) => {
     const label_text = propsData.label
     const question_text = propsData.question 
     const quick_info = propsData.quick_info  
-    const description = propsData.description      
+    const description = propsData.description     
 
     const addMoreIndexCount = (typeof addMoreIndex !== "undefined" && addMoreIndex !== '') ? addMoreIndex : ''
     const field_name = (addMoreIndexCount !=='') ? `${propsData.field_name}_${addMoreIndexCount}` : propsData.field_name
@@ -96,7 +96,11 @@ const Radio = ({propsData, addMoreIndex}) => {
         } 
         
         { 
-            options.map((val,i)=>{                                  
+            options.map((val,i)=>{   
+              
+               const linked_document = val.linked_document ?? 0   
+               const linked_document_slug = val.linked_document_slug ?? ''  
+
                 return(                                    
                 <div 
                 key={i} 
@@ -123,17 +127,38 @@ const Radio = ({propsData, addMoreIndex}) => {
                     else{
                       $('.'+option_class_prefix+val.question_id).hide()               
                     }
+
                   }}
-                  />                      
-                  <label htmlFor={`${radio_id_prefix}${val.option_id}`}>
+                  />  
+
                   {
-                    val.image &&
-                    <>
-                    <img src={`${file_storage_url}/uploads/document_option/`+val.image} className="radio-img" /><br />
-                    </>
-                  }                                  
-                  { val.title }                           
-                  </label>
+                      linked_document > 0 ?
+                      <>
+                      <Link href={ route('doc.index', linked_document_slug) }>
+                      <label htmlFor={`${radio_id_prefix}${val.option_id}`}>
+                      {
+                        val.image &&
+                        <>
+                        <img src={`${file_storage_url}/uploads/document_option/`+val.image} className="radio-img" /><br />
+                        </>
+                      }                                  
+                      { val.title }                           
+                      </label>
+                      </Link>
+                      </>
+                      :
+                      <label htmlFor={`${radio_id_prefix}${val.option_id}`}>
+                      {
+                        val.image &&
+                        <>
+                        <img src={`${file_storage_url}/uploads/document_option/`+val.image} className="radio-img" /><br />
+                        </>
+                      }                                  
+                      { val.title }                           
+                      </label>
+
+                  }                    
+                  
                 </div>                                                             
                 )
             })                                                               
